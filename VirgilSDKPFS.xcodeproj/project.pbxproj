@@ -10,6 +10,10 @@
 		420C52F41EEEC3B8005DD456 /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
 		420C52FB1EEEC3B8005DD456 /* VirgilSDKPFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 420C52ED1EEEC3B7005DD456 /* VirgilSDKPFS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		420D0B161EEEC70C002A9C22 /* VirgilSDKPFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */; };
+		420D0B1A1EEEC8F6002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
+		420D0B1B1EEEC8F6002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
+		420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
+		420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,6 +32,8 @@
 		420C52EE1EEEC3B7005DD456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		420C52F31EEEC3B8005DD456 /* VirgilSDKPFSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirgilSDKPFSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirgilSDKPFSTests.swift; sourceTree = "<group>"; };
+		420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilCrypto.framework; path = Carthage/Build/iOS/VirgilCrypto.framework; sourceTree = "<group>"; };
+		420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDK.framework; path = Carthage/Build/iOS/VirgilSDK.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				420D0B1A1EEEC8F6002A9C22 /* VirgilCrypto.framework in Frameworks */,
+				420D0B1B1EEEC8F6002A9C22 /* VirgilSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +50,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */,
+				420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */,
 				420C52F41EEEC3B8005DD456 /* VirgilSDKPFS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -55,6 +65,7 @@
 				420C52EC1EEEC3B7005DD456 /* VirgilSDKPFS */,
 				420D0B141EEEC70C002A9C22 /* Tests */,
 				420C52EB1EEEC3B7005DD456 /* Products */,
+				420D0B171EEEC8F6002A9C22 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -82,6 +93,15 @@
 				420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		420D0B171EEEC8F6002A9C22 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */,
+				420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -123,6 +143,7 @@
 				420C52EF1EEEC3B8005DD456 /* Sources */,
 				420C52F01EEEC3B8005DD456 /* Frameworks */,
 				420C52F11EEEC3B8005DD456 /* Resources */,
+				420D0B1E1EEEC91C002A9C22 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -188,6 +209,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		420D0B1E1EEEC91C002A9C22 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		420C52E51EEEC3B7005DD456 /* Sources */ = {
@@ -325,6 +364,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = VirgilSDKPFS/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -343,6 +386,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = VirgilSDKPFS/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -356,6 +403,10 @@
 		420C53021EEEC3B8005DD456 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -366,6 +417,10 @@
 		420C53031EEEC3B8005DD456 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
