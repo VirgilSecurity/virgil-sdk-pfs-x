@@ -14,6 +14,19 @@
 		420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */; };
+		420D0B691EEFE3E6002A9C22 /* VSSDeserializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D0B671EEFE3E6002A9C22 /* VSSDeserializable.h */; };
+		420D0B6A1EEFE3E6002A9C22 /* VSSSerializable.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D0B681EEFE3E6002A9C22 /* VSSSerializable.h */; };
+		420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B6B1EEFE3F5002A9C22 /* Deserializable.swift */; };
+		420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B6D1EEFE4BB002A9C22 /* Serializable.swift */; };
+		420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B6F1EEFEC71002A9C22 /* BootstrapCardsResponse.swift */; };
+		420D0B721EEFEDE5002A9C22 /* CreateLtcRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B711EEFEDE5002A9C22 /* CreateLtcRequest.swift */; };
+		420D0B741EEFEE74002A9C22 /* CreateLtcResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B731EEFEE74002A9C22 /* CreateLtcResponse.swift */; };
+		420D0B761EEFEECB002A9C22 /* UploadOtcRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B751EEFEECB002A9C22 /* UploadOtcRequest.swift */; };
+		420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B771EEFEEFF002A9C22 /* UploadOtcResponse.swift */; };
+		420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B791EEFEF77002A9C22 /* OtcCountResponse.swift */; };
+		420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B7B1EEFF068002A9C22 /* CredentialsResponse.swift */; };
+		420D0B7E1EF0001C002A9C22 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B7D1EF0001C002A9C22 /* CredentialsRequest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,6 +47,19 @@
 		420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilCrypto.framework; path = Carthage/Build/iOS/VirgilCrypto.framework; sourceTree = "<group>"; };
 		420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDK.framework; path = Carthage/Build/iOS/VirgilSDK.framework; sourceTree = "<group>"; };
 		420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirgilSDKPFS.h; sourceTree = "<group>"; };
+		420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BootstrapCardsRequest.swift; sourceTree = "<group>"; };
+		420D0B671EEFE3E6002A9C22 /* VSSDeserializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSSDeserializable.h; sourceTree = "<group>"; };
+		420D0B681EEFE3E6002A9C22 /* VSSSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSSSerializable.h; sourceTree = "<group>"; };
+		420D0B6B1EEFE3F5002A9C22 /* Deserializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deserializable.swift; sourceTree = "<group>"; };
+		420D0B6D1EEFE4BB002A9C22 /* Serializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Serializable.swift; sourceTree = "<group>"; };
+		420D0B6F1EEFEC71002A9C22 /* BootstrapCardsResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BootstrapCardsResponse.swift; sourceTree = "<group>"; };
+		420D0B711EEFEDE5002A9C22 /* CreateLtcRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateLtcRequest.swift; sourceTree = "<group>"; };
+		420D0B731EEFEE74002A9C22 /* CreateLtcResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateLtcResponse.swift; sourceTree = "<group>"; };
+		420D0B751EEFEECB002A9C22 /* UploadOtcRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadOtcRequest.swift; sourceTree = "<group>"; };
+		420D0B771EEFEEFF002A9C22 /* UploadOtcResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadOtcResponse.swift; sourceTree = "<group>"; };
+		420D0B791EEFEF77002A9C22 /* OtcCountResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcCountResponse.swift; sourceTree = "<group>"; };
+		420D0B7B1EEFF068002A9C22 /* CredentialsResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsResponse.swift; sourceTree = "<group>"; };
+		420D0B7D1EF0001C002A9C22 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,9 +133,62 @@
 		420D0B271EEEE4DC002A9C22 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				420D0B531EEFE0A8002A9C22 /* Client */,
 				420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */,
 			);
 			path = Source;
+			sourceTree = "<group>";
+		};
+		420D0B531EEFE0A8002A9C22 /* Client */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B541EEFE0BD002A9C22 /* Models */,
+			);
+			path = Client;
+			sourceTree = "<group>";
+		};
+		420D0B541EEFE0BD002A9C22 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B661EEFE3E6002A9C22 /* Protocols */,
+				420D0B571EEFE271002A9C22 /* Requests */,
+				420D0B561EEFE268002A9C22 /* Responses */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		420D0B561EEFE268002A9C22 /* Responses */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B6F1EEFEC71002A9C22 /* BootstrapCardsResponse.swift */,
+				420D0B731EEFEE74002A9C22 /* CreateLtcResponse.swift */,
+				420D0B771EEFEEFF002A9C22 /* UploadOtcResponse.swift */,
+				420D0B791EEFEF77002A9C22 /* OtcCountResponse.swift */,
+				420D0B7B1EEFF068002A9C22 /* CredentialsResponse.swift */,
+			);
+			path = Responses;
+			sourceTree = "<group>";
+		};
+		420D0B571EEFE271002A9C22 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */,
+				420D0B711EEFEDE5002A9C22 /* CreateLtcRequest.swift */,
+				420D0B751EEFEECB002A9C22 /* UploadOtcRequest.swift */,
+				420D0B7D1EF0001C002A9C22 /* CredentialsRequest.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
+		420D0B661EEFE3E6002A9C22 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B671EEFE3E6002A9C22 /* VSSDeserializable.h */,
+				420D0B681EEFE3E6002A9C22 /* VSSSerializable.h */,
+				420D0B6B1EEFE3F5002A9C22 /* Deserializable.swift */,
+				420D0B6D1EEFE4BB002A9C22 /* Serializable.swift */,
+			);
+			path = Protocols;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +199,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */,
+				420D0B691EEFE3E6002A9C22 /* VSSDeserializable.h in Headers */,
+				420D0B6A1EEFE3E6002A9C22 /* VSSSerializable.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,6 +256,7 @@
 				TargetAttributes = {
 					420C52E91EEEC3B7005DD456 = {
 						CreatedOnToolsVersion = 8.3.3;
+						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 					};
 					420C52F21EEEC3B8005DD456 = {
@@ -241,6 +323,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				420D0B741EEFEE74002A9C22 /* CreateLtcResponse.swift in Sources */,
+				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
+				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
+				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
+				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
+				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
+				420D0B761EEFEECB002A9C22 /* UploadOtcRequest.swift in Sources */,
+				420D0B721EEFEDE5002A9C22 /* CreateLtcRequest.swift in Sources */,
+				420D0B7E1EF0001C002A9C22 /* CredentialsRequest.swift in Sources */,
+				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
+				420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +460,7 @@
 		420C52FF1EEEC3B8005DD456 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -382,6 +476,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -389,6 +484,7 @@
 		420C53001EEEC3B8005DD456 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -411,6 +507,7 @@
 		420C53021EEEC3B8005DD456 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -425,6 +522,7 @@
 		420C53031EEEC3B8005DD456 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
