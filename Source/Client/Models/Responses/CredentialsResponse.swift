@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct CredentialsResponse {
+final class CredentialsResponse: NSObject, Deserializable {
     let ic: String
     let ltc: String
     let otc: String
@@ -18,10 +18,8 @@ struct CredentialsResponse {
         self.ltc = ltc
         self.otc = otc
     }
-}
-
-extension CredentialsResponse: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let dictionary = dictionary as? [String: Any] else {
             return nil
         }
@@ -36,7 +34,7 @@ extension CredentialsResponse: Deserializable {
     }
 }
 
-struct CredentialsCollectionResponse {
+final class CredentialsCollectionResponse: NSObject, Deserializable {
     let ltc: String
     let otc: [String]
     
@@ -44,10 +42,8 @@ struct CredentialsCollectionResponse {
         self.ltc = ltc
         self.otc = otc
     }
-}
-
-extension CredentialsCollectionResponse: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let dictionary = dictionary as? [String: Any] else {
             return nil
         }

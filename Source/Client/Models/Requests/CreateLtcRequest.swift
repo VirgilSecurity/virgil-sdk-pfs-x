@@ -8,8 +8,12 @@
 
 import Foundation
 
-struct CreateLtcRequest {
+final class CreateLtcRequest: NSObject {
     let ltc: String
+    
+    init(ltc: String) {
+        self.ltc = ltc
+    }
 }
 
 extension CreateLtcRequest: Serializable {

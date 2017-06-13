@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct BootstrapCardsResponse {
+class BootstrapCardsResponse: NSObject, Deserializable {
     let ltc: String
     let otc: [String]
     
@@ -16,10 +16,8 @@ struct BootstrapCardsResponse {
         self.ltc = ltc
         self.otc = otc
     }
-}
-
-extension BootstrapCardsRequest: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let dictionary = dictionary as? [String: Any] else {
             return nil
         }

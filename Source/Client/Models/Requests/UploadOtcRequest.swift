@@ -8,8 +8,12 @@
 
 import Foundation
 
-struct UploadOtcRequest {
+final class UploadOtcRequest: NSObject {
     let otc: [String]
+    
+    init(otc: [String]) {
+        self.otc = otc
+    }
 }
 
 extension UploadOtcRequest: Serializable {

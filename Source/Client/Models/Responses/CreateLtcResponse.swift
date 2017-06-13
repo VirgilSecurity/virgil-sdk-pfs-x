@@ -8,16 +8,14 @@
 
 import Foundation
 
-struct CreateLtcResponse {
+final class CreateLtcResponse: NSObject, Deserializable {
     let ltc: String
     
     fileprivate init(ltc: String) {
         self.ltc = ltc
     }
-}
-
-extension CreateLtcResponse: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let ltc = dictionary as? String else {
             return nil
         }

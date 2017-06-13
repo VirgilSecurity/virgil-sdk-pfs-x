@@ -8,16 +8,14 @@
 
 import Foundation
 
-struct UploadOtcResponse {
+final class UploadOtcResponse: NSObject, Deserializable {
     let otc: [String]
     
     fileprivate init(otc: [String]) {
         self.otc = otc
     }
-}
-
-extension UploadOtcResponse: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let otc = dictionary as? [String] else {
             return nil
         }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct OtcCountResponse {
+final class OtcCountResponse: NSObject, Deserializable {
     let active: Int
     let exhausted: Int
     
@@ -16,10 +16,8 @@ struct OtcCountResponse {
         self.active = active
         self.exhausted = exhausted
     }
-}
-
-extension OtcCountResponse: Deserializable {
-    init?(dictionary: Any) {
+    
+    required convenience init?(dictionary: Any) {
         guard let dictionary = dictionary as? [String: Any] else {
             return nil
         }

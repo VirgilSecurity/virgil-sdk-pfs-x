@@ -27,6 +27,7 @@
 		420D0B7E1EF0001C002A9C22 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B7D1EF0001C002A9C22 /* CredentialsRequest.swift */; };
 		420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B821EF0086D002A9C22 /* PFSBaseHTTPRequest.swift */; };
 		420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B851EF008E4002A9C22 /* PFSError.swift */; };
+		420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B8C1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		420D0B7D1EF0001C002A9C22 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 		420D0B821EF0086D002A9C22 /* PFSBaseHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PFSBaseHTTPRequest.swift; sourceTree = "<group>"; };
 		420D0B851EF008E4002A9C22 /* PFSError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PFSError.swift; sourceTree = "<group>"; };
+		420D0B8C1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BootstrapCardsHTTPRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,6 +213,7 @@
 			isa = PBXGroup;
 			children = (
 				420D0B821EF0086D002A9C22 /* PFSBaseHTTPRequest.swift */,
+				420D0B8C1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift */,
 			);
 			path = PFS;
 			sourceTree = "<group>";
@@ -355,6 +358,7 @@
 			files = (
 				420D0B741EEFEE74002A9C22 /* CreateLtcResponse.swift in Sources */,
 				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
+				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
 				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,

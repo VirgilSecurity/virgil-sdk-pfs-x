@@ -8,8 +8,12 @@
 
 import Foundation
 
-struct CredentialsRequest {
+final class CredentialsRequest: NSObject {
     let identities: [String]
+    
+    init(identities: [String]) {
+        self.identities = identities
+    }
 }
 
 extension CredentialsRequest: Serializable {
