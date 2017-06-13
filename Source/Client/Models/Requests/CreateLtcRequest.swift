@@ -10,10 +10,6 @@ import Foundation
 
 struct CreateLtcRequest {
     let ltc: String
-    
-    init(ltc: String) {
-        self.ltc = ltc
-    }
 }
 
 extension CreateLtcRequest: Serializable {

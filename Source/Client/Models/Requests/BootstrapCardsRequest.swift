@@ -11,11 +11,6 @@ import Foundation
 struct BootstrapCardsRequest {
     let ltc: String
     let otc: [String]
-    
-    init(ltc: String, otc: [String]) {
-        self.ltc = ltc
-        self.otc = otc
-    }
 }
 
 extension BootstrapCardsRequest: Serializable {

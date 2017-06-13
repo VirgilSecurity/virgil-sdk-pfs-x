@@ -10,10 +10,6 @@ import Foundation
 
 struct CredentialsRequest {
     let identities: [String]
-    
-    init(identities: [String]) {
-        self.identities = identities
-    }
 }
 
 extension CredentialsRequest: Serializable {

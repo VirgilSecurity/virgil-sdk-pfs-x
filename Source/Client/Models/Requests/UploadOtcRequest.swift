@@ -10,10 +10,6 @@ import Foundation
 
 struct UploadOtcRequest {
     let otc: [String]
-    
-    init(otc: [String]) {
-        self.otc = otc
-    }
 }
 
 extension UploadOtcRequest: Serializable {
