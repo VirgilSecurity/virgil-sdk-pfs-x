@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		420C52F41EEEC3B8005DD456 /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
-		420C52FB1EEEC3B8005DD456 /* VirgilSDKPFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 420C52ED1EEEC3B7005DD456 /* VirgilSDKPFS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		420D0B161EEEC70C002A9C22 /* VirgilSDKPFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */; };
 		420D0B1A1EEEC8F6002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D0B1B1EEEC8F6002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
+		420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,12 +28,12 @@
 
 /* Begin PBXFileReference section */
 		420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirgilSDKPFS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		420C52ED1EEEC3B7005DD456 /* VirgilSDKPFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirgilSDKPFS.h; sourceTree = "<group>"; };
 		420C52EE1EEEC3B7005DD456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		420C52F31EEEC3B8005DD456 /* VirgilSDKPFSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirgilSDKPFSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirgilSDKPFSTests.swift; sourceTree = "<group>"; };
 		420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilCrypto.framework; path = Carthage/Build/iOS/VirgilCrypto.framework; sourceTree = "<group>"; };
 		420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDK.framework; path = Carthage/Build/iOS/VirgilSDK.framework; sourceTree = "<group>"; };
+		420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirgilSDKPFS.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				420C52EC1EEEC3B7005DD456 /* VirgilSDKPFS */,
+				420D0B271EEEE4DC002A9C22 /* Source */,
 				420D0B141EEEC70C002A9C22 /* Tests */,
 				420C52EB1EEEC3B7005DD456 /* Products */,
 				420D0B171EEEC8F6002A9C22 /* Frameworks */,
@@ -81,7 +82,6 @@
 		420C52EC1EEEC3B7005DD456 /* VirgilSDKPFS */ = {
 			isa = PBXGroup;
 			children = (
-				420C52ED1EEEC3B7005DD456 /* VirgilSDKPFS.h */,
 				420C52EE1EEEC3B7005DD456 /* Info.plist */,
 			);
 			path = VirgilSDKPFS;
@@ -104,6 +104,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		420D0B271EEEE4DC002A9C22 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -111,7 +119,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				420C52FB1EEEC3B8005DD456 /* VirgilSDKPFS.h in Headers */,
+				420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
