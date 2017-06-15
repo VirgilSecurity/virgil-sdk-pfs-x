@@ -10,9 +10,20 @@ import Foundation
 import VirgilSDK
 
 @objc(VSPClient) public class Client: VSSBaseClient {
+    public private(set) var serviceConfig: ServiceConfig
+    
+    public init(serviceConfig: ServiceConfig) {
+        self.serviceConfig = serviceConfig
+        
+        super.init()
+    }
+    
+    public convenience init(token: String) {
+        self.init(serviceConfig: ServiceConfig(token: token))
+    }
+    
     public func createEntry(forRecipientWithCardId cardId: String, longTermCard: VSSCreateUserCardRequest, oneTimeCards: [VSSCreateUserCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
-        // FIXME
-        let context = VSSHTTPRequestContext(serviceUrl: URL(string: "")!)
+        let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let request = BootstrapCardsRequest(ltc: longTermCard.exportData(), otc: oneTimeCards.map({ $0.exportData() }))
         let httpRequest = BootstrapCardsHTTPRequest(context: context, recipientId: cardId, request: request)
         
@@ -42,7 +53,6 @@ import VirgilSDK
                     return
                 }
                 
-                // FIXME: add validation
                 completion(ltc, otc, nil)
                 return
             }
@@ -58,8 +68,7 @@ import VirgilSDK
     }
     
     public func createLongTermCard(forRecipientWithCardId cardId: String, longTermCard: VSSCreateUserCardRequest, completion: @escaping ((VSSCard?, Error?)->())) {
-        // FIXME
-        let context = VSSHTTPRequestContext(serviceUrl: URL(string: "")!)
+        let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = CreateLtcHTTPRequest(context: context, recipientId: cardId, ltc: longTermCard.exportData())
         
         let handler = { (request: VSSHTTPRequest) in
@@ -79,7 +88,6 @@ import VirgilSDK
                 return
             }
             
-            // FIXME: add validation
             completion(ltc, nil)
             return
         }
@@ -90,8 +98,7 @@ import VirgilSDK
     }
 
     public func createOneTimeCards(forRecipientWithCardId cardId: String, oneTimeCards: [VSSCreateUserCardRequest], completion: @escaping (([VSSCard]?, Error?)->())) {
-        // FIXME
-        let context = VSSHTTPRequestContext(serviceUrl: URL(string: "")!)
+        let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = UploadOtcHTTPRequest(context: context, recipientId: cardId, otc: oneTimeCards.map({ $0.exportData() }))
         
         let handler = { (request: VSSHTTPRequest) in
@@ -115,7 +122,6 @@ import VirgilSDK
                     return card
                 })
                 
-                // FIXME: add validation
                 completion(otc, nil)
                 return
             }

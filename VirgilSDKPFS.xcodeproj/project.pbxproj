@@ -30,6 +30,7 @@
 		420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14E91EF29C87002A9C22 /* UploadOtcHTTPRequest.swift */; };
 		420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14EB1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift */; };
 		420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14ED1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift */; };
+		420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,7 @@
 		420D14E91EF29C87002A9C22 /* UploadOtcHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadOtcHTTPRequest.swift; sourceTree = "<group>"; };
 		420D14EB1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcCountHTTPRequest.swift; sourceTree = "<group>"; };
 		420D14ED1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsHTTPRequest.swift; sourceTree = "<group>"; };
+		420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ServiceConfig.swift; path = Source/Client/ServiceConfig.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +153,7 @@
 				420D0B7F1EF0082A002A9C22 /* Networking */,
 				420D0B541EEFE0BD002A9C22 /* Models */,
 				420D14E31EF28B33002A9C22 /* Client.swift */,
+				420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */,
 			);
 			path = Client;
 			sourceTree = "<group>";
@@ -371,6 +374,7 @@
 				420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
+				420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */,
 				420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
