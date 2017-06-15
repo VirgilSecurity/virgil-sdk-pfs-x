@@ -6,3 +6,4 @@
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
+#import "VSPCreateEphemeralCardRequest.h"

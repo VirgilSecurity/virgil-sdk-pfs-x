@@ -31,6 +31,9 @@
 		420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14EB1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift */; };
 		420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14ED1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift */; };
 		420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */; };
+		420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */; };
+		420D14FF1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +71,9 @@
 		420D14EB1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcCountHTTPRequest.swift; sourceTree = "<group>"; };
 		420D14ED1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsHTTPRequest.swift; sourceTree = "<group>"; };
 		420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ServiceConfig.swift; path = Source/Client/ServiceConfig.swift; sourceTree = SOURCE_ROOT; };
+		420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EphemeralCardValidator.swift; sourceTree = "<group>"; };
+		420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSPCreateEphemeralCardRequest.h; sourceTree = "<group>"; };
+		420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPCreateEphemeralCardRequest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +160,7 @@
 				420D0B541EEFE0BD002A9C22 /* Models */,
 				420D14E31EF28B33002A9C22 /* Client.swift */,
 				420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */,
+				420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */,
 			);
 			path = Client;
 			sourceTree = "<group>";
@@ -184,6 +191,8 @@
 		420D0B571EEFE271002A9C22 /* Requests */ = {
 			isa = PBXGroup;
 			children = (
+				420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */,
+				420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */,
 				420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */,
 			);
 			path = Requests;
@@ -242,6 +251,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				420D14FF1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h in Headers */,
 				420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -366,6 +376,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				420D0B741EEFEE74002A9C22 /* CreateLtcResponse.swift in Sources */,
+				420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */,
 				420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */,
 				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
@@ -379,6 +390,7 @@
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
+				420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
 				420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */,
