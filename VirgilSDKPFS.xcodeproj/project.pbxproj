@@ -28,6 +28,7 @@
 		420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B821EF0086D002A9C22 /* PFSBaseHTTPRequest.swift */; };
 		420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B851EF008E4002A9C22 /* PFSError.swift */; };
 		420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B8C1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift */; };
+		420D14E41EF28B33002A9C22 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14E31EF28B33002A9C22 /* Client.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		420D0B821EF0086D002A9C22 /* PFSBaseHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PFSBaseHTTPRequest.swift; sourceTree = "<group>"; };
 		420D0B851EF008E4002A9C22 /* PFSError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PFSError.swift; sourceTree = "<group>"; };
 		420D0B8C1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BootstrapCardsHTTPRequest.swift; sourceTree = "<group>"; };
+		420D14E31EF28B33002A9C22 /* Client.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 			children = (
 				420D0B7F1EF0082A002A9C22 /* Networking */,
 				420D0B541EEFE0BD002A9C22 /* Models */,
+				420D14E31EF28B33002A9C22 /* Client.swift */,
 			);
 			path = Client;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
+				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
 				420D0B761EEFEECB002A9C22 /* UploadOtcRequest.swift in Sources */,
 				420D0B721EEFEDE5002A9C22 /* CreateLtcRequest.swift in Sources */,
