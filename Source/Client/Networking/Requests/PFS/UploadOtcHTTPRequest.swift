@@ -1,30 +1,29 @@
 //
-//  BootstrapCardsHTTPRequest.swift
+//  UploadOtcHTTPRequest.swift
 //  VirgilSDKPFS
 //
-//  Created by Oleksandr Deundiak on 6/13/17.
+//  Created by Oleksandr Deundiak on 6/15/17.
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
 import Foundation
 import VirgilSDK
 
-class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
+class UploadOtcHTTPRequest: PFSBaseHTTPRequest {
     let recipientId: String
+    let otc: [String]
     
-    private(set) var bootstrapCardsResponse: BootstrapCardsResponse?
+    private(set) var uploadOtcResponse: UploadOtcResponse?
     
-    init(context: VSSHTTPRequestContext, recipientId: String, request: BootstrapCardsRequest) {
+    init(context: VSSHTTPRequestContext, recipientId: String, otc: [String]) {
         self.recipientId = recipientId
+        self.otc = otc
         
         super.init(context: context)
-        
-        self.setRequestMethod(.PUT)
-        self.setRequestBodyWith(request.serialize())
     }
     
     override var methodPath: String {
-        return "recipient/" + self.recipientId
+        return "recipient/" + self.recipientId + "/actions/push-otcs"
     }
     
     override func handleResponse(_ candidate: NSObject?) -> Error? {
@@ -37,9 +36,9 @@ class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
         guard error == nil else {
             return error
         }
-
         
-        self.bootstrapCardsResponse = BootstrapCardsResponse(dictionary: candidate)
+        
+        self.uploadOtcResponse = UploadOtcResponse(dictionary: candidate)
         
         return nil
     }

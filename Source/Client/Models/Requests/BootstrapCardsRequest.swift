@@ -14,10 +14,12 @@ struct BootstrapCardsRequest {
 }
 
 extension BootstrapCardsRequest: Serializable {
-    func serialize() -> Any {
-        return [
+    func serialize() -> NSObject {
+        let dict: NSDictionary = [
             "long_time_card": self.ltc,
             "one_time_cards": self.otc
         ]
+        
+        return dict
     }
 }

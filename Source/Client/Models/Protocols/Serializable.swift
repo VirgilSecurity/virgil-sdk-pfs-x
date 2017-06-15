@@ -9,5 +9,5 @@
 import Foundation
 
 protocol Serializable {
-    func serialize() -> Any
+    func serialize() -> NSObject
 }

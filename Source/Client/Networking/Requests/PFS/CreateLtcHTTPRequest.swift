@@ -1,30 +1,29 @@
 //
-//  BootstrapCardsHTTPRequest.swift
+//  CreateLtcHTTPRequest.swift
 //  VirgilSDKPFS
 //
-//  Created by Oleksandr Deundiak on 6/13/17.
+//  Created by Oleksandr Deundiak on 6/15/17.
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
 import Foundation
 import VirgilSDK
 
-class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
+class CreateLtcHTTPRequest: PFSBaseHTTPRequest {
     let recipientId: String
+    let ltc: String
     
-    private(set) var bootstrapCardsResponse: BootstrapCardsResponse?
+    private(set) var createLtcResponse: CreateLtcResponse?
     
-    init(context: VSSHTTPRequestContext, recipientId: String, request: BootstrapCardsRequest) {
+    init(context: VSSHTTPRequestContext, recipientId: String, ltc: String) {
         self.recipientId = recipientId
+        self.ltc = ltc
         
         super.init(context: context)
-        
-        self.setRequestMethod(.PUT)
-        self.setRequestBodyWith(request.serialize())
     }
     
     override var methodPath: String {
-        return "recipient/" + self.recipientId
+        return "recipient/" + self.recipientId + "/actions/push-ltc"
     }
     
     override func handleResponse(_ candidate: NSObject?) -> Error? {
@@ -37,9 +36,9 @@ class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
         guard error == nil else {
             return error
         }
-
         
-        self.bootstrapCardsResponse = BootstrapCardsResponse(dictionary: candidate)
+        
+        self.createLtcResponse = CreateLtcResponse(dictionary: candidate)
         
         return nil
     }

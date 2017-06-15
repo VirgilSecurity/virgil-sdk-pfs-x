@@ -1,30 +1,29 @@
 //
-//  BootstrapCardsHTTPRequest.swift
+//  OtcCountHTTPRequest.swift
 //  VirgilSDKPFS
 //
-//  Created by Oleksandr Deundiak on 6/13/17.
+//  Created by Oleksandr Deundiak on 6/15/17.
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
 import Foundation
 import VirgilSDK
 
-class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
+class OtcCountHTTPRequest: PFSBaseHTTPRequest {
     let recipientId: String
     
-    private(set) var bootstrapCardsResponse: BootstrapCardsResponse?
+    private(set) var otcCountResponse: OtcCountResponse?
     
-    init(context: VSSHTTPRequestContext, recipientId: String, request: BootstrapCardsRequest) {
+    init(context: VSSHTTPRequestContext, recipientId: String) {
         self.recipientId = recipientId
         
         super.init(context: context)
         
-        self.setRequestMethod(.PUT)
-        self.setRequestBodyWith(request.serialize())
+        self.setRequestMethod(.GET)
     }
     
     override var methodPath: String {
-        return "recipient/" + self.recipientId
+        return "recipient/" + self.recipientId + "/actions/count-otcs"
     }
     
     override func handleResponse(_ candidate: NSObject?) -> Error? {
@@ -37,9 +36,9 @@ class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
         guard error == nil else {
             return error
         }
-
         
-        self.bootstrapCardsResponse = BootstrapCardsResponse(dictionary: candidate)
+        
+        self.otcCountResponse = OtcCountResponse(dictionary: candidate)
         
         return nil
     }
