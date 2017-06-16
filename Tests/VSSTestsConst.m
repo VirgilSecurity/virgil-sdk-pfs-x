@@ -33,10 +33,6 @@
     return @STRINGIZE2(APPLICATION_ID);
 }
 
-- (NSString *)mailinatorToken {
-    return @STRINGIZE2(MAILINATOR_TOKEN);
-}
-
 - (NSURL *)cardsServiceURL {
     NSString *str = [@STRINGIZE2(CARDS_SERVICE_URL) stringByReplacingOccurrencesOfString:@"\"" withString:@""];
     return [[NSURL alloc] initWithString:str];
