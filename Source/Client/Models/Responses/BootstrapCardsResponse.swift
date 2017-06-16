@@ -9,10 +9,10 @@
 import Foundation
 
 class BootstrapCardsResponse: NSObject, Deserializable {
-    let ltc: String
-    let otc: [String]
+    let ltc: [AnyHashable: Any]
+    let otc: [[AnyHashable: Any]]
     
-    fileprivate init(ltc: String, otc: [String]) {
+    fileprivate init(ltc: [AnyHashable: Any], otc: [[AnyHashable: Any]]) {
         self.ltc = ltc
         self.otc = otc
     }
@@ -22,8 +22,8 @@ class BootstrapCardsResponse: NSObject, Deserializable {
             return nil
         }
         
-        guard let ltc = dictionary["long_time_card"] as? String,
-            let otc = dictionary["one_time_cards"] as? [String] else {
+        guard let ltc = dictionary["long_time_card"] as? [AnyHashable: Any],
+            let otc = dictionary["one_time_cards"] as? [[AnyHashable: Any]] else {
                 return nil
         }
         

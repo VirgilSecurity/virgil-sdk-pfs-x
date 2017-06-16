@@ -9,8 +9,8 @@
 import Foundation
 
 struct BootstrapCardsRequest {
-    let ltc: String
-    let otc: [String]
+    let ltc: [AnyHashable: Any]
+    let otc: [[AnyHashable: Any]]
 }
 
 extension BootstrapCardsRequest: Serializable {
