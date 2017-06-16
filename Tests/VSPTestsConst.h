@@ -1,5 +1,5 @@
 //
-//  VSSTestsConst.h
+//  VSPTestsConst.h
 //  VirgilSDK
 //
 //  Created by Oleksandr Deundiak on 10/24/16.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 //In order to make this work, substitute appropriate values
-@interface VSSTestsConst : NSObject
+@interface VSPTestsConst : NSObject
 
 @property (nonatomic, readonly) NSString * __nonnull applicationToken;
 @property (nonatomic, readonly) NSString * __nonnull applicationPrivateKeyBase64;
@@ -19,6 +19,7 @@
 
 @property (nonatomic, readonly) NSURL * __nonnull cardsServiceURL;
 @property (nonatomic, readonly) NSURL * __nonnull cardsServiceROURL;
+@property (nonatomic, readonly) NSURL * __nonnull registrationAuthorityURL;
 @property (nonatomic, readonly) NSURL * __nonnull pfsServiceURL;
 
 @end

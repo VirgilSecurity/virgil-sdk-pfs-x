@@ -7,8 +7,20 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "VSPTestsConst.h"
+#import "VSPTestUtils.h"
+@import VirgilSDK;
+@import VirgilSDKPFS;
+
+static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 
 @interface VirgilSDKPFS_iOS_Tests : XCTestCase
+
+@property (nonatomic) VSSClient *virgilClient;
+@property (nonatomic) VSPClient *client;
+@property (nonatomic) id<VSSCrypto> crypto;
+@property (nonatomic) VSPTestsConst *consts;
+@property (nonatomic) VSPTestUtils *utils;
 
 @end
 
@@ -17,6 +29,29 @@
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    self.consts = [[VSPTestsConst alloc] init];
+    self.utils = [[VSPTestUtils alloc] init];
+    self.crypto = [[VSSCrypto alloc] init];
+    
+    VSSServiceConfig *virgilConfig = [VSSServiceConfig serviceConfigWithToken:self.consts.applicationToken];
+    
+    VSSCardValidator *validator = [[VSSCardValidator alloc] initWithCrypto:self.crypto];
+    VSSPrivateKey *privateKey = [self.crypto importPrivateKeyFromData:[[NSData alloc] initWithBase64EncodedString:self.consts.applicationPrivateKeyBase64 options:0]  withPassword:self.consts.applicationPrivateKeyPassword];
+    VSSPublicKey *publicKey = [self.crypto extractPublicKeyFromPrivateKey:privateKey];
+    NSData *publicKeyData = [self.crypto exportPublicKey:publicKey];
+    XCTAssert([validator addVerifierWithId:self.consts.applicationId publicKeyData:publicKeyData]);
+    validator.useVirgilServiceVerifiers = NO;
+    virgilConfig.cardValidator = validator;
+    
+    virgilConfig.cardsServiceURL = self.consts.cardsServiceURL;
+    virgilConfig.cardsServiceROURL = self.consts.cardsServiceROURL;
+    virgilConfig.registrationAuthorityURL = self.consts.registrationAuthorityURL;
+    
+    self.virgilClient = [[VSSClient alloc] initWithServiceConfig:virgilConfig];
+
+    VSPServiceConfig *config = [[VSPServiceConfig alloc] initWithToken:self.consts.applicationToken ephemeralServiceURL:self.consts.pfsServiceURL];
+    self.client = [[VSPClient alloc] initWithServiceConfig:config];
 }
 
 - (void)tearDown {
@@ -24,20 +59,25 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
-
 - (void)test001_CreateEntry {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Entry should be created"];
     
+    NSUInteger numberOfRequests = 1;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        XCTAssert(error == nil);
+        [ex fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
 }
 
 @end

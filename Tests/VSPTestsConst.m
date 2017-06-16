@@ -1,5 +1,5 @@
 //
-//  VSSTestsConst.m
+//  VSPTestsConst.m
 //  VirgilSDK
 //
 //  Created by Oleksandr Deundiak on 10/24/16.
@@ -9,9 +9,9 @@
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
 
-#import "VSSTestsConst.h"
+#import "VSPTestsConst.h"
 
-@implementation VSSTestsConst
+@implementation VSPTestsConst
 
 - (NSString *)applicationToken {
     return @STRINGIZE2(APPLICATION_TOKEN);
@@ -43,8 +43,13 @@
     return [[NSURL alloc] initWithString:str];
 }
 
+- (NSURL *)registrationAuthorityURL {
+    NSString *str = [@STRINGIZE2(REGISTRATION_AUTHORITY_URL) stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+    return [[NSURL alloc] initWithString:str];
+}
+
 - (NSURL *)pfsServiceURL {
-    NSString *str = [@STRINGIZE2(PFS_SERVICE_RO_URL) stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+    NSString *str = [@STRINGIZE2(PFS_URL) stringByReplacingOccurrencesOfString:@"\"" withString:@""];
     return [[NSURL alloc] initWithString:str];
 }
 
