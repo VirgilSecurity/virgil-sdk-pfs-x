@@ -7,12 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		420C52F41EEEC3B8005DD456 /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
-		420D0B161EEEC70C002A9C22 /* VirgilSDKPFSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */; };
 		420D0B1A1EEEC8F6002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D0B1B1EEEC8F6002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
-		420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
-		420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D0B521EEFE050002A9C22 /* VirgilSDKPFS.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */; };
 		420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D0B6B1EEFE3F5002A9C22 /* Deserializable.swift */; };
@@ -34,23 +30,24 @@
 		420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */; };
 		420D14FF1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */; };
+		420D15181EF3FB10002A9C22 /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
+		420D15241EF3FBE8002A9C22 /* VirgilSDKPFS_iOS_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */; };
+		420D15251EF3FBEE002A9C22 /* VSSTestsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D15201EF3FBD9002A9C22 /* VSSTestsConst.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		420C52F51EEEC3B8005DD456 /* PBXContainerItemProxy */ = {
+		420D15191EF3FB10002A9C22 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 420C52E11EEEC3B7005DD456 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 420C52E91EEEC3B7005DD456;
-			remoteInfo = VirgilSDKPFS;
+			remoteInfo = "VirgilSDKPFS iOS";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirgilSDKPFS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		420C52EE1EEEC3B7005DD456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		420C52F31EEEC3B8005DD456 /* VirgilSDKPFSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirgilSDKPFSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirgilSDKPFSTests.swift; sourceTree = "<group>"; };
 		420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilCrypto.framework; path = Carthage/Build/iOS/VirgilCrypto.framework; sourceTree = "<group>"; };
 		420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDK.framework; path = Carthage/Build/iOS/VirgilSDK.framework; sourceTree = "<group>"; };
 		420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VirgilSDKPFS.h; sourceTree = "<group>"; };
@@ -74,6 +71,10 @@
 		420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EphemeralCardValidator.swift; sourceTree = "<group>"; };
 		420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSPCreateEphemeralCardRequest.h; sourceTree = "<group>"; };
 		420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPCreateEphemeralCardRequest.m; sourceTree = "<group>"; };
+		420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "VirgilSDKPFS iOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VirgilSDKPFS_iOS_Tests.m; sourceTree = "<group>"; };
+		420D151F1EF3FBD9002A9C22 /* VSSTestsConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSSTestsConst.h; sourceTree = "<group>"; };
+		420D15201EF3FBD9002A9C22 /* VSSTestsConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSSTestsConst.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,13 +87,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		420C52F01EEEC3B8005DD456 /* Frameworks */ = {
+		420D15101EF3FB10002A9C22 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				420D0B1C1EEEC917002A9C22 /* VirgilCrypto.framework in Frameworks */,
-				420D0B1D1EEEC917002A9C22 /* VirgilSDK.framework in Frameworks */,
-				420C52F41EEEC3B8005DD456 /* VirgilSDKPFS.framework in Frameworks */,
+				420D15181EF3FB10002A9C22 /* VirgilSDKPFS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,7 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */,
-				420C52F31EEEC3B8005DD456 /* VirgilSDKPFSTests.xctest */,
+				420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -130,7 +129,9 @@
 		420D0B141EEEC70C002A9C22 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				420D0B151EEEC70C002A9C22 /* VirgilSDKPFSTests.swift */,
+				420D151F1EF3FBD9002A9C22 /* VSSTestsConst.h */,
+				420D15201EF3FBD9002A9C22 /* VSSTestsConst.m */,
+				420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -147,8 +148,8 @@
 		420D0B271EEEE4DC002A9C22 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				420D0B531EEFE0A8002A9C22 /* Client */,
 				420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */,
+				420D0B531EEFE0A8002A9C22 /* Client */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -259,9 +260,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		420C52E91EEEC3B7005DD456 /* VirgilSDKPFS */ = {
+		420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 420C52FE1EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS" */;
+			buildConfigurationList = 420C52FE1EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS iOS" */;
 			buildPhases = (
 				420C52E51EEEC3B7005DD456 /* Sources */,
 				420C52E61EEEC3B7005DD456 /* Frameworks */,
@@ -272,28 +273,27 @@
 			);
 			dependencies = (
 			);
-			name = VirgilSDKPFS;
+			name = "VirgilSDKPFS iOS";
 			productName = VirgilSDKPFS;
 			productReference = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		420C52F21EEEC3B8005DD456 /* VirgilSDKPFSTests */ = {
+		420D15121EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 420C53011EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFSTests" */;
+			buildConfigurationList = 420D151B1EF3FB10002A9C22 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS iOS Tests" */;
 			buildPhases = (
-				420C52EF1EEEC3B8005DD456 /* Sources */,
-				420C52F01EEEC3B8005DD456 /* Frameworks */,
-				420C52F11EEEC3B8005DD456 /* Resources */,
-				420D0B1E1EEEC91C002A9C22 /* ShellScript */,
+				420D150F1EF3FB10002A9C22 /* Sources */,
+				420D15101EF3FB10002A9C22 /* Frameworks */,
+				420D15111EF3FB10002A9C22 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				420C52F61EEEC3B8005DD456 /* PBXTargetDependency */,
+				420D151A1EF3FB10002A9C22 /* PBXTargetDependency */,
 			);
-			name = VirgilSDKPFSTests;
-			productName = VirgilSDKPFSTests;
-			productReference = 420C52F31EEEC3B8005DD456 /* VirgilSDKPFSTests.xctest */;
+			name = "VirgilSDKPFS iOS Tests";
+			productName = "VirgilSDKPFS iOS Tests";
+			productReference = 420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -311,7 +311,7 @@
 						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 					};
-					420C52F21EEEC3B8005DD456 = {
+					420D15121EF3FB10002A9C22 = {
 						CreatedOnToolsVersion = 8.3.3;
 						ProvisioningStyle = Automatic;
 					};
@@ -329,8 +329,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				420C52E91EEEC3B7005DD456 /* VirgilSDKPFS */,
-				420C52F21EEEC3B8005DD456 /* VirgilSDKPFSTests */,
+				420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */,
+				420D15121EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -343,7 +343,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		420C52F11EEEC3B8005DD456 /* Resources */ = {
+		420D15111EF3FB10002A9C22 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -351,24 +351,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		420D0B1E1EEEC91C002A9C22 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		420C52E51EEEC3B7005DD456 /* Sources */ = {
@@ -397,21 +379,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		420C52EF1EEEC3B8005DD456 /* Sources */ = {
+		420D150F1EF3FB10002A9C22 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				420D0B161EEEC70C002A9C22 /* VirgilSDKPFSTests.swift in Sources */,
+				420D15251EF3FBEE002A9C22 /* VSSTestsConst.m in Sources */,
+				420D15241EF3FBE8002A9C22 /* VirgilSDKPFS_iOS_Tests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		420C52F61EEEC3B8005DD456 /* PBXTargetDependency */ = {
+		420D151A1EF3FB10002A9C22 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 420C52E91EEEC3B7005DD456 /* VirgilSDKPFS */;
-			targetProxy = 420C52F51EEEC3B8005DD456 /* PBXContainerItemProxy */;
+			target = 420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */;
+			targetProxy = 420D15191EF3FB10002A9C22 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -534,7 +517,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFS;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = VirgilSDKPFS;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -558,39 +541,31 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFS;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = VirgilSDKPFS;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
-		420C53021EEEC3B8005DD456 /* Debug */ = {
+		420D151C1EF3FB10002A9C22 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
-		420C53031EEEC3B8005DD456 /* Release */ = {
+		420D151D1EF3FB10002A9C22 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-				);
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSTests;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -606,7 +581,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		420C52FE1EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS" */ = {
+		420C52FE1EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				420C52FF1EEEC3B8005DD456 /* Debug */,
@@ -615,14 +590,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		420C53011EEEC3B8005DD456 /* Build configuration list for PBXNativeTarget "VirgilSDKPFSTests" */ = {
+		420D151B1EF3FB10002A9C22 /* Build configuration list for PBXNativeTarget "VirgilSDKPFS iOS Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				420C53021EEEC3B8005DD456 /* Debug */,
-				420C53031EEEC3B8005DD456 /* Release */,
+				420D151C1EF3FB10002A9C22 /* Debug */,
+				420D151D1EF3FB10002A9C22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

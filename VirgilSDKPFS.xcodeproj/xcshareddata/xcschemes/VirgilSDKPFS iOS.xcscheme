@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "420C52E91EEEC3B7005DD456"
                BuildableName = "VirgilSDKPFS.framework"
-               BlueprintName = "VirgilSDKPFS"
+               BlueprintName = "VirgilSDKPFS iOS"
                ReferencedContainer = "container:VirgilSDKPFS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "420C52F21EEEC3B8005DD456"
-               BuildableName = "VirgilSDKPFSTests.xctest"
-               BlueprintName = "VirgilSDKPFSTests"
+               BlueprintIdentifier = "420D15121EF3FB10002A9C22"
+               BuildableName = "VirgilSDKPFS iOS Tests.xctest"
+               BlueprintName = "VirgilSDKPFS iOS Tests"
                ReferencedContainer = "container:VirgilSDKPFS.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -44,7 +44,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "420C52E91EEEC3B7005DD456"
             BuildableName = "VirgilSDKPFS.framework"
-            BlueprintName = "VirgilSDKPFS"
+            BlueprintName = "VirgilSDKPFS iOS"
             ReferencedContainer = "container:VirgilSDKPFS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,7 +66,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "420C52E91EEEC3B7005DD456"
             BuildableName = "VirgilSDKPFS.framework"
-            BlueprintName = "VirgilSDKPFS"
+            BlueprintName = "VirgilSDKPFS iOS"
             ReferencedContainer = "container:VirgilSDKPFS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -84,7 +84,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "420C52E91EEEC3B7005DD456"
             BuildableName = "VirgilSDKPFS.framework"
-            BlueprintName = "VirgilSDKPFS"
+            BlueprintName = "VirgilSDKPFS iOS"
             ReferencedContainer = "container:VirgilSDKPFS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
