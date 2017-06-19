@@ -62,7 +62,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 - (void)test001_CreateEntry {
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Entry should be created"];
     
-    NSUInteger numberOfRequests = 1;
+    NSUInteger numberOfRequests = 2;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
@@ -71,7 +71,128 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
         XCTAssert(error == nil);
-        [ex fulfill];
+    
+        VSPCreateEphemeralCardRequest *longTermCardRequest = [self.utils instantiateEphemeralCreateCardRequestsWithKeyPair:nil ltc:YES identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        NSUInteger numberOfCards = 50;
+        NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+            XCTAssert(error == nil);
+            XCTAssert(longTermCardRequest != nil);
+            XCTAssert(oneTimeCards != nil);
+            XCTAssert(oneTimeCards.count == numberOfCards);
+            
+            for (int i = 0; i < oneTimeCards.count; i++) {
+                XCTAssert(oneTimeCards[i] != nil);
+            }
+            
+            [ex fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test002_CreateLongTermCard {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Long-term card should be created"];
+    
+    NSUInteger numberOfRequests = 2;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        XCTAssert(error == nil);
+        
+        VSPCreateEphemeralCardRequest *longTermCardRequest = [self.utils instantiateEphemeralCreateCardRequestsWithKeyPair:nil ltc:YES identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        [self.client createLongTermCardForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest completion:^(VSSCard *longTermCard, NSError *error) {
+            XCTAssert(error == nil);
+            XCTAssert(longTermCardRequest != nil);
+            
+            [ex fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test003_CreateOneTimeCards {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. One-time cards should be created"];
+    
+    NSUInteger numberOfRequests = 2;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        XCTAssert(error == nil);
+        
+        NSUInteger numberOfCards = 50;
+        NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        [self.client createOneTimeCardsForRecipientWithCardId:card.identifier oneTimeCardsRequests:oneTimeCards completion:^(NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+            XCTAssert(error == nil);
+            XCTAssert(oneTimeCards != nil);
+            XCTAssert(oneTimeCards.count == numberOfCards);
+            
+            for (int i = 0; i < oneTimeCards.count; i++) {
+                XCTAssert(oneTimeCards[i] != nil);
+            }
+            
+            [ex fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test004_CreateEntry {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Entry should be created"];
+    
+    NSUInteger numberOfRequests = 2;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+//    self.client 
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        XCTAssert(error == nil);
+        
+        VSPCreateEphemeralCardRequest *longTermCardRequest = [self.utils instantiateEphemeralCreateCardRequestsWithKeyPair:nil ltc:YES identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        NSUInteger numberOfCards = 100;
+        NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+            XCTAssert(error == nil);
+            XCTAssert(longTermCardRequest != nil);
+            XCTAssert(oneTimeCards != nil);
+            XCTAssert(oneTimeCards.count == numberOfCards);
+            
+            for (int i = 0; i < oneTimeCards.count; i++) {
+                XCTAssert(oneTimeCards[i] != nil);
+            }
+            
+            [ex fulfill];
+        }];
     }];
     
     [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {

@@ -17,10 +17,9 @@ class PFSBaseHTTPRequest: VSSHTTPJSONRequest {
         
         if let candidate = candidate,
             let pfsError = PFSError(dictionary: candidate) {
-                return pfsError
+                return pfsError.nsError
         }
         
         return nil
     }
-    
 }

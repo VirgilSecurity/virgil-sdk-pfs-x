@@ -8,6 +8,8 @@
 
 import Foundation
 
+public let kVSPVirgilPFSServiceErrorDomain = "VSPVirgilPFSServiceErrorDomain"
+
 struct PFSError {
     let code: ErrorCode?
     
@@ -40,6 +42,12 @@ struct PFSError {
         }
         
         self.code = code
+    }
+    
+    var nsError: NSError {
+        let descr = self.message
+        
+        return NSError(domain: kVSPVirgilPFSServiceErrorDomain, code: self.code?.rawValue ?? 0, userInfo: [NSLocalizedDescriptionKey: descr])
     }
 }
 

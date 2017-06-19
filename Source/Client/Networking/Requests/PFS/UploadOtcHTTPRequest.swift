@@ -11,15 +11,14 @@ import VirgilSDK
 
 class UploadOtcHTTPRequest: PFSBaseHTTPRequest {
     let recipientId: String
-    let otc: [String]
     
     private(set) var uploadOtcResponse: UploadOtcResponse?
     
-    init(context: VSSHTTPRequestContext, recipientId: String, otc: [String]) {
+    init(context: VSSHTTPRequestContext, recipientId: String, otc: [[AnyHashable: Any]]) {
         self.recipientId = recipientId
-        self.otc = otc
         
         super.init(context: context)
+        self.setRequestBodyWith(otc as NSObject)
     }
     
     override var methodPath: String {

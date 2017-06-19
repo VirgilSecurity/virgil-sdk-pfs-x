@@ -9,14 +9,14 @@
 import Foundation
 
 final class CreateLtcResponse: NSObject, Deserializable {
-    let ltc: String
+    let ltc: [AnyHashable: Any]
     
-    fileprivate init(ltc: String) {
+    fileprivate init(ltc: [AnyHashable: Any]) {
         self.ltc = ltc
     }
     
     required convenience init?(dictionary: Any) {
-        guard let ltc = dictionary as? String else {
+        guard let ltc = dictionary as? [AnyHashable: Any] else {
             return nil
         }
         

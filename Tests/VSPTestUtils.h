@@ -9,12 +9,16 @@
 #import "VSPTestsConst.h"
 
 @import VirgilSDK;
+@import VirgilSDKPFS;
 
 @interface VSPTestUtils : NSObject
 
 @property (nonatomic) VSSCrypto * __nonnull crypto;
 @property (nonatomic) VSPTestsConst * __nonnull consts;
 
-- (VSSCreateCardRequest * __nonnull)instantiateCreateCardRequestWithKeyPair:(VSSKeyPair * __nullable)keyPair;
+- (VSPCreateEphemeralCardRequest * __nonnull)instantiateEphemeralCreateCardRequestsWithKeyPair:(VSSKeyPair * __nullable)keyPair ltc:(BOOL)ltc identityCardId:(NSString * __nonnull)identityCardId identityPrivateKey:(VSSPrivateKey * __nonnull)identityPrivateKey;
+- (NSArray<VSPCreateEphemeralCardRequest *> * __nonnull)instantiateMultipleEphemeralCreateCardRequestsForNumber:(NSUInteger)number identityCardId:(NSString * __nonnull)identityCardId identityPrivateKey:(VSSPrivateKey * __nonnull)identityPrivateKey;;
+
+- (VSSCreateUserCardRequest * __nonnull)instantiateCreateCardRequestWithKeyPair:(VSSKeyPair * __nullable)keyPair;
 
 @end

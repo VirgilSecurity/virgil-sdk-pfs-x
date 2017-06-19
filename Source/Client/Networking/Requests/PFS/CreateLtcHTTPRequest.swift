@@ -11,15 +11,14 @@ import VirgilSDK
 
 class CreateLtcHTTPRequest: PFSBaseHTTPRequest {
     let recipientId: String
-    let ltc: String
     
     private(set) var createLtcResponse: CreateLtcResponse?
     
-    init(context: VSSHTTPRequestContext, recipientId: String, ltc: String) {
+    init(context: VSSHTTPRequestContext, recipientId: String, ltc: [AnyHashable: Any]) {
         self.recipientId = recipientId
-        self.ltc = ltc
         
         super.init(context: context)
+        self.setRequestBodyWith(ltc as NSObject)
     }
     
     override var methodPath: String {

@@ -37,7 +37,6 @@ class BootstrapCardsHTTPRequest: PFSBaseHTTPRequest {
         guard error == nil else {
             return error
         }
-
         
         self.bootstrapCardsResponse = BootstrapCardsResponse(dictionary: candidate)
         
