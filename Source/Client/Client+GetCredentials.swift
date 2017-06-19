@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import VirgilSDK
 
 extension Client {
     public func getCredentials(forIdentities identities: [String], completion: @escaping (([Credentials]?, Error?)->())) {

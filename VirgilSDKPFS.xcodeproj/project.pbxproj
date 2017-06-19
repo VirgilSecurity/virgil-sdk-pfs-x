@@ -39,6 +39,8 @@
 		425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */; };
 		425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */; };
 		425E082E1EF8231900A74C29 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* Credentials.swift */; };
+		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
+		425E08321EF824E300A74C29 /* CardsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsInfo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -86,6 +88,8 @@
 		425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+CreatingCards.swift"; sourceTree = "<group>"; };
 		425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+GetCredentials.swift"; sourceTree = "<group>"; };
 		425E082D1EF8231900A74C29 /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
+		425E082F1EF8248500A74C29 /* Client+Info.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+Info.swift"; sourceTree = "<group>"; };
+		425E08311EF824E300A74C29 /* CardsInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsInfo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +180,7 @@
 				420D0B541EEFE0BD002A9C22 /* Models */,
 				420D14E31EF28B33002A9C22 /* Client.swift */,
 				425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */,
+				425E082F1EF8248500A74C29 /* Client+Info.swift */,
 				425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */,
 				420D14F41EF2C6A0002A9C22 /* ServiceConfig.swift */,
 				420D14F61EF2CF6A002A9C22 /* EphemeralCardValidator.swift */,
@@ -191,6 +196,7 @@
 				420D0B571EEFE271002A9C22 /* Requests */,
 				420D0B561EEFE268002A9C22 /* Responses */,
 				425E082D1EF8231900A74C29 /* Credentials.swift */,
+				425E08311EF824E300A74C29 /* CardsInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -398,12 +404,14 @@
 				420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */,
 				420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */,
 				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
+				425E08301EF8248500A74C29 /* Client+Info.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
 				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
 				420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */,
 				425E082E1EF8231900A74C29 /* Credentials.swift in Sources */,
+				425E08321EF824E300A74C29 /* CardsInfo.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
 				420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */,

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import VirgilSDK
 
 extension Client {
     public func createEntry(forRecipientWithCardId cardId: String, longTermCardRequest: VSPCreateEphemeralCardRequest, oneTimeCardsRequests: [VSPCreateEphemeralCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
