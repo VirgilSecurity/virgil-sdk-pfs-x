@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 class CredentialsHTTPRequest: PFSBaseHTTPRequest {
-    private(set) var credentialsResponse: CredentialsResponse?
+    private(set) var credentialsResponse: CredentialsCollectionResponse?
     
     init(context: VSSHTTPRequestContext, identities: [String]) {
         super.init(context: context)
@@ -35,7 +35,7 @@ class CredentialsHTTPRequest: PFSBaseHTTPRequest {
         }
         
         
-        self.credentialsResponse = CredentialsResponse(dictionary: candidate)
+        self.credentialsResponse = CredentialsCollectionResponse(dictionary: candidate)
         
         return nil
     }

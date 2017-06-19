@@ -9,11 +9,11 @@
 import Foundation
 
 final class CredentialsResponse: NSObject, Deserializable {
-    let ic: String
-    let ltc: String
-    let otc: String
+    let ic: [AnyHashable: Any]
+    let ltc: [AnyHashable: Any]
+    let otc: [AnyHashable: Any]
     
-    fileprivate init(ic: String, ltc: String, otc: String) {
+    fileprivate init(ic: [AnyHashable: Any], ltc: [AnyHashable: Any], otc: [AnyHashable: Any]) {
         self.ic = ic
         self.ltc = ltc
         self.otc = otc
@@ -24,9 +24,9 @@ final class CredentialsResponse: NSObject, Deserializable {
             return nil
         }
         
-        guard let ic = dictionary["identity_card"] as? String,
-            let ltc = dictionary["long_time_card"] as? String,
-            let otc = dictionary["one_time_cards"] as? String else {
+        guard let ic = dictionary["identity_card"] as? [AnyHashable: Any],
+            let ltc = dictionary["long_time_card"] as? [AnyHashable: Any],
+            let otc = dictionary["one_time_cards"] as? [AnyHashable: Any] else {
                 return nil
         }
         
@@ -35,24 +35,28 @@ final class CredentialsResponse: NSObject, Deserializable {
 }
 
 final class CredentialsCollectionResponse: NSObject, Deserializable {
-    let ltc: String
-    let otc: [String]
+    let credentials: [CredentialsResponse]
     
-    fileprivate init(ltc: String, otc: [String]) {
-        self.ltc = ltc
-        self.otc = otc
+    fileprivate init(credentials: [CredentialsResponse]) {
+        self.credentials = credentials
     }
     
     required convenience init?(dictionary: Any) {
-        guard let dictionary = dictionary as? [String: Any] else {
+        guard let dictionary = dictionary as? [[AnyHashable: Any]] else {
             return nil
         }
         
-        guard let ltc = dictionary["long_time_card"] as? String,
-            let otc = dictionary["one_time_cards"] as? [String] else {
+        var credentialsArr: [CredentialsResponse] = []
+        credentialsArr.reserveCapacity(dictionary.count)
+        
+        for dict in dictionary {
+            guard let credentials = CredentialsResponse(dictionary: dict) else {
                 return nil
+            }
+            
+            credentialsArr.append(credentials)
         }
         
-        self.init(ltc: ltc, otc: otc)
+        self.init(credentials: credentialsArr)
     }
 }

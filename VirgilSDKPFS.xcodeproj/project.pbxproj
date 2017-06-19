@@ -38,6 +38,7 @@
 		420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D152A1EF40F24002A9C22 /* VSPTestUtils.m */; };
 		425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */; };
 		425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */; };
+		425E082E1EF8231900A74C29 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* Credentials.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 		420D152A1EF40F24002A9C22 /* VSPTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestUtils.m; sourceTree = "<group>"; };
 		425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+CreatingCards.swift"; sourceTree = "<group>"; };
 		425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+GetCredentials.swift"; sourceTree = "<group>"; };
+		425E082D1EF8231900A74C29 /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +190,7 @@
 				420D0B661EEFE3E6002A9C22 /* Protocols */,
 				420D0B571EEFE271002A9C22 /* Requests */,
 				420D0B561EEFE268002A9C22 /* Responses */,
+				425E082D1EF8231900A74C29 /* Credentials.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
 				420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */,
+				425E082E1EF8231900A74C29 /* Credentials.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
 				420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */,
