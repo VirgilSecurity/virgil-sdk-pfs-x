@@ -75,7 +75,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+        [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
             XCTAssert(error == nil);
             XCTAssert(longTermCardRequest != nil);
             XCTAssert(oneTimeCards != nil);
@@ -108,7 +108,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
         VSPCreateEphemeralCardRequest *longTermCardRequest = [self.utils instantiateEphemeralCreateCardRequestsWithKeyPair:nil identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createLongTermCardForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest completion:^(VSSCard *longTermCard, NSError *error) {
+        [self.client createLongTermCardForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest completion:^(VSSCard *longTermCard, NSError *error) {
             XCTAssert(error == nil);
             XCTAssert(longTermCardRequest != nil);
             
@@ -135,7 +135,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createOneTimeCardsForRecipientWithCardId:card.identifier oneTimeCardsRequests:oneTimeCards completion:^(NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+        [self.client createOneTimeCardsForUserWithCardId:card.identifier oneTimeCardsRequests:oneTimeCards completion:^(NSArray<VSSCard *> *oneTimeCards, NSError * error) {
             XCTAssert(error == nil);
             XCTAssert(oneTimeCards != nil);
             XCTAssert(oneTimeCards.count == self.numberOfCards);
@@ -169,9 +169,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+        [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
             
-            [self.client getCardsInfoForRecipientWithCardId:card.identifier completion:^(VSPCardsInfo *cardsInfo, NSError *error) {
+            [self.client getCardsStatusForUserWithCardId:card.identifier completion:^(VSPCardsStatus *cardsInfo, NSError *error) {
                 XCTAssert(error == nil);
                 XCTAssert(cardsInfo != nil);
                 
@@ -204,15 +204,15 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+        [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
             
-            [self.client getCredentialsForIdentities:@[card.identity] completion:^(NSArray<VSPCredentials *> *credentials, NSError *error) {
+            [self.client getRecipientCardsSetForIdentities:@[card.identity] completion:^(NSArray<VSPRecipientCardsSet*> *credentials, NSError *error) {
                 XCTAssert(error == nil);
                 XCTAssert(credentials != nil);
                 
                 XCTAssert(credentials.count == 1);
                 
-                VSPCredentials *cred = credentials[0];
+                VSPRecipientCardsSet *cred = credentials[0];
                 XCTAssert(cred != nil);
                 
                 XCTAssert([card.identifier isEqualToString:cred.identityCard.identifier]);
@@ -254,10 +254,10 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
-        [self.client createEntryForRecipientWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+        [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
             
-            [self.client getCredentialsForIdentities:@[card.identity] completion:^(NSArray<VSPCredentials *> *credentials, NSError *error) {
-                [self.client getCardsInfoForRecipientWithCardId:card.identifier completion:^(VSPCardsInfo *cardsInfo, NSError *error) {
+            [self.client getRecipientCardsSetForIdentities:@[card.identity] completion:^(NSArray<VSPRecipientCardsSet *> *credentials, NSError *error) {
+                [self.client getCardsStatusForUserWithCardId:card.identifier completion:^(VSPCardsStatus *cardsInfo, NSError *error) {
                     XCTAssert(error == nil);
                     XCTAssert(cardsInfo != nil);
                     

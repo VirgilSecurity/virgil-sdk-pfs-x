@@ -1,5 +1,5 @@
 //
-//  CardsInfo.swift
+//  CardsStatus.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/19/17.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc(VSPCardsInfo) public final class CardsInfo: NSObject {
+@objc(VSPCardsStatus) public final class CardsStatus: NSObject {
     public let active: Int
     public let exhausted: Int
     

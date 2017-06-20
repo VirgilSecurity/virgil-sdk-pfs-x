@@ -1,5 +1,5 @@
 //
-//  CredentialsResponse.swift
+//  RecipientCardsSet.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/19/17.
@@ -9,7 +9,7 @@
 import Foundation
 import VirgilSDK
 
-@objc(VSPCredentials) public final class Credentials: NSObject {
+@objc(VSPRecipientCardsSet) public final class RecipientCardsSet: NSObject {
     public let identityCard: VSSCard
     public let longTermCard: VSSCard
     public let oneTimeCard: VSSCard

@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 extension Client {
-    public func createEntry(forRecipientWithCardId cardId: String, longTermCardRequest: VSPCreateEphemeralCardRequest, oneTimeCardsRequests: [VSPCreateEphemeralCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
+    public func bootstrapCardsSet(forUserWithCardId cardId: String, longTermCardRequest: VSPCreateEphemeralCardRequest, oneTimeCardsRequests: [VSPCreateEphemeralCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let request = BootstrapCardsRequest(ltc: longTermCardRequest.serialize(), otc: oneTimeCardsRequests.map({ $0.serialize() }))
         let httpRequest = BootstrapCardsHTTPRequest(context: context, recipientId: cardId, request: request)
@@ -55,7 +55,7 @@ extension Client {
         self.send(httpRequest)
     }
     
-    public func createLongTermCard(forRecipientWithCardId cardId: String, longTermCardRequest: VSPCreateEphemeralCardRequest, completion: @escaping ((VSSCard?, Error?)->())) {
+    public func createLongTermCard(forUserWithCardId cardId: String, longTermCardRequest: VSPCreateEphemeralCardRequest, completion: @escaping ((VSSCard?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = CreateLtcHTTPRequest(context: context, recipientId: cardId, ltc: longTermCardRequest.serialize())
         
@@ -85,7 +85,7 @@ extension Client {
         self.send(httpRequest)
     }
     
-    public func createOneTimeCards(forRecipientWithCardId cardId: String, oneTimeCardsRequests: [VSPCreateEphemeralCardRequest], completion: @escaping (([VSSCard]?, Error?)->())) {
+    public func createOneTimeCards(forUserWithCardId cardId: String, oneTimeCardsRequests: [VSPCreateEphemeralCardRequest], completion: @escaping (([VSSCard]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = UploadOtcHTTPRequest(context: context, recipientId: cardId, otc: oneTimeCardsRequests.map({ $0.serialize() }))
         
