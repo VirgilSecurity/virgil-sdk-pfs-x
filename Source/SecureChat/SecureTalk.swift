@@ -8,6 +8,7 @@
 
 import Foundation
 import VirgilSDK
+import VirgilCrypto
 
 @objc(VSPSecureTalk) public class SecureTalk: NSObject {
     public let crypto: VSSCryptoProtocol
