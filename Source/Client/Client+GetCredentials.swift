@@ -12,7 +12,8 @@ import VirgilSDK
 extension Client {
     public func getCredentials(forIdentities identities: [String], completion: @escaping (([Credentials]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
-        let httpRequest = CredentialsHTTPRequest(context: context, identities: identities)
+        let request = CredentialsRequest(identities: identities)
+        let httpRequest = CredentialsHTTPRequest(context: context, credentialsRequest: request)
         
         let handler = { (request: VSSHTTPRequest) in
             guard request.error == nil else {

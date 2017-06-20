@@ -18,8 +18,6 @@ class OtcCountHTTPRequest: PFSBaseHTTPRequest {
         self.recipientId = recipientId
         
         super.init(context: context)
-        
-        self.setRequestMethod(.GET)
     }
     
     override var methodPath: String {

@@ -12,11 +12,10 @@ import VirgilSDK
 class CredentialsHTTPRequest: PFSBaseHTTPRequest {
     private(set) var credentialsResponse: CredentialsCollectionResponse?
     
-    init(context: VSSHTTPRequestContext, identities: [String]) {
+    init(context: VSSHTTPRequestContext, credentialsRequest: CredentialsRequest) {
         super.init(context: context)
         
-        self.setRequestMethod(.GET)
-        self.setRequestBodyWith(identities as NSArray)
+        self.setRequestBodyWith(credentialsRequest.serialize())
     }
     
     override var methodPath: String {

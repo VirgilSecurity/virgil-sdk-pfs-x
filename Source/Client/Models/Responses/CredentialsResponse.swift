@@ -26,7 +26,7 @@ final class CredentialsResponse: NSObject, Deserializable {
         
         guard let ic = dictionary["identity_card"] as? [AnyHashable: Any],
             let ltc = dictionary["long_time_card"] as? [AnyHashable: Any],
-            let otc = dictionary["one_time_cards"] as? [AnyHashable: Any] else {
+            let otc = dictionary["one_time_card"] as? [AnyHashable: Any] else {
                 return nil
         }
         

@@ -31,7 +31,7 @@
 		420D14FF1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */; };
 		420D15181EF3FB10002A9C22 /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
-		420D15241EF3FBE8002A9C22 /* VirgilSDKPFS_iOS_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */; };
+		420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */; };
 		420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */; };
 		420D15261EF40B92002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D15271EF40B92002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
@@ -41,6 +41,7 @@
 		425E082E1EF8231900A74C29 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* Credentials.swift */; };
 		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
 		425E08321EF824E300A74C29 /* CardsInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsInfo.swift */; };
+		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,7 +81,7 @@
 		420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSPCreateEphemeralCardRequest.h; sourceTree = "<group>"; };
 		420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPCreateEphemeralCardRequest.m; sourceTree = "<group>"; };
 		420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "VirgilSDKPFS iOS Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VirgilSDKPFS_iOS_Tests.m; sourceTree = "<group>"; };
+		420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP001_ClientTests.m; sourceTree = "<group>"; };
 		420D151F1EF3FBD9002A9C22 /* VSPTestsConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VSPTestsConst.h; sourceTree = "<group>"; };
 		420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestsConst.m; sourceTree = "<group>"; };
 		420D15291EF40F1B002A9C22 /* VSPTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPTestUtils.h; sourceTree = "<group>"; };
@@ -90,6 +91,7 @@
 		425E082D1EF8231900A74C29 /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		425E082F1EF8248500A74C29 /* Client+Info.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+Info.swift"; sourceTree = "<group>"; };
 		425E08311EF824E300A74C29 /* CardsInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsInfo.swift; sourceTree = "<group>"; };
+		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,7 +152,7 @@
 				420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */,
 				420D15291EF40F1B002A9C22 /* VSPTestUtils.h */,
 				420D152A1EF40F24002A9C22 /* VSPTestUtils.m */,
-				420D151E1EF3FBD9002A9C22 /* VirgilSDKPFS_iOS_Tests.m */,
+				420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -219,6 +221,7 @@
 				420D14FD1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.h */,
 				420D14FE1EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m */,
 				420D0B581EEFE29A002A9C22 /* BootstrapCardsRequest.swift */,
+				425E08331EF9255F00A74C29 /* CredentialsRequest.swift */,
 			);
 			path = Requests;
 			sourceTree = "<group>";
@@ -421,6 +424,7 @@
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
 				420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */,
+				425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
 				420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */,
@@ -433,7 +437,7 @@
 			files = (
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
 				420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */,
-				420D15241EF3FBE8002A9C22 /* VirgilSDKPFS_iOS_Tests.m in Sources */,
+				420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
