@@ -47,6 +47,12 @@ extension SecureTalk {
             throw NSError()
         }
         
+        guard let messageData = message.data(using: .utf8) else {
+            throw NSError()
+        }
+        
+        let encryptedMessage = self.pfs.encryptData(messageData)
+        
         // FIXME
         return ""
     }
