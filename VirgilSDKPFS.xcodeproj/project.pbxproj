@@ -42,6 +42,7 @@
 		425A023B1EF974DD00D9BBEF /* InitiationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */; };
 		425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */; };
 		425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023E1EF9783600D9BBEF /* StrongSessionData.swift */; };
+		425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */; };
 		425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */; };
 		425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */; };
 		425E082E1EF8231900A74C29 /* RecipientCardsSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */; };
@@ -98,6 +99,7 @@
 		425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitiationMessage.swift; sourceTree = "<group>"; };
 		425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeakSessionData.swift; sourceTree = "<group>"; };
 		425A023E1EF9783600D9BBEF /* StrongSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrongSessionData.swift; sourceTree = "<group>"; };
+		425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceInfoEntry.swift; sourceTree = "<group>"; };
 		425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+CreatingCards.swift"; sourceTree = "<group>"; };
 		425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+GetCredentials.swift"; sourceTree = "<group>"; };
 		425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientCardsSet.swift; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */,
 				425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */,
 				425A023E1EF9783600D9BBEF /* StrongSessionData.swift */,
+				425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -458,6 +461,7 @@
 				420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */,
 				420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
+				425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,

@@ -8,6 +8,7 @@
 
 @import VirgilSDK;
 
+NS_SWIFT_NAME(CreateEphemeralCardRequest)
 @interface VSPCreateEphemeralCardRequest : VSSCreateCardRequest
 
 + (instancetype __nonnull)createEphemeralCardRequestWithIdentity:(NSString * __nonnull)identity identityType:(NSString * __nonnull)identityType publicKeyData:(NSData * __nonnull)publicKeyData data:(NSDictionary<NSString *, NSString *> * __nullable)data;
