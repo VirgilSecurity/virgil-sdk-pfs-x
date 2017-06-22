@@ -17,6 +17,8 @@ import VirgilSDK
     public let virgilClient: VSSClient
     
     fileprivate let keyHelper: SecureChatKeyHelper
+    fileprivate let cardsHelper: SecureChatCardsHelper
+    fileprivate let sessionHelper: SecureChatSessionHelper
     
     fileprivate var identityCard: VSSCard?
     
@@ -26,6 +28,8 @@ import VirgilSDK
         self.virgilClient = VSSClient(serviceConfig: self.preferences.virgilServiceConfig)
         
         self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage)
+        self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
+        self.sessionHelper = SecureChatSessionHelper()
         
         super.init()
     }
@@ -63,7 +67,7 @@ extension SecureChat {
         let ephKeyName = try self.keyHelper.saveEphPrivateKey(ephPrivateKey, keyName: recipientCardId)
         
         let sessionState = SessionState(creationDate: Date(), ephKeyName: ephKeyName)
-        try self.saveSessionState(sessionState, forRecipientCardId: recipientCardId)
+        try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId)
         
         let secureTalk = SecureTalk(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, ephPrivateKey: ephPrivateKey, recipientPublicKey: publicKey, recipientLongTermKey: longTermPublicKey, recipientOneTimeKey: oneTimePublicKey)
         
@@ -97,27 +101,6 @@ extension SecureChat {
     }
 }
 
-// MARK: Session persistance
-extension SecureChat {
-    static private let DefaultsSuiteName = "VIRGIL.DEFAULTS"
-    
-    fileprivate func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
-        guard let userDefaults = UserDefaults(suiteName: SecureChat.DefaultsSuiteName) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        userDefaults.set(sessionState, forKey: cardId)
-    }
-    
-    fileprivate func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
-        guard let userDefaults = UserDefaults(suiteName: SecureChat.DefaultsSuiteName) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        return userDefaults.value(forKey: cardId) as? SessionState
-    }
-}
-
 // MARK: Initialization
 extension SecureChat {
     // Workaround for Swift bug SR-2444
@@ -148,7 +131,7 @@ extension SecureChat {
                 if numberOfMissingCards > 0 {
                     //FIXME: Add longtermcard management
                     do {
-                        try self.addCards(forIdentityCard: identityCard, includeLtcCard: true, numberOfOtcCards: numberOfMissingCards) { error in
+                        try self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: true, numberOfOtcCards: numberOfMissingCards) { error in
                             guard error == nil else {
                                 errorCallback(error!)
                                 return
@@ -200,93 +183,6 @@ extension SecureChat {
             // Not enough cards, add more
             numberOfMissingCards = max(self.preferences.numberOfActiveOneTimeCards - status.active, 0)
             operationCompletedCallback()
-        }
-    }
-}
-
-// MARK: Adding cards
-extension SecureChat {
-    private func generateRequest(forIdentityCard identityCard: VSSCard, keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
-        let identity = identityCard.identity
-        let identityType = identityCard.identityType
-        let device = self.preferences.deviceManager.getDeviceModel()
-        let deviceName = self.preferences.deviceManager.getDeviceName()
-        
-        let publicKeyData = self.preferences.crypto.export(keyPair.publicKey)
-        let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil, device: device, deviceName: deviceName)
-        
-        let requestSigner = VSSRequestSigner(crypto: self.preferences.crypto)
-        let cardId = requestSigner.getCardId(forRequest: request)
-        try requestSigner.authoritySign(request, forAppId: identityCard.identifier, with: self.preferences.myPrivateKey)
-        
-        return (request, cardId)
-    }
-    
-    fileprivate func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        var otcKeys: [SecureChatKeyHelper.KeyEntry] = []
-        otcKeys.reserveCapacity(numberOfOtcCards)
-        
-        var otcCardsRequests: [CreateEphemeralCardRequest] = []
-        otcCardsRequests.reserveCapacity(numberOfOtcCards)
-        for _ in 0..<numberOfOtcCards {
-            let keyPair = self.preferences.crypto.generateKeyPair()
-            
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: false)
-            otcCardsRequests.append(request)
-            
-            let keyEntry = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
-            otcKeys.append(keyEntry)
-        }
-        
-        let ltcKey: SecureChatKeyHelper.KeyEntry?
-        let ltcCardRequest: CreateEphemeralCardRequest?
-        if includeLtcCard {
-            let keyPair = self.preferences.crypto.generateKeyPair()
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: true)
-            ltcCardRequest = request
-            
-            ltcKey = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
-        }
-        else {
-            ltcKey = nil
-            ltcCardRequest = nil
-        }
-        
-        try self.keyHelper.saveKeys(keys: otcKeys, ltKey: ltcKey)
-        
-        let callback = { (error: Error?) in
-            completion(error)
-        }
-        
-        if let ltcCardRequest = ltcCardRequest {
-            self.client.bootstrapCardsSet(forUserWithCardId: identityCard.identifier, longTermCardRequest: ltcCardRequest, oneTimeCardsRequests: otcCardsRequests) { ltcCard, otcCards, error in
-                guard error == nil else {
-                    callback(error!)
-                    return
-                }
-                
-                guard ltcCard != nil, otcCards != nil else {
-                    callback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error while bootstraping ephemeral cards"]))
-                    return
-                }
-                
-                callback(nil)
-            }
-        }
-        else if otcCardsRequests.count > 0 {
-            self.client.createOneTimeCards(forUserWithCardId: identityCard.identifier, oneTimeCardsRequests: otcCardsRequests) { otcCards, error in
-                guard error == nil else {
-                    callback(error!)
-                    return
-                }
-                
-                guard otcCards != nil else {
-                    callback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error while adding one-time ephemeral cards"]))
-                    return
-                }
-                
-                callback(nil)
-            }
         }
     }
 }
