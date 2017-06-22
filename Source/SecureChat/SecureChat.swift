@@ -102,13 +102,13 @@ extension SecureChat {
 
 // MARK: Talk responding
 extension SecureChat {
-    private func respondTalk(withCard card: VSSCard, completion: @escaping (SecureTalk?, Error?)->()) {
+    private func respondToTalk(withCard card: VSSCard, completion: @escaping (SecureTalk?, Error?)->()) {
         let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, secureChatKeyHelper: self.keyHelper, initiatorIdCard: card)
         
         completion(secureTalk, nil)
     }
     
-    public func respondTalk(withRecipientWithCardId cardId: String, completion: @escaping (SecureTalk?, Error?)->()) {
+    public func respondToTalk(withRecipientWithCardId cardId: String, completion: @escaping (SecureTalk?, Error?)->()) {
         // FIXME: Check for existing session
         // FIXME: Add otc key on new session
         
@@ -123,7 +123,7 @@ extension SecureChat {
                 return
             }
             
-            self.respondTalk(withCard: card) { secureTalk, error in
+            self.respondToTalk(withCard: card) { secureTalk, error in
                 completion(secureTalk, error)
             }
         }
