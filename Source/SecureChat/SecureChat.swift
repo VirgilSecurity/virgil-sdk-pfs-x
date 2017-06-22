@@ -66,7 +66,8 @@ extension SecureChat {
         
         let ephKeyName = try self.keyHelper.saveEphPrivateKey(ephPrivateKey, keyName: recipientCardId)
         
-        let sessionState = SessionState(creationDate: Date(), ephKeyName: ephKeyName)
+        // FIXME: Optional one time key?
+        let sessionState = SessionState(creationDate: Date(), ephKeyName: ephKeyName, recipientPublicKey: publicKey, recipientLongTermPublicKey: longTermPublicKey, recipientOneTimeKey: oneTimePublicKey)
         try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId)
         
         let secureTalk = SecureTalk(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, ephPrivateKey: ephPrivateKey, recipientPublicKey: publicKey, recipientLongTermKey: longTermPublicKey, recipientOneTimeKey: oneTimePublicKey)
