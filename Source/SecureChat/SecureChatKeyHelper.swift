@@ -26,8 +26,6 @@ class SecureChatKeyHelper {
     }
     
     func saveKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
-        let serviceInfo = try self.getServiceInfoEntry()
-        
         var keyEntryNames: [String] = []
         keyEntryNames.reserveCapacity(keys.count)
         
@@ -43,7 +41,16 @@ class SecureChatKeyHelper {
             ltcKeyEntryName = nil
         }
         
-        let newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName ?? serviceInfo.ltcKeyName, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames)
+        let newServiceInfo: ServiceInfoEntry
+        if let serviceInfo = self.getServiceInfoEntry() {
+            newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName ?? serviceInfo.ltcKeyName, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames)
+        }
+        else {
+            guard let ltcKeyEntryName = ltcKeyEntryName else {
+                throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "LT key not found and ney key was not specified."])
+            }
+            newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName, otcKeysNames: keyEntryNames)
+        }
         
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
@@ -59,13 +66,13 @@ class SecureChatKeyHelper {
         try self.keyStorage.store(keyEntry)
     }
     
-    private func getServiceInfoEntry() throws -> ServiceInfoEntry {
+    private func getServiceInfoEntry() -> ServiceInfoEntry? {
         guard let keyEntry = try? self.keyStorage.loadKeyEntry(withName: SecureChatKeyHelper.ServiceKeyName) else {
-            throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting service info key."])
+            return nil
         }
         
         guard let serviceInfoEntry = NSKeyedUnarchiver.unarchiveObject(with: keyEntry.value) as? ServiceInfoEntry else {
-            throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error unarchiving service info key."])
+            return nil
         }
         
         return serviceInfoEntry

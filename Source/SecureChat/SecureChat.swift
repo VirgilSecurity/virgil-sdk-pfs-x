@@ -199,17 +199,20 @@ extension SecureChat {
         
         // Check ephemeral cards status
         self.client.getCardsStatus(forUserWithCardId: self.preferences.myCardId) { status, error in
-            guard error == nil else {
-                errorCallback(error)
-                return
-            }
+            // FIXME: Remove after backend fix
+//            guard error == nil else {
+//                errorCallback(error)
+//                return
+//            }
+//            
+//            guard let status = status else {
+//                // FIXME
+//                errorCallback(nil)
+//                return
+//            }
             
-            guard let status = status else {
-                // FIXME
-                errorCallback(nil)
-                return
-            }
-            
+            // FIXME: Remove after backend fix
+            let status = CardsStatus(active: 0, exhausted: 0)
             // Not enough cards, add more
             numberOfMissingCards = max(self.preferences.numberOfActiveOneTimeCards - status.active, 0)
             operationCompletedCallback()
