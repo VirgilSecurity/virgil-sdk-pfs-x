@@ -107,6 +107,7 @@ extension SecureChat {
     // Workaround for Swift bug SR-2444
     public typealias CompletionHandler = (Error?) -> ()
     
+    // FIXME: Get all sessions and check status of LT OT keys
     // FIXME: Check status of old keys and remove unneeded keys
     public func initialize(completion: CompletionHandler? = nil) {
         let errorCallback = { (error: Error?) in
