@@ -31,7 +31,6 @@
     
     VSSRequestSigner *signer = [[VSSRequestSigner alloc] initWithCrypto:self.crypto];
     
-    [signer selfSignRequest:request withPrivateKey:kp.privateKey error:nil];
     [signer authoritySignRequest:request forAppId:identityCardId withPrivateKey:identityPrivateKey error:nil];
     
     return request;

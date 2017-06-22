@@ -9,7 +9,7 @@
 import Foundation
 
 class ServiceInfoEntry: NSObject, NSCoding {
-    private enum EncodingKeys: String {
+    private enum Keys: String {
         case otcKeysNames = "otc_keys_names"
         case ltcKeyName = "ltc_key_name"
     }
@@ -25,13 +25,13 @@ class ServiceInfoEntry: NSObject, NSCoding {
     }
     
     func encode(with aCoder: NSCoder) {
-        aCoder.encode(self.ltcKeyName, forKey: EncodingKeys.ltcKeyName.rawValue)
-        aCoder.encode(self.otcKeysNames, forKey: EncodingKeys.otcKeysNames.rawValue)
+        aCoder.encode(self.ltcKeyName, forKey: Keys.ltcKeyName.rawValue)
+        aCoder.encode(self.otcKeysNames, forKey: Keys.otcKeysNames.rawValue)
     }
     
     convenience required init?(coder aDecoder: NSCoder) {
-        guard let ltcKeyName = aDecoder.decodeObject(forKey: EncodingKeys.ltcKeyName.rawValue) as? String,
-            let otcKeysNames = aDecoder.decodeObject(forKey: EncodingKeys.otcKeysNames.rawValue) as? [String] else {
+        guard let ltcKeyName = aDecoder.decodeObject(forKey: Keys.ltcKeyName.rawValue) as? String,
+            let otcKeysNames = aDecoder.decodeObject(forKey: Keys.otcKeysNames.rawValue) as? [String] else {
                 return nil
         }
         

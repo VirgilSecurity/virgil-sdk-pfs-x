@@ -43,6 +43,8 @@
 		425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */; };
 		425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023E1EF9783600D9BBEF /* StrongSessionData.swift */; };
 		425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */; };
+		425A02431EFBC5A400D9BBEF /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02421EFBC5A400D9BBEF /* SessionState.swift */; };
+		425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */; };
 		425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */; };
 		425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */; };
 		425E082E1EF8231900A74C29 /* RecipientCardsSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */; };
@@ -100,6 +102,8 @@
 		425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeakSessionData.swift; sourceTree = "<group>"; };
 		425A023E1EF9783600D9BBEF /* StrongSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrongSessionData.swift; sourceTree = "<group>"; };
 		425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceInfoEntry.swift; sourceTree = "<group>"; };
+		425A02421EFBC5A400D9BBEF /* SessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionState.swift; sourceTree = "<group>"; };
+		425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatKeyHelper.swift; sourceTree = "<group>"; };
 		425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+CreatingCards.swift"; sourceTree = "<group>"; };
 		425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+GetCredentials.swift"; sourceTree = "<group>"; };
 		425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientCardsSet.swift; sourceTree = "<group>"; };
@@ -293,6 +297,7 @@
 				425A02391EF974B600D9BBEF /* Models */,
 				425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */,
 				425A02371EF9416C00D9BBEF /* SecureChat.swift */,
+				425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */,
 				425A02351EF93B9100D9BBEF /* SecureTalk.swift */,
 			);
 			path = SecureChat;
@@ -305,6 +310,7 @@
 				425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */,
 				425A023E1EF9783600D9BBEF /* StrongSessionData.swift */,
 				425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */,
+				425A02421EFBC5A400D9BBEF /* SessionState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -446,6 +452,7 @@
 				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
 				425E08301EF8248500A74C29 /* Client+Info.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
+				425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */,
 				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */,
@@ -467,6 +474,7 @@
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
 				420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */,
 				425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */,
+				425A02431EFBC5A400D9BBEF /* SessionState.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
 				425A02361EF93B9100D9BBEF /* SecureTalk.swift in Sources */,
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,

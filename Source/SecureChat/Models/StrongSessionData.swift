@@ -14,12 +14,20 @@ struct StrongSessionData {
     let cipherText: Data
 }
 
+extension StrongSessionData {
+    fileprivate enum Keys: String {
+        case salt = "salt"
+        case ciphertext = "ciphertext"
+        case receiverOtcId = "receiver_otc_id"
+    }
+}
+
 extension StrongSessionData: Serializable {
     func serialize() -> NSObject {
         let dict: NSDictionary = [
-            "receiver_otc_id": self.receiverOtcId,
-            "salt": self.salt.base64EncodedString(),
-            "ciphertext": self.cipherText.base64EncodedString()
+            Keys.receiverOtcId.rawValue: self.receiverOtcId,
+            Keys.salt.rawValue: self.salt.base64EncodedString(),
+            Keys.ciphertext.rawValue: self.cipherText.base64EncodedString()
         ]
         
         return dict
@@ -32,10 +40,10 @@ extension StrongSessionData: Deserializable {
             return nil
         }
         
-        guard let receiverOtcId = dict["receiver_otc_id"] as? String,
-            let saltStr = dict["salt"] as? String,
+        guard let receiverOtcId = dict[Keys.receiverOtcId.rawValue] as? String,
+            let saltStr = dict[Keys.salt.rawValue] as? String,
             let salt = Data(base64Encoded: saltStr),
-            let cipherTextStr = dict["ciphertext"] as? String,
+            let cipherTextStr = dict[Keys.ciphertext.rawValue] as? String,
             let cipherText = Data(base64Encoded: cipherTextStr) else {
                 return nil
         }

@@ -13,11 +13,18 @@ struct WeakSessionData {
     let cipherText: Data
 }
 
+extension WeakSessionData {
+    fileprivate enum Keys: String {
+        case salt = "salt"
+        case ciphertext = "ciphertext"
+    }
+}
+
 extension WeakSessionData: Serializable {
     func serialize() -> NSObject {
         let dict: NSDictionary = [
-            "salt": self.salt.base64EncodedString(),
-            "ciphertext": self.cipherText.base64EncodedString()
+            Keys.salt.rawValue: self.salt.base64EncodedString(),
+            Keys.ciphertext.rawValue: self.cipherText.base64EncodedString()
         ]
         
         return dict
@@ -30,9 +37,9 @@ extension WeakSessionData: Deserializable {
             return nil
         }
         
-        guard let saltStr = dict["salt"] as? String,
+        guard let saltStr = dict[Keys.salt.rawValue] as? String,
             let salt = Data(base64Encoded: saltStr),
-            let cipherTextStr = dict["ciphertext"] as? String,
+            let cipherTextStr = dict[Keys.ciphertext.rawValue] as? String,
             let cipherText = Data(base64Encoded: cipherTextStr) else {
                 return nil
         }

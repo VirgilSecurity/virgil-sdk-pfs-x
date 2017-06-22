@@ -16,25 +16,61 @@ import VirgilSDK
     public let client: Client
     public let virgilClient: VSSClient
     
+    fileprivate let keyHelper: SecureChatKeyHelper
+    
     fileprivate var identityCard: VSSCard?
     
     public init(preferences: SecureChatPreferences) {
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
         self.virgilClient = VSSClient(serviceConfig: self.preferences.virgilServiceConfig)
+        
+        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage)
+        
+        super.init()
     }
+}
 
-    public func initTalk(withRecipientWithIdentity identity: String, completion: @escaping (SecureTalk?, Error?)->()) {
+// MARK: Talk init
+extension SecureChat {
+    private func initTalk(withCardsSet cardsSet: RecipientCardsSet, completion: @escaping (SecureTalk?, Error?)->()) throws {
+        // FIXME: Check for existing session
+        // FIXME: Add otc key on new session
+        
         guard let identityCard = self.identityCard else {
             completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
             return
         }
-
+        
         guard let publicKey = self.preferences.crypto.importPublicKey(from: identityCard.publicKeyData) else {
             completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error importing public key from identity card."]))
             return
         }
         
+        let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
+        let oneTimePublicKeyData = cardsSet.oneTimeCard.publicKeyData
+        guard let oneTimePublicKey = self.preferences.crypto.importPublicKey(from: oneTimePublicKeyData),
+            let longTermPublicKey = self.preferences.crypto.importPublicKey(from: longTermPublicKeyData) else {
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error importing eph public keys from cards."]))
+                return
+        }
+        
+        let recipientCardId = cardsSet.identityCard.identifier
+        
+        let ephKeyPair = self.preferences.crypto.generateKeyPair()
+        let ephPrivateKey = ephKeyPair.privateKey
+        
+        let ephKeyName = try self.keyHelper.saveEphPrivateKey(ephPrivateKey, keyName: recipientCardId)
+        
+        let sessionState = SessionState(creationDate: Date(), ephKeyName: ephKeyName)
+        try self.saveSessionState(sessionState, forRecipientCardId: recipientCardId)
+        
+        let secureTalk = SecureTalk(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, ephPrivateKey: ephPrivateKey, recipientPublicKey: publicKey, recipientLongTermKey: longTermPublicKey, recipientOneTimeKey: oneTimePublicKey)
+        
+        completion(secureTalk, nil)
+    }
+    
+    public func initTalk(withRecipientWithIdentity identity: String, completion: @escaping (SecureTalk?, Error?)->()) {
         self.client.getRecipientCardsSet(forIdentities: [identity]) { cardsSets, error in
             guard error == nil else {
                 completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set."]))
@@ -48,20 +84,37 @@ import VirgilSDK
             
             // FIXME: Multiple sessions?
             let cardsSet = cardsSets[0]
-        
             
-            let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
-            let oneTimePublicKeyData = cardsSet.oneTimeCard.publicKeyData
-            guard let oneTimePublicKey = self.preferences.crypto.importPublicKey(from: oneTimePublicKeyData),
-                let longTermPublicKey = self.preferences.crypto.importPublicKey(from: longTermPublicKeyData) else {
-                    completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error importing eph public keys from cards."]))
-                    return
+            do {
+                try self.initTalk(withCardsSet: cardsSet) { secureTalk, error in
+                    completion(secureTalk, error)
+                }
             }
-
-            let secureTalk = SecureTalk(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, ephPrivateKey: self.preferences.crypto.generateKeyPair().privateKey, recipientPublicKey: publicKey, recipientLongTermKey: longTermPublicKey, recipientOneTimeKey: oneTimePublicKey)
-            
-            completion(secureTalk, nil)
+            catch {
+                // FIXME
+            }
         }
+    }
+}
+
+// MARK: Session persistance
+extension SecureChat {
+    static private let DefaultsSuiteName = "VIRGIL.DEFAULTS"
+    
+    fileprivate func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
+        guard let userDefaults = UserDefaults(suiteName: SecureChat.DefaultsSuiteName) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        userDefaults.set(sessionState, forKey: cardId)
+    }
+    
+    fileprivate func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
+        guard let userDefaults = UserDefaults(suiteName: SecureChat.DefaultsSuiteName) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        return userDefaults.value(forKey: cardId) as? SessionState
     }
 }
 
@@ -163,48 +216,43 @@ extension SecureChat {
         let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil, device: device, deviceName: deviceName)
         
         let requestSigner = VSSRequestSigner(crypto: self.preferences.crypto)
-        try requestSigner.selfSign(request, with: keyPair.privateKey)
-        
-        let cardId = Array(request.signatures.keys)[0]
-        
+        let cardId = requestSigner.getCardId(forRequest: request)
         try requestSigner.authoritySign(request, forAppId: identityCard.identifier, with: self.preferences.myPrivateKey)
         
         return (request, cardId)
     }
     
     fileprivate func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        var otcKeys: [VSSKeyPair] = []
+        var otcKeys: [SecureChatKeyHelper.KeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
-        for _ in 0..<numberOfOtcCards {
-            otcKeys.append(self.preferences.crypto.generateKeyPair())
-        }
         
         var otcCardsRequests: [CreateEphemeralCardRequest] = []
-        var otcKeysNames: [String] = []
         otcCardsRequests.reserveCapacity(numberOfOtcCards)
-        otcKeysNames.reserveCapacity(numberOfOtcCards)
-        for i in 0..<numberOfOtcCards {
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: otcKeys[i], isLtc: false)
+        for _ in 0..<numberOfOtcCards {
+            let keyPair = self.preferences.crypto.generateKeyPair()
+            
+            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
-            otcKeysNames.append(cardId)
+            
+            let keyEntry = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            otcKeys.append(keyEntry)
         }
         
-        let ltcKey: VSSKeyPair?
+        let ltcKey: SecureChatKeyHelper.KeyEntry?
         let ltcCardRequest: CreateEphemeralCardRequest?
-        let ltcKeyName: String?
         if includeLtcCard {
-            ltcKey = self.preferences.crypto.generateKeyPair()
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: ltcKey!, isLtc: false)
+            let keyPair = self.preferences.crypto.generateKeyPair()
+            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: true)
             ltcCardRequest = request
-            ltcKeyName = cardId
+            
+            ltcKey = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
         }
         else {
             ltcKey = nil
             ltcCardRequest = nil
-            ltcKeyName = nil
         }
         
-        try self.saveKeys(keys: otcKeys.map({ $0.privateKey }), keyNames: otcKeysNames, ltcKey: ltcKey?.privateKey, ltcKeyName: ltcKeyName)
+        try self.keyHelper.saveKeys(keys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
             completion(error)
@@ -240,80 +288,5 @@ extension SecureChat {
                 callback(nil)
             }
         }
-    }
-}
-
-// MARK: Keys
-extension SecureChat {
-    static fileprivate let ServiceKeyName = "VIRGIL.SERVICE.INFO"
-    static private let KeyNameFormat = "%@.%@"
-    
-    fileprivate func getEphKey(keyName: String) throws -> VSSPrivateKey {
-        let keyEntryName = String(format: SecureChat.KeyNameFormat, "VIRGIL_EPHC_KEY", keyName)
-        
-        let keyEntry = try self.preferences.keyStorage.loadKeyEntry(withName: keyEntryName)
-        
-        guard let privateKey = self.preferences.crypto.importPrivateKey(from: keyEntry.value) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error loading eph private key."])
-        }
-        
-        return privateKey
-    }
-    
-    fileprivate func saveKeys(keys: [VSSPrivateKey], keyNames: [String], ltcKey: VSSPrivateKey?, ltcKeyName: String?) throws {
-        let serviceInfo = try self.getServiceInfoEntry()
-        
-        var keyEntryNames: [String] = []
-        keyEntryNames.reserveCapacity(keys.count)
-        
-        for i in 0..<keys.count {
-            keyEntryNames.append(try self.savePrivateKey(keys[i], keyName: keyNames[i]))
-        }
-        
-        let ltcKeyEntryName: String?
-        if let ltcKey = ltcKey,
-            let ltcKeyName = ltcKeyName {
-            ltcKeyEntryName = try self.savePrivateKey(ltcKey, keyName: ltcKeyName)
-        }
-        else {
-            ltcKeyEntryName = nil
-        }
-        
-        let newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName ?? serviceInfo.ltcKeyName, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames)
-        
-        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
-    }
-    
-    private func savePrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
-        let privateKeyData = self.preferences.crypto.export(key, withPassword: nil)
-        
-        let keyEntryName = String(format: SecureChat.KeyNameFormat, "VIRGIL_EPHC_KEY", keyName)
-        let keyEntry = VSSKeyEntry(name: keyEntryName, value: privateKeyData)
-        
-        try self.preferences.keyStorage.store(keyEntry)
-        
-        return keyEntryName
-    }
-    
-    private func updateServiceInfoEntry(newEntry: ServiceInfoEntry) throws {
-        // FIXME: Replace with update
-        try self.preferences.keyStorage.deleteKeyEntry(withName: SecureChat.ServiceKeyName)
-        
-        let data = NSKeyedArchiver.archivedData(withRootObject: newEntry)
-        let keyEntry = VSSKeyEntry(name: SecureChat.ServiceKeyName, value: data)
-        
-        try self.preferences.keyStorage.store(keyEntry)
-    }
-    
-    private func getServiceInfoEntry() throws -> ServiceInfoEntry {
-        guard let keyEntry = try? self.preferences.keyStorage.loadKeyEntry(withName: SecureChat.ServiceKeyName) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting service info key."])
-        }
-        
-        guard let serviceInfoEntry = NSKeyedUnarchiver.unarchiveObject(with: keyEntry.value) as? ServiceInfoEntry else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error unarchiving service info key."])
-        }
-        
-        return serviceInfoEntry
     }
 }
