@@ -64,18 +64,24 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created"];
     
     NSUInteger numberOfRequests = 2;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 200;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
     VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
     
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        sleep(5);
+        
         VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyCardId:card.identifier myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig virgilServiceConfig:self.virgilClient.serviceConfig numberOfActiveOneTimeCards:self.numberOfCards deviceManager:[[VSSDeviceManager alloc] init]];
         
         VSPSecureChat *secureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
         
-        [ex fulfill];
+        [secureChat initializeWithCompletion:^(NSError *error) {
+            XCTAssert(error == nil);
+            
+            [ex fulfill];
+        }];
     }];
         
     [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
