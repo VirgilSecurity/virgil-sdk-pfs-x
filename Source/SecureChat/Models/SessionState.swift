@@ -14,7 +14,7 @@ struct SessionState {
     let ephKeyName: String
     let recipientPublicKey: VSSPublicKey
     let recipientLongTermPublicKey: VSSPublicKey
-    let recipientOneTimeKey: VSSPublicKey?
+    let recipientOneTimePublicKey: VSSPublicKey
 }
 
 extension SessionState {
@@ -23,22 +23,19 @@ extension SessionState {
         case ephKeyName = "eph_key_name"
         case recipientPublicKey = "recipientPublicKey"
         case recipientLongTermPublicKey = "recipientLongTermPublicKey"
-        case recipientOneTimeKey = "recipientOneTimeKey"
+        case recipientOneTimePublicKey = "recipientOneTimePublicKey"
     }
 }
 
 extension SessionState {
     func serialize(crypto: VSSCryptoProtocol) -> NSObject {
-        let dict: NSMutableDictionary = [
+        let dict: NSDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
             Keys.ephKeyName.rawValue: self.ephKeyName,
             Keys.recipientPublicKey.rawValue: crypto.export(self.recipientPublicKey),
             Keys.recipientLongTermPublicKey.rawValue: crypto.export(self.recipientLongTermPublicKey),
+            Keys.recipientOneTimePublicKey.rawValue: crypto.export(self.recipientOneTimePublicKey)
         ]
-        
-        if let otKey = self.recipientOneTimeKey {
-            dict[Keys.recipientOneTimeKey.rawValue] = crypto.export(otKey)
-        }
         
         return dict
     }
@@ -53,27 +50,17 @@ extension SessionState {
         guard let date = dict[Keys.creationDate] as? Date,
             let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String,
             let recPubKeyData = dict[Keys.recipientPublicKey.rawValue] as? Data,
-            let recLtKeyData = dict[Keys.recipientLongTermPublicKey.rawValue] as? Data else {
+            let recLtKeyData = dict[Keys.recipientLongTermPublicKey.rawValue] as? Data,
+            let recOtKeyData = dict[Keys.recipientOneTimePublicKey.rawValue] as? Data else {
                 return nil
         }
         
         guard let recPubKey = crypto.importPublicKey(from: recPubKeyData),
-            let recLtKey = crypto.importPublicKey(from: recLtKeyData) else {
+            let recLtKey = crypto.importPublicKey(from: recLtKeyData),
+            let recOtKey = crypto.importPublicKey(from: recOtKeyData) else {
                 return nil
         }
         
-        let recOtKey: VSSPublicKey?
-        if let recOtKeyData = dict[Keys.recipientOneTimeKey.rawValue] as? Data {
-            guard let recOtK = crypto.importPublicKey(from: recOtKeyData) else {
-                return nil
-            }
-            
-            recOtKey = recOtK
-        }
-        else {
-            recOtKey = nil
-        }
-        
-        self.init(creationDate: date, ephKeyName: ephKeyName, recipientPublicKey: recPubKey, recipientLongTermPublicKey: recLtKey, recipientOneTimeKey: recOtKey)
+        self.init(creationDate: date, ephKeyName: ephKeyName, recipientPublicKey: recPubKey, recipientLongTermPublicKey: recLtKey, recipientOneTimePublicKey: recOtKey)
     }
 }
