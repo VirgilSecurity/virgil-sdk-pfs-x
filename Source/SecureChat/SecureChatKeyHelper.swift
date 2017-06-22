@@ -19,10 +19,12 @@ class SecureChatKeyHelper {
     
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let keyStorage: VSSKeyStorageProtocol
+    fileprivate let identityCardId: String
     
-    init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol) {
+    init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, identityCardId: String) {
         self.crypto = crypto
         self.keyStorage = keyStorage
+        self.identityCardId = identityCardId
     }
     
     func saveKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
@@ -55,13 +57,15 @@ class SecureChatKeyHelper {
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
     
-    static private let ServiceKeyName = "VIRGIL.SERVICE.INFO"
+    static private let ServiceKeyName = "VIRGIL.SERVICE.INFO.%@"
     private func updateServiceInfoEntry(newEntry: ServiceInfoEntry) throws {
         // FIXME: Replace with update
-        try self.keyStorage.deleteKeyEntry(withName: SecureChatKeyHelper.ServiceKeyName)
+        let entryName = String(format: SecureChatKeyHelper.ServiceKeyName, self.identityCardId)
+        
+        try? self.keyStorage.deleteKeyEntry(withName: entryName)
         
         let data = NSKeyedArchiver.archivedData(withRootObject: newEntry)
-        let keyEntry = VSSKeyEntry(name: SecureChatKeyHelper.ServiceKeyName, value: data)
+        let keyEntry = VSSKeyEntry(name: entryName, value: data)
         
         try self.keyStorage.store(keyEntry)
     }
