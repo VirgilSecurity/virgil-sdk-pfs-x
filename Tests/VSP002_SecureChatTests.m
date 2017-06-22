@@ -17,6 +17,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 
 @interface VSP002_SecureChatTests : XCTestCase
 
+@property (nonatomic) VSPSecureChat *secureChat;
 @property (nonatomic) VSSClient *virgilClient;
 @property (nonatomic) VSPClient *client;
 @property (nonatomic) id<VSSCrypto> crypto;
@@ -53,7 +54,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     VSPServiceConfig *config = [[VSPServiceConfig alloc] initWithToken:self.consts.applicationToken ephemeralServiceURL:self.consts.pfsServiceURL];
     self.client = [[VSPClient alloc] initWithServiceConfig:config];
     
-    self.numberOfCards = 100;
+    self.numberOfCards = 5;
 }
 
 - (void)tearDown {
@@ -75,9 +76,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         
         VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyCardId:card.identifier myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig virgilServiceConfig:self.virgilClient.serviceConfig numberOfActiveOneTimeCards:self.numberOfCards deviceManager:[[VSSDeviceManager alloc] init]];
         
-        VSPSecureChat *secureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
+        self.secureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
         
-        [secureChat initializeWithCompletion:^(NSError *error) {
+        [self.secureChat initializeWithCompletion:^(NSError *error) {
             XCTAssert(error == nil);
             
             [ex fulfill];
