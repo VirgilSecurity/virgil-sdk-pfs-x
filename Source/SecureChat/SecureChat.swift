@@ -35,12 +35,10 @@ import VirgilSDK
     }
 }
 
-// MARK: Talk init
+// MARK: Talk initiation
 extension SecureChat {
-    private func initTalk(withCardsSet cardsSet: RecipientCardsSet, completion: @escaping (SecureTalk?, Error?)->()) throws {
+    private func initiateTalk(withCardsSet cardsSet: RecipientCardsSet, completion: @escaping (SecureTalk?, Error?)->()) throws {
         // FIXME: Check for existing session
-        // FIXME: Add otc key on new session
-        
         guard let identityCard = self.identityCard else {
             completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
             return
@@ -75,7 +73,7 @@ extension SecureChat {
         completion(secureTalk, nil)
     }
     
-    public func initTalk(withRecipientWithIdentity identity: String, completion: @escaping (SecureTalk?, Error?)->()) {
+    public func initiateTalk(withRecipientWithIdentity identity: String, completion: @escaping (SecureTalk?, Error?)->()) {
         self.client.getRecipientCardsSet(forIdentities: [identity]) { cardsSets, error in
             guard error == nil else {
                 completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set."]))
@@ -91,12 +89,42 @@ extension SecureChat {
             let cardsSet = cardsSets[0]
             
             do {
-                try self.initTalk(withCardsSet: cardsSet) { secureTalk, error in
+                try self.initiateTalk(withCardsSet: cardsSet) { secureTalk, error in
                     completion(secureTalk, error)
                 }
             }
             catch {
                 // FIXME
+            }
+        }
+    }
+}
+
+// MARK: Talk responding
+extension SecureChat {
+    private func respondTalk(withCard card: VSSCard, completion: @escaping (SecureTalk?, Error?)->()) {
+        let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, secureChatKeyHelper: self.keyHelper, initiatorIdCard: card)
+        
+        completion(secureTalk, nil)
+    }
+    
+    public func respondTalk(withRecipientWithCardId cardId: String, completion: @escaping (SecureTalk?, Error?)->()) {
+        // FIXME: Check for existing session
+        // FIXME: Add otc key on new session
+        
+        self.virgilClient.getCard(withId: cardId) { card, error in
+            guard error == nil else {
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining initiator identity card."]))
+                return
+            }
+            
+            guard let card = card else {
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid initiator identity card."]))
+                return
+            }
+            
+            self.respondTalk(withCard: card) { secureTalk, error in
+                completion(secureTalk, error)
             }
         }
     }
