@@ -70,7 +70,7 @@ extension SecureChat {
         let sessionState = SessionState(creationDate: Date(), ephKeyName: ephKeyName, recipientPublicKey: publicKey, recipientLongTermPublicKey: longTermPublicKey, recipientOneTimePublicKey: oneTimePublicKey)
         try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId, crypto: self.preferences.crypto)
         
-        let secureTalk = SecureTalk(crypto: self.preferences.crypto, myIdCard: identityCard, myPrivateKey: self.preferences.myPrivateKey, ephPrivateKey: ephPrivateKey, recipientIdCard: cardsSet.identityCard, recipientLtCard: cardsSet.longTermCard, recipientOtCard: cardsSet.oneTimeCard)
+        let secureTalk = SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, recipientIdCard: cardsSet.identityCard, recipientLtCard: cardsSet.longTermCard, recipientOtCard: cardsSet.oneTimeCard)
         
         completion(secureTalk, nil)
     }
