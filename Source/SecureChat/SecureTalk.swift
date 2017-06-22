@@ -12,11 +12,12 @@ import VirgilCrypto
 
 @objc(VSPSecureTalk) public class SecureTalk: NSObject {
     public let crypto: VSSCryptoProtocol
+    public let myIdCard: VSSCard
     public let myPrivateKey: VSSPrivateKey
     public let ephPrivateKey: VSSPrivateKey
-    public let recipientPublicKey: VSSPublicKey
-    public let recipientLongTermKey: VSSPublicKey
-    public let recipientOneTimeKey: VSSPublicKey?
+    public let recipientIdCard: VSSCard
+    public let recipientLtCard: VSSCard
+    public let recipientOtCard: VSSCard
     
     fileprivate let pfs = VSCPfs()
     
@@ -24,13 +25,14 @@ import VirgilCrypto
         return self.pfs.session != nil
     }
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, ephPrivateKey: VSSPrivateKey, recipientPublicKey: VSSPublicKey, recipientLongTermKey: VSSPublicKey, recipientOneTimeKey: VSSPublicKey? = nil) {
+    init(crypto: VSSCryptoProtocol, myIdCard: VSSCard, myPrivateKey: VSSPrivateKey, ephPrivateKey: VSSPrivateKey, recipientIdCard: VSSCard, recipientLtCard: VSSCard, recipientOtCard: VSSCard) {
         self.crypto = crypto
+        self.myIdCard = myIdCard
         self.myPrivateKey = myPrivateKey
         self.ephPrivateKey = ephPrivateKey
-        self.recipientPublicKey = recipientPublicKey
-        self.recipientLongTermKey = recipientLongTermKey
-        self.recipientOneTimeKey = recipientOneTimeKey
+        self.recipientIdCard = recipientIdCard
+        self.recipientLtCard = recipientLtCard
+        self.recipientOtCard = recipientOtCard
         
         super.init()
     }
@@ -38,9 +40,14 @@ import VirgilCrypto
 
 // Encryption
 extension SecureTalk {
-    func encrypt(message: String) throws -> String {
+    func encrypt(message: String) throws -> Data {
+        let isFirstMessage: Bool
         if !self.isSessionInitialized {
+            isFirstMessage = true
             try self.initiateSession()
+        }
+        else {
+            isFirstMessage = false
         }
         
         guard self.isSessionInitialized else {
@@ -51,10 +58,31 @@ extension SecureTalk {
             throw NSError()
         }
         
-        let encryptedMessage = self.pfs.encryptData(messageData)
+        guard let encryptedMessage = self.pfs.encryptData(messageData) else {
+            // FIXME
+            throw NSError()
+        }
         
-        // FIXME
-        return ""
+        if isFirstMessage {
+            // FIXME: Add support for weak sessions
+            let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
+            let weakSessionData = WeakSessionData(salt: msg.salt, cipherText: msg.cipherText)
+            let strongSessionData = StrongSessionData(receiverOtcId: self.recipientOtCard.identifier, salt: msg.salt, cipherText: msg.cipherText)
+            let ephPublicKey = self.crypto.extractPublicKey(from: self.ephPrivateKey)
+            let ephPublicKeyData = self.crypto.export(ephPublicKey)
+            let ephPublicKeySignature = try self.crypto.generateSignature(for: ephPublicKeyData, with: self.myPrivateKey)
+            
+            let initMsg = InitiationMessage(initiatorIcId: self.myIdCard.identifier, receiverIcId: self.recipientIdCard.identifier, receiverLtcId: self.recipientLtCard.identifier, ephPublicKey: ephPublicKeyData, ephPublicKeySignature: ephPublicKeySignature, weakSessionData: weakSessionData, strongSessionData: strongSessionData)
+            
+            let msgData = try JSONSerialization.data(withJSONObject: initMsg.serialize(), options: [])
+            return msgData
+        }
+        else {
+            // FIXME: Add support for weak sessions
+            let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
+            let msgData = try JSONSerialization.data(withJSONObject: msg.serialize(), options: [])
+            return msgData
+        }
     }
     
     func decrypt(encryptedMessage: String) -> String {
@@ -77,27 +105,16 @@ extension SecureTalk {
             throw NSError()
         }
         
-        let responderPublicKeyData = self.crypto.export(self.recipientPublicKey)
-        let responderLongTermPublicKeyData = self.crypto.export(self.recipientLongTermKey)
+        let responderPublicKeyData = self.recipientIdCard.publicKeyData
+        let responderLongTermPublicKeyData = self.recipientLtCard.publicKeyData
+        let responderOneTimePublicKeyData = self.recipientOtCard.publicKeyData
         guard let responderPublicKey = VSCPfsPublicKey(key: responderPublicKeyData),
-            let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData) else {
+            let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData),
+            let responderOneTimePublicKey = VSCPfsPublicKey(key: responderOneTimePublicKeyData) else {
                 throw NSError()
         }
         
-        let responderOneTimeKey: VSCPfsPublicKey?
-        if let rOneTimeKey = self.recipientOneTimeKey {
-            let recipientOneTimePublicKeyData = self.crypto.export(rOneTimeKey)
-            
-            guard let recipientOneTimePublicKey = VSCPfsPublicKey(key: recipientOneTimePublicKeyData) else {
-                throw NSError()
-            }
-            responderOneTimeKey = recipientOneTimePublicKey
-        }
-        else {
-            responderOneTimeKey = nil
-        }
-        
-        guard let responderPublicInfo = VSCPfsResponderPublicInfo(identityPublicKey: responderPublicKey, longTermPublicKey: responderLongTermPublicKey, oneTime: responderOneTimeKey) else {
+        guard let responderPublicInfo = VSCPfsResponderPublicInfo(identityPublicKey: responderPublicKey, longTermPublicKey: responderLongTermPublicKey, oneTime: responderOneTimePublicKey) else {
             throw NSError()
         }
         
