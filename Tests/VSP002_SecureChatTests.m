@@ -25,7 +25,10 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 @property (nonatomic) VSPTestsConst *consts;
 @property (nonatomic) VSPTestUtils *utils;
 @property (nonatomic) NSUInteger numberOfCards;
-@property (nonatomic) NSString *firstMessage;
+@property (nonatomic) NSString *message1;
+@property (nonatomic) NSString *message2;
+@property (nonatomic) NSString *message3;
+@property (nonatomic) NSString *message4;
 
 @end
 
@@ -57,7 +60,10 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     self.client = [[VSPClient alloc] initWithServiceConfig:config];
     
     self.numberOfCards = 5;
-    self.firstMessage = @"Hello, Bob!";
+    self.message1 = @"message1";
+    self.message2 = @"message2";
+    self.message3 = @"message3";
+    self.message4 = @"message4";
 }
 
 - (void)tearDown {
@@ -186,13 +192,71 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                     [self.initiatorSecureChat initiateTalkWithRecipientWithIdentity:responderCard.identity completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
                         [self.responderSecureChat respondToTalkWithInitiatorWithCardId:initiatorCard.identifier completion:^(VSPSecureTalk *responderTalk, NSError *error) {
                             NSError *err;
-                            NSData *encryptedMessage = [initiatorTalk encrypt:self.firstMessage error:&err];
+                            NSData *encryptedMessage = [initiatorTalk encrypt:self.message1 error:&err];
                             XCTAssert(err == nil);
                             XCTAssert(encryptedMessage.length > 0);
                             
                             NSString *message = [responderTalk decrypt:encryptedMessage error:&err];
                             XCTAssert(err == nil);
-                            XCTAssert([self.firstMessage isEqualToString:message]);
+                            XCTAssert([self.message1 isEqualToString:message]);
+                            
+                            [ex fulfill];
+                        }];
+                    }];
+                }];
+                
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test005_SetupSessionEncryptDecrypt {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Further encryption/decryption should work."];
+    
+    NSUInteger numberOfRequests = 6;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair];
+    VSSCreateCardRequest *responderIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair];
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
+        [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
+            sleep(5);
+            
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyCardId:initiatorCard.identifier myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig virgilServiceConfig:self.virgilClient.serviceConfig numberOfActiveOneTimeCards:self.numberOfCards deviceManager:[[VSSDeviceManager alloc] init]];
+            
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyCardId:responderCard.identifier myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig virgilServiceConfig:self.virgilClient.serviceConfig numberOfActiveOneTimeCards:self.numberOfCards deviceManager:[[VSSDeviceManager alloc] init]];
+            
+            self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+            self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
+            
+            [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+                [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
+                    [self.initiatorSecureChat initiateTalkWithRecipientWithIdentity:responderCard.identity completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
+                        [self.responderSecureChat respondToTalkWithInitiatorWithCardId:initiatorCard.identifier completion:^(VSPSecureTalk *responderTalk, NSError *error) {
+                            NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                            NSString *message1 = [responderTalk decrypt:encryptedMessage1 error:nil];
+                            XCTAssert([self.message1 isEqualToString:message1]);
+                            
+                            NSError *err;
+                            NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:&err];
+                            NSString *message2 = [responderTalk decrypt:encryptedMessage2 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message2 isEqualToString:message2]);
+                            
+                            NSData *encryptedMessage3 = [responderTalk encrypt:self.message3 error:&err];
+                            XCTAssert(err == nil);
+                            NSString *message3 = [initiatorTalk decrypt:encryptedMessage3 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message3 isEqualToString:message3]);
                             
                             [ex fulfill];
                         }];
