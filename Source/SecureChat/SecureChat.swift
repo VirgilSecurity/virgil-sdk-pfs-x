@@ -29,7 +29,7 @@ import VirgilSDK
         
         self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myCardId)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
-        self.sessionHelper = SecureChatSessionHelper()
+        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.myCardId)
         
         super.init()
     }

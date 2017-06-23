@@ -9,10 +9,14 @@
 import Foundation
 
 class SecureChatSessionHelper {
-    static private let DefaultsSuiteName = "VIRGIL.DEFAULTS"
+    fileprivate let cardId: String
+    
+    init(cardId: String) {
+        self.cardId = cardId
+    }
     
     func getAllSessions(crypto: VSSCryptoProtocol) throws -> [String: SessionState] {
-        guard let userDefaults = UserDefaults(suiteName: SecureChatSessionHelper.DefaultsSuiteName) else {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
@@ -31,7 +35,7 @@ class SecureChatSessionHelper {
     }
     
     func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws {
-        guard let userDefaults = UserDefaults(suiteName: SecureChatSessionHelper.DefaultsSuiteName) else {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
@@ -39,7 +43,7 @@ class SecureChatSessionHelper {
     }
     
     func getSessionState(forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws -> SessionState? {
-        guard let userDefaults = UserDefaults(suiteName: SecureChatSessionHelper.DefaultsSuiteName) else {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
@@ -53,5 +57,13 @@ class SecureChatSessionHelper {
         }
         
         return state
+    }
+}
+
+extension SecureChatSessionHelper {
+    static private let DefaultsSuiteName = "VIRGIL.DEFAULTS.%@"
+    
+    fileprivate func getSuiteName() -> String {
+        return String(format: SecureChatSessionHelper.DefaultsSuiteName, self.cardId)
     }
 }
