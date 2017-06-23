@@ -11,6 +11,11 @@ import VirgilSDK
 import VirgilCrypto
 
 @objc(VSPSecureTalk) public class SecureTalk: NSObject {
+    struct CardEntry {
+        let identifier: String
+        let publicKeyData: Data
+    }
+    
     public let crypto: VSSCryptoProtocol
     public let myPrivateKey: VSSPrivateKey
     

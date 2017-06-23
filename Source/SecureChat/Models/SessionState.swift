@@ -12,4 +12,5 @@ import VirgilSDK
 protocol SessionState {
     init?(dictionary: Any, crypto: VSSCryptoProtocol)
     func serialize(crypto: VSSCryptoProtocol) -> NSObject
+    var creationDate: Date { get }
 }

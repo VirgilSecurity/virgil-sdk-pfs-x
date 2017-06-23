@@ -13,11 +13,11 @@ import VirgilSDK
 class SecureTalkInitiator: SecureTalk {
     public let myIdCard: VSSCard
     public let ephPrivateKey: VSSPrivateKey
-    public let recipientIdCard: VSSCard
-    public let recipientLtCard: VSSCard
-    public let recipientOtCard: VSSCard
+    public let recipientIdCard: CardEntry
+    public let recipientLtCard: CardEntry
+    public let recipientOtCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: VSSCard, recipientLtCard: VSSCard, recipientOtCard: VSSCard) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry) {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
         self.recipientIdCard = recipientIdCard
@@ -85,17 +85,6 @@ extension SecureTalkInitiator {
 // Session initialization
 extension SecureTalkInitiator {
     fileprivate func initiateSession() throws {
-        let validator = EphemeralCardValidator(crypto: self.crypto)
-        
-        try validator.addVerifier(withId: self.recipientIdCard.identifier, publicKeyData: self.recipientIdCard.publicKeyData)
-        
-        guard validator.validate(cardResponse: self.recipientLtCard.cardResponse) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator LongTerm card validation failed."])
-        }
-        guard validator.validate(cardResponse: self.recipientOtCard.cardResponse) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator OneTime card validation failed."])
-        }
-        
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         let ephPrivateKeyData = self.crypto.export(self.ephPrivateKey, withPassword: nil)
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),

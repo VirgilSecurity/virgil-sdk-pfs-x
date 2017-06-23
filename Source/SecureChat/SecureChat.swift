@@ -68,7 +68,24 @@ extension SecureChat {
         let sessionState = InitiatorSessionState(creationDate: Date(), ephKeyName: ephKeyName, recipientPublicKey: publicKey, recipientLongTermPublicKey: longTermPublicKey, recipientOneTimePublicKey: oneTimePublicKey)
         try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId, crypto: self.preferences.crypto)
         
-        let secureTalk = SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, recipientIdCard: cardsSet.identityCard, recipientLtCard: cardsSet.longTermCard, recipientOtCard: cardsSet.oneTimeCard)
+        let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
+        
+        // FIXME validate identity card
+        
+        try validator.addVerifier(withId: cardsSet.identityCard.identifier, publicKeyData: cardsSet.identityCard.publicKeyData)
+        
+        guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator LongTerm card validation failed."])
+        }
+        guard validator.validate(cardResponse: cardsSet.oneTimeCard.cardResponse) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator OneTime card validation failed."])
+        }
+        
+        let identityCardEntry = SecureTalk.CardEntry(identifier: cardsSet.identityCard.identifier, publicKeyData: cardsSet.identityCard.publicKeyData)
+        let ltCardEntry = SecureTalk.CardEntry(identifier: cardsSet.longTermCard.identifier, publicKeyData: cardsSet.longTermCard.publicKeyData)
+        let otCardEntry = SecureTalk.CardEntry(identifier: cardsSet.oneTimeCard.identifier, publicKeyData: cardsSet.oneTimeCard.publicKeyData)
+        
+        let secureTalk = SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry)
         
         completion(secureTalk, nil)
     }
@@ -135,11 +152,42 @@ extension SecureChat {
     // Workaround for Swift bug SR-2444
     public typealias CompletionHandler = (Error?) -> ()
     
+    private static let SecondsInDay: TimeInterval = 24 * 60 * 60
+    private func removeOldSessions() throws {
+        let sessions = try self.sessionHelper.getAllSessions(crypto: self.preferences.crypto)
+        
+        let date = Date()
+        
+        var relevantEphKeys: [String] = []
+        
+        for session in sessions {
+            let sessionAge = date.timeIntervalSince1970 - session.value.creationDate.timeIntervalSince1970
+            if (sessionAge > TimeInterval(self.preferences.daysSessionLives) * SecureChat.SecondsInDay) {
+                // FIXME Remove session
+            }
+            else {
+                if let initiatorSession = session.value as? InitiatorSessionState {
+                    relevantEphKeys.append(initiatorSession.ephKeyName)
+                }
+                else if let responderSession = session.value as? ResponderSessionState {
+                    // FIXME
+                }
+            }
+        }
+    }
+    
     // FIXME: Get all sessions and check status of LT OT keys
     // FIXME: Check status of old keys and remove unneeded keys
     public func initialize(completion: CompletionHandler? = nil) {
         let errorCallback = { (error: Error?) in
             completion?(error)
+        }
+        
+        do {
+            try self.removeOldSessions()
+        }
+        catch {
+            // FIXME
         }
         
         var identityCard: VSSCard?
