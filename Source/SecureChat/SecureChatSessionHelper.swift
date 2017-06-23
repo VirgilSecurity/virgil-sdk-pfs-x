@@ -20,10 +20,11 @@ class SecureChatSessionHelper {
         
         var res: [String: SessionState] = [:]
         for val in dict {
-            guard let session = SessionState(dictionary: val.value, crypto: crypto) else {
-                continue
+            guard let state: SessionState = InitiatorSessionState(dictionary: val.value, crypto: crypto) ?? ResponderSessionState(dictionary: val.value, crypto: crypto) else {
+                // FIXME
+                throw NSError()
             }
-            res[val.key] = session
+            res[val.key] = state
         }
         
         return res
@@ -46,6 +47,11 @@ class SecureChatSessionHelper {
             return nil
         }
         
-        return SessionState(dictionary: dict, crypto: crypto)
+        guard let state: SessionState = InitiatorSessionState(dictionary: dict, crypto: crypto) ?? ResponderSessionState(dictionary: dict, crypto: crypto) else {
+            // FIXME
+            throw NSError()
+        }
+        
+        return state
     }
 }

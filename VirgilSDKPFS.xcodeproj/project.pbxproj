@@ -43,7 +43,7 @@
 		425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */; };
 		425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023E1EF9783600D9BBEF /* StrongSessionData.swift */; };
 		425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */; };
-		425A02431EFBC5A400D9BBEF /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02421EFBC5A400D9BBEF /* SessionState.swift */; };
+		425A02431EFBC5A400D9BBEF /* InitiatorSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */; };
 		425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */; };
 		425A02471EFBE86500D9BBEF /* SecureChatCardsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02461EFBE86500D9BBEF /* SecureChatCardsHelper.swift */; };
 		425A02491EFBE98E00D9BBEF /* SecureChatSessionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02481EFBE98E00D9BBEF /* SecureChatSessionHelper.swift */; };
@@ -51,6 +51,8 @@
 		425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */; };
 		425A02501EFC13C200D9BBEF /* SecureTalkResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A024F1EFC13C200D9BBEF /* SecureTalkResponder.swift */; };
 		425A02521EFC13E100D9BBEF /* SecureTalkInitiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02511EFC13E100D9BBEF /* SecureTalkInitiator.swift */; };
+		425A02561EFD176E00D9BBEF /* ResponderSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02551EFD176E00D9BBEF /* ResponderSessionState.swift */; };
+		425A02591EFD17A600D9BBEF /* SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02581EFD17A600D9BBEF /* SessionState.swift */; };
 		425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */; };
 		425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */; };
 		425E082E1EF8231900A74C29 /* RecipientCardsSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */; };
@@ -108,7 +110,7 @@
 		425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeakSessionData.swift; sourceTree = "<group>"; };
 		425A023E1EF9783600D9BBEF /* StrongSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrongSessionData.swift; sourceTree = "<group>"; };
 		425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceInfoEntry.swift; sourceTree = "<group>"; };
-		425A02421EFBC5A400D9BBEF /* SessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionState.swift; sourceTree = "<group>"; };
+		425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitiatorSessionState.swift; sourceTree = "<group>"; };
 		425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatKeyHelper.swift; sourceTree = "<group>"; };
 		425A02461EFBE86500D9BBEF /* SecureChatCardsHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatCardsHelper.swift; sourceTree = "<group>"; };
 		425A02481EFBE98E00D9BBEF /* SecureChatSessionHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatSessionHelper.swift; sourceTree = "<group>"; };
@@ -116,6 +118,8 @@
 		425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP002_SecureChatTests.m; sourceTree = "<group>"; };
 		425A024F1EFC13C200D9BBEF /* SecureTalkResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureTalkResponder.swift; sourceTree = "<group>"; };
 		425A02511EFC13E100D9BBEF /* SecureTalkInitiator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureTalkInitiator.swift; sourceTree = "<group>"; };
+		425A02551EFD176E00D9BBEF /* ResponderSessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponderSessionState.swift; sourceTree = "<group>"; };
+		425A02581EFD17A600D9BBEF /* SessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionState.swift; sourceTree = "<group>"; };
 		425E08291EF8077E00A74C29 /* Client+CreatingCards.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+CreatingCards.swift"; sourceTree = "<group>"; };
 		425E082B1EF8081800A74C29 /* Client+GetCredentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+GetCredentials.swift"; sourceTree = "<group>"; };
 		425E082D1EF8231900A74C29 /* RecipientCardsSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipientCardsSet.swift; sourceTree = "<group>"; };
@@ -327,7 +331,9 @@
 				425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */,
 				425A023E1EF9783600D9BBEF /* StrongSessionData.swift */,
 				425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */,
-				425A02421EFBC5A400D9BBEF /* SessionState.swift */,
+				425A02581EFD17A600D9BBEF /* SessionState.swift */,
+				425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */,
+				425A02551EFD176E00D9BBEF /* ResponderSessionState.swift */,
 				425A024A1EFBF10F00D9BBEF /* Message.swift */,
 			);
 			path = Models;
@@ -464,6 +470,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				425A02591EFD17A600D9BBEF /* SessionState.swift in Sources */,
 				420D0B741EEFEE74002A9C22 /* CreateLtcResponse.swift in Sources */,
 				420D15001EF2DB6C002A9C22 /* VSPCreateEphemeralCardRequest.m in Sources */,
 				420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */,
@@ -477,6 +484,7 @@
 				425A02521EFC13E100D9BBEF /* SecureTalkInitiator.swift in Sources */,
 				425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
+				425A02561EFD176E00D9BBEF /* ResponderSessionState.swift in Sources */,
 				420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */,
 				425A023B1EF974DD00D9BBEF /* InitiationMessage.swift in Sources */,
 				425A02381EF9416C00D9BBEF /* SecureChat.swift in Sources */,
@@ -496,7 +504,7 @@
 				425A024B1EFBF10F00D9BBEF /* Message.swift in Sources */,
 				420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */,
 				425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */,
-				425A02431EFBC5A400D9BBEF /* SessionState.swift in Sources */,
+				425A02431EFBC5A400D9BBEF /* InitiatorSessionState.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
 				425A02361EF93B9100D9BBEF /* SecureTalk.swift in Sources */,
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
