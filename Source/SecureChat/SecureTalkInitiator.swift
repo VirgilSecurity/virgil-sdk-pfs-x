@@ -30,7 +30,7 @@ class SecureTalkInitiator: SecureTalk {
 
 // Encryption
 extension SecureTalkInitiator {
-    override func encrypt(message: String) throws -> Data {
+    override func encrypt(_ message: String) throws -> Data {
         let isFirstMessage: Bool
         if !self.isSessionInitialized {
             isFirstMessage = true
@@ -69,22 +69,33 @@ extension SecureTalkInitiator {
         else {
             // FIXME: Add support for weak sessions
             
-            return try super.encrypt(message: message)
+            return try super.encrypt(message)
         }
     }
     
-    override func decrypt(encryptedMessage: Data) throws -> String {
+    override func decrypt(_ encryptedMessage: Data) throws -> String {
         guard self.isSessionInitialized else {
             throw NSError()
         }
         
-        return try super.decrypt(encryptedMessage: encryptedMessage)
+        return try super.decrypt(encryptedMessage)
     }
 }
 
 // Session initialization
 extension SecureTalkInitiator {
     fileprivate func initiateSession() throws {
+        let validator = EphemeralCardValidator(crypto: self.crypto)
+        
+        try validator.addVerifier(withId: self.recipientIdCard.identifier, publicKeyData: self.recipientIdCard.publicKeyData)
+        
+        guard validator.validate(cardResponse: self.recipientLtCard.cardResponse) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator LongTerm card validation failed."])
+        }
+        guard validator.validate(cardResponse: self.recipientOtCard.cardResponse) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator OneTime card validation failed."])
+        }
+        
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         let ephPrivateKeyData = self.crypto.export(self.ephPrivateKey, withPassword: nil)
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),

@@ -14,6 +14,8 @@ import VirgilCrypto
     public let crypto: VSSCryptoProtocol
     public let myPrivateKey: VSSPrivateKey
     
+    static public let ErrorDomain = "VSPSecureTalkErrorDomain"
+    
     let pfs = VSCPfs()
     
     var isSessionInitialized: Bool {
@@ -49,7 +51,7 @@ extension SecureTalk {
 
 // Encryption
 extension SecureTalk {
-    func encrypt(message: String) throws -> Data {
+    public func encrypt(_ message: String) throws -> Data {
         guard let messageData = message.data(using: .utf8) else {
             throw NSError()
         }
@@ -65,7 +67,7 @@ extension SecureTalk {
         return msgData
     }
     
-    func decrypt(encryptedMessage: Data) throws -> String {
+    public func decrypt(_ encryptedMessage: Data) throws -> String {
         let dict = try JSONSerialization.jsonObject(with: encryptedMessage, options: [])
         
         guard let msg = Message(dictionary: dict) else {

@@ -24,15 +24,15 @@ class SecureTalkResponder: SecureTalk {
 
 // Encryption
 extension SecureTalkResponder {
-    override func encrypt(message: String) throws -> Data {
+    override func encrypt(_ message: String) throws -> Data {
         guard self.isSessionInitialized else {
             throw NSError()
         }
         
-        return try super.encrypt(message: message)
+        return try super.encrypt(message)
     }
     
-    override func decrypt(encryptedMessage: Data) throws -> String {
+    override func decrypt(_ encryptedMessage: Data) throws -> String {
         if !self.isSessionInitialized {
             let dict = try JSONSerialization.jsonObject(with: encryptedMessage, options: [])
             
@@ -60,7 +60,7 @@ extension SecureTalkResponder {
                 throw NSError()
             }
             
-            return try super.decrypt(encryptedMessage: encryptedMessage)
+            return try super.decrypt(encryptedMessage)
         }
     }
 }
@@ -68,6 +68,11 @@ extension SecureTalkResponder {
 // Session initialization
 extension SecureTalkResponder {
     fileprivate func initiateSession(withInitiationMessage initiationMessage: InitiationMessage) throws {
+        // Check signature
+        guard initiationMessage.initiatorIcId == self.initiatorIdCard.identifier else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator identity card id for this talk and InitiationMessage doesn't match."])
+        }
+        
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         
         let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(keyName: initiationMessage.receiverLtcId)

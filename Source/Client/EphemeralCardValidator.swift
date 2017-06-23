@@ -28,7 +28,7 @@ class EphemeralCardValidator {
         self.verifiers[verifierId] = publicKey
     }
     
-    func validator(cardResponse: VSSCardResponse) -> Bool {
+    func validate(cardResponse: VSSCardResponse) -> Bool {
         let fingerprint = self.crypto.calculateFingerprint(for: cardResponse.snapshot)
         let cardId = fingerprint.hexValue
         

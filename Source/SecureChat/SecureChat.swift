@@ -108,7 +108,7 @@ extension SecureChat {
         completion(secureTalk, nil)
     }
     
-    public func respondToTalk(withRecipientWithCardId cardId: String, completion: @escaping (SecureTalk?, Error?)->()) {
+    public func respondToTalk(withInitiatorWithCardId cardId: String, completion: @escaping (SecureTalk?, Error?)->()) {
         // FIXME: Check for existing session
         // FIXME: Add otc key on new session
         
