@@ -159,7 +159,7 @@ extension SecureChat {
 
                 self.identityCard = identityCard
                 if numberOfMissingCards > 0 {
-                    //FIXME: Add longtermcard management
+                    // FIXME: Add longtermcard management
                     do {
                         try self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: true, numberOfOtcCards: numberOfMissingCards) { error in
                             guard error == nil else {
@@ -199,20 +199,17 @@ extension SecureChat {
         
         // Check ephemeral cards status
         self.client.getCardsStatus(forUserWithCardId: self.preferences.myCardId) { status, error in
-            // FIXME: Remove after backend fix
-//            guard error == nil else {
-//                errorCallback(error)
-//                return
-//            }
-//            
-//            guard let status = status else {
-//                // FIXME
-//                errorCallback(nil)
-//                return
-//            }
+            guard error == nil else {
+                errorCallback(error)
+                return
+            }
             
-            // FIXME: Remove after backend fix
-            let status = CardsStatus(active: 0, exhausted: 0)
+            guard let status = status else {
+                // FIXME
+                errorCallback(nil)
+                return
+            }
+            
             // Not enough cards, add more
             numberOfMissingCards = max(self.preferences.numberOfActiveOneTimeCards - status.active, 0)
             operationCompletedCallback()
