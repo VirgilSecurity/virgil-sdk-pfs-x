@@ -10,14 +10,18 @@ import Foundation
 
 struct ResponderSessionState: SessionState {
     let creationDate: Date
-    let ephKeyName: String
+    let ephPublicKeyData: Data
+    let recipientLongTermCardId: String
+    let recipientOneTimeCardId: String
 }
 
 extension ResponderSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
-            Keys.ephKeyName.rawValue: self.ephKeyName,
+            Keys.ephPublicKeyData.rawValue: self.ephPublicKeyData,
+            Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
+            Keys.recipientOneTimeCardId.rawValue: self.recipientOneTimeCardId
         ]
         
         return dict
@@ -30,18 +34,22 @@ extension ResponderSessionState: Deserializable {
             return nil
         }
         
-        guard let date = dict[Keys.creationDate] as? Date,
-            let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String else {
+        guard let date = dict[Keys.creationDate.rawValue] as? Date,
+            let ephPublicKeyData = dict[Keys.ephPublicKeyData.rawValue] as? Data,
+            let recipientLongTermCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String,
+            let recipientOneTimeCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String else {
                 return nil
         }
         
-        self.init(creationDate: date, ephKeyName: ephKeyName)
+        self.init(creationDate: date, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
     }
 }
 
 extension ResponderSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creationDate"
-        case ephKeyName = "eph_key_name"
+        case ephPublicKeyData = "eph_public_key_data"
+        case recipientLongTermCardId = "recipient_long_term_card_id"
+        case recipientOneTimeCardId = "recipient_one_time_card_id"
     }
 }

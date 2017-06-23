@@ -12,13 +12,30 @@ import VirgilCrypto
 
 class SecureTalkResponder: SecureTalk {
     public let secureChatKeyHelper: SecureChatKeyHelper
+    public let secureChatSessionHelper: SecureChatSessionHelper
     public let initiatorIdCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, wasRecovered: Bool) {
+    init?(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, secureChatSessionHelper: SecureChatSessionHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) {
         self.secureChatKeyHelper = secureChatKeyHelper
         self.initiatorIdCard = initiatorCardEntry
+        self.secureChatSessionHelper = secureChatSessionHelper
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: true)
+        
+        do {
+            try self.initiateSession(ephPublicKeyData: ephPublicKeyData, receiverLtcId: receiverLtcId, receiverOtcId: receiverOtcId)
+        }
+        catch {
+            return nil
+        }
+    }
+    
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, secureChatSessionHelper: SecureChatSessionHelper, initiatorCardEntry: CardEntry) {
+        self.secureChatKeyHelper = secureChatKeyHelper
+        self.initiatorIdCard = initiatorCardEntry
+        self.secureChatSessionHelper = secureChatSessionHelper
+        
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: false)
     }
 }
 
@@ -68,15 +85,19 @@ extension SecureTalkResponder {
 // Session initialization
 extension SecureTalkResponder {
     fileprivate func initiateSession(withInitiationMessage initiationMessage: InitiationMessage) throws {
-        // Check signature
+        // FIXME: Check signature
         guard initiationMessage.initiatorIcId == self.initiatorIdCard.identifier else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator identity card id for this talk and InitiationMessage doesn't match."])
         }
         
+        try self.initiateSession(ephPublicKeyData: initiationMessage.ephPublicKey, receiverLtcId: initiationMessage.receiverLtcId, receiverOtcId: initiationMessage.strongSessionData.receiverOtcId)
+    }
+    
+    fileprivate func initiateSession(ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) throws {
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         
-        let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(withName: initiationMessage.receiverLtcId)
-        let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(name: initiationMessage.strongSessionData.receiverOtcId)
+        let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(withName: receiverLtcId)
+        let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(name: receiverOtcId)
         
         let ltPrivateKeyData = self.crypto.export(myLtPrivateKey, withPassword: nil)
         // FIXME: Weak sessions
@@ -91,13 +112,19 @@ extension SecureTalkResponder {
             throw NSError()
         }
         
-        guard let initiatorEphPublicKey = VSCPfsPublicKey(key: initiationMessage.ephPublicKey),
+        guard let initiatorEphPublicKey = VSCPfsPublicKey(key: ephPublicKeyData),
             let initiatorIdPublicKey = VSCPfsPublicKey(key: self.initiatorIdCard.publicKeyData) else {
                 throw NSError()
         }
         
         guard let responderPublicInfo = VSCPfsInitiatorPublicInfo(identityPublicKey: initiatorIdPublicKey, ephemeralPublicKey: initiatorEphPublicKey) else {
             throw NSError()
+        }
+        
+        if !self.wasRecovered {
+            let date = Date()
+            let session = ResponderSessionState(creationDate: date, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
+            try self.secureChatSessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier, crypto: self.crypto)
         }
         
         // FIXME
