@@ -95,7 +95,7 @@ extension SecureChat {
             let ephKeyName = session.ephKeyName
             let ephPrivateKey = try self.keyHelper.getEphPrivateKey(withKeyEntryName: ephKeyName)
             
-            let identityCardEntry = SecureTalk.CardEntry(identifier: identityCard.identifier, publicKeyData: identityCard.publicKeyData)
+            let identityCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
             let ltCardEntry = SecureTalk.CardEntry(identifier: session.recipientLongTermCardId, publicKeyData: session.recipientLongTermPublicKey)
             let otCardEntry = SecureTalk.CardEntry(identifier: session.recipientOneTimeCardId, publicKeyData: session.recipientOneTimePublicKey)
             
