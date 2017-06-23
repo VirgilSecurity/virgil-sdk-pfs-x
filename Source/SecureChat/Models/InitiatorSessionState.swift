@@ -43,7 +43,7 @@ extension InitiatorSessionState: Deserializable {
             return nil
         }
         
-        guard let date = dict[Keys.creationDate] as? Date,
+        guard let date = dict[Keys.creationDate.rawValue] as? Date,
             let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String,
             let recCardId = dict[Keys.recipientCardId.rawValue] as? String,
             let recPubKeyData = dict[Keys.recipientPublicKey.rawValue] as? Data,

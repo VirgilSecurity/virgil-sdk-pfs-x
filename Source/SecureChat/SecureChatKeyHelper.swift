@@ -32,12 +32,12 @@ class SecureChatKeyHelper {
         keyEntryNames.reserveCapacity(keys.count)
         
         for i in 0..<keys.count {
-            keyEntryNames.append(try self.saveOtPrivateKey(keys[i].privateKey, keyName: keys[i].keyName))
+            keyEntryNames.append(try self.saveOtPrivateKey(keys[i].privateKey, name: keys[i].keyName))
         }
         
         let ltcKeyEntryName: String?
         if let ltKey = ltKey {
-            ltcKeyEntryName = try self.saveLtPrivateKey(ltKey.privateKey, keyName: ltKey.keyName)
+            ltcKeyEntryName = try self.saveLtPrivateKey(ltKey.privateKey, name: ltKey.keyName)
         }
         else {
             ltcKeyEntryName = nil
@@ -85,39 +85,47 @@ class SecureChatKeyHelper {
 
 // MARK: Keys base functions
 extension SecureChatKeyHelper {
-    func getEphPrivateKey(keyName: String) throws -> VSSPrivateKey {
-        let name = self.getEphPrivateKeyName(keyName)
-        return try self.getPrivateKey(keyName: name)
+    func getEphPrivateKey(withName name: String) throws -> VSSPrivateKey {
+        let keyName = self.getEphPrivateKeyName(name)
+        return try self.getPrivateKey(withKeyName: keyName)
     }
     
-    func saveEphPrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
-        let name = self.getEphPrivateKeyName(keyName)
-        return try self.savePrivateKey(key, keyName: name)
+    func getEphPrivateKey(withKeyEntryName keyEntryName: String) throws -> VSSPrivateKey {
+        return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
-    func getLtPrivateKey(keyName: String) throws -> VSSPrivateKey {
-        let name = self.getLtPrivateKeyName(keyName)
-        return try self.getPrivateKey(keyName: name)
+    func saveEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+        let keyName = self.getEphPrivateKeyName(name)
+        return try self.savePrivateKey(key, keyName: keyName)
     }
     
-    fileprivate func saveLtPrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
-        let name = self.getLtPrivateKeyName(keyName)
-        return try self.savePrivateKey(key, keyName: name)
+    func getLtPrivateKey(withName name: String) throws -> VSSPrivateKey {
+        let keyName = self.getLtPrivateKeyName(name)
+        return try self.getPrivateKey(withKeyName: keyName)
     }
     
-    func getOtPrivateKey(keyName: String) throws -> VSSPrivateKey {
-        let name = self.getOtPrivateKeyName(keyName)
-        return try self.getPrivateKey(keyName: name)
+    fileprivate func saveLtPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+        let keyName = self.getLtPrivateKeyName(name)
+        return try self.savePrivateKey(key, keyName: keyName)
     }
     
-    fileprivate func saveOtPrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
-        let name = self.getOtPrivateKeyName(keyName)
-        return try self.savePrivateKey(key, keyName: name)
+    func getOtPrivateKey(name: String) throws -> VSSPrivateKey {
+        let keyName = self.getOtPrivateKeyName(name)
+        return try self.getPrivateKey(withKeyName: keyName)
     }
     
-    private func getPrivateKey(keyName: String) throws -> VSSPrivateKey {
+    fileprivate func saveOtPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+        let keyName = self.getOtPrivateKeyName(name)
+        return try self.savePrivateKey(key, keyName: keyName)
+    }
+    
+    private func getPrivateKey(withKeyName keyName: String) throws -> VSSPrivateKey {
         let keyEntryName = self.getPrivateKeyName(keyName)
         
+        return try self.getPrivateKey(withKeyEntryName: keyEntryName)
+    }
+    
+    private func getPrivateKey(withKeyEntryName keyEntryName: String) throws -> VSSPrivateKey {
         let keyEntry = try self.keyStorage.loadKeyEntry(withName: keyEntryName)
         
         guard let privateKey = self.crypto.importPrivateKey(from: keyEntry.value) else {

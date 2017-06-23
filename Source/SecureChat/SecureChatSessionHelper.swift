@@ -24,6 +24,10 @@ class SecureChatSessionHelper {
         
         var res: [String: SessionState] = [:]
         for val in dict {
+            guard self.isSessionName(name: val.key) else {
+                continue
+            }
+            
             guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
                 // FIXME
                 throw NSError()
@@ -39,7 +43,7 @@ class SecureChatSessionHelper {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
-        userDefaults.set(sessionState.serialize(), forKey: cardId)
+        userDefaults.set(sessionState.serialize(), forKey: self.getSessionName(forCardId: cardId))
     }
     
     func getSessionState(forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws -> SessionState? {
@@ -47,7 +51,7 @@ class SecureChatSessionHelper {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
-        guard let dict = userDefaults.value(forKey: cardId) else {
+        guard let dict = userDefaults.value(forKey: self.getSessionName(forCardId: cardId)) else {
             return nil
         }
         
@@ -62,6 +66,26 @@ class SecureChatSessionHelper {
 
 extension SecureChatSessionHelper {
     static private let DefaultsSuiteName = "VIRGIL.DEFAULTS.%@"
+    static private let DefaultsSessionName = "VIRGIL.SESSION.%@"
+    
+    fileprivate func isSessionName(name: String) -> Bool {
+        guard name.characters.count > SecureChatSessionHelper.DefaultsSessionName.characters.count else {
+            return false
+        }
+        
+        let index = name.index(name.startIndex, offsetBy: SecureChatSessionHelper.DefaultsSessionName.characters.count)
+        let substr = name.substring(to: index)
+        
+        guard substr == SecureChatSessionHelper.DefaultsSessionName else {
+            return false
+        }
+        
+        return true
+    }
+    
+    fileprivate func getSessionName(forCardId cardId: String) -> String {
+        return String(format: SecureChatSessionHelper.DefaultsSessionName, cardId)
+    }
     
     fileprivate func getSuiteName() -> String {
         return String(format: SecureChatSessionHelper.DefaultsSuiteName, self.cardId)

@@ -14,11 +14,11 @@ class SecureTalkResponder: SecureTalk {
     public let secureChatKeyHelper: SecureChatKeyHelper
     public let initiatorIdCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, wasRecovered: Bool) {
         self.secureChatKeyHelper = secureChatKeyHelper
         self.initiatorIdCard = initiatorCardEntry
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered)
     }
 }
 
@@ -75,8 +75,8 @@ extension SecureTalkResponder {
         
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         
-        let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(keyName: initiationMessage.receiverLtcId)
-        let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(keyName: initiationMessage.strongSessionData.receiverOtcId)
+        let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(withName: initiationMessage.receiverLtcId)
+        let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(name: initiationMessage.strongSessionData.receiverOtcId)
         
         let ltPrivateKeyData = self.crypto.export(myLtPrivateKey, withPassword: nil)
         // FIXME: Weak sessions

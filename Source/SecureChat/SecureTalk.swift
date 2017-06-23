@@ -18,6 +18,7 @@ import VirgilCrypto
     
     public let crypto: VSSCryptoProtocol
     public let myPrivateKey: VSSPrivateKey
+    public let wasRecovered: Bool
     
     static public let ErrorDomain = "VSPSecureTalkErrorDomain"
     
@@ -28,9 +29,10 @@ import VirgilCrypto
     }
     
     // For initiator
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool) {
         self.crypto = crypto
         self.myPrivateKey = myPrivateKey
+        self.wasRecovered = wasRecovered
         
         super.init()
     }
