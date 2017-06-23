@@ -24,7 +24,7 @@ class SecureChatSessionHelper {
         
         var res: [String: SessionState] = [:]
         for val in dict {
-            guard let state: SessionState = InitiatorSessionState(dictionary: val.value, crypto: crypto) ?? ResponderSessionState(dictionary: val.value, crypto: crypto) else {
+            guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
                 // FIXME
                 throw NSError()
             }
@@ -39,7 +39,7 @@ class SecureChatSessionHelper {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
-        userDefaults.set(sessionState.serialize(crypto: crypto), forKey: cardId)
+        userDefaults.set(sessionState.serialize(), forKey: cardId)
     }
     
     func getSessionState(forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws -> SessionState? {
@@ -51,7 +51,7 @@ class SecureChatSessionHelper {
             return nil
         }
         
-        guard let state: SessionState = InitiatorSessionState(dictionary: dict, crypto: crypto) ?? ResponderSessionState(dictionary: dict, crypto: crypto) else {
+        guard let state: SessionState = InitiatorSessionState(dictionary: dict) ?? ResponderSessionState(dictionary: dict) else {
             // FIXME
             throw NSError()
         }

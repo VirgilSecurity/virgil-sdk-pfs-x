@@ -9,8 +9,6 @@
 import Foundation
 import VirgilSDK
 
-protocol SessionState {
-    init?(dictionary: Any, crypto: VSSCryptoProtocol)
-    func serialize(crypto: VSSCryptoProtocol) -> NSObject
+protocol SessionState: Serializable, Deserializable {
     var creationDate: Date { get }
 }

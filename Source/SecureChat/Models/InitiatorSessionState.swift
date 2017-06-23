@@ -12,46 +12,49 @@ import VirgilSDK
 struct InitiatorSessionState: SessionState {
     let creationDate: Date
     let ephKeyName: String
-    let recipientPublicKey: VSSPublicKey
-    let recipientLongTermPublicKey: VSSPublicKey
-    let recipientOneTimePublicKey: VSSPublicKey
+    let recipientCardId: String
+    let recipientPublicKey: Data
+    let recipientLongTermCardId: String
+    let recipientLongTermPublicKey: Data
+    let recipientOneTimeCardId: String
+    let recipientOneTimePublicKey: Data
 }
 
-extension InitiatorSessionState {
-    func serialize(crypto: VSSCryptoProtocol) -> NSObject {
+extension InitiatorSessionState: Serializable {
+    func serialize() -> NSObject {
         let dict: NSDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
             Keys.ephKeyName.rawValue: self.ephKeyName,
-            Keys.recipientPublicKey.rawValue: crypto.export(self.recipientPublicKey),
-            Keys.recipientLongTermPublicKey.rawValue: crypto.export(self.recipientLongTermPublicKey),
-            Keys.recipientOneTimePublicKey.rawValue: crypto.export(self.recipientOneTimePublicKey)
+            Keys.recipientCardId.rawValue: self.recipientCardId,
+            Keys.recipientPublicKey.rawValue: self.recipientPublicKey,
+            Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
+            Keys.recipientLongTermPublicKey.rawValue: self.recipientLongTermPublicKey,
+            Keys.recipientOneTimeCardId.rawValue: self.recipientOneTimeCardId,
+            Keys.recipientOneTimePublicKey.rawValue: self.recipientOneTimePublicKey
         ]
         
         return dict
     }
 }
 
-extension InitiatorSessionState {
-    init?(dictionary: Any, crypto: VSSCryptoProtocol) {
+extension InitiatorSessionState: Deserializable {
+    init?(dictionary: Any) {
         guard let dict = dictionary as? [AnyHashable: Any] else {
             return nil
         }
         
         guard let date = dict[Keys.creationDate] as? Date,
             let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String,
+            let recCardId = dict[Keys.recipientCardId.rawValue] as? String,
             let recPubKeyData = dict[Keys.recipientPublicKey.rawValue] as? Data,
+            let recLtCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String,
             let recLtKeyData = dict[Keys.recipientLongTermPublicKey.rawValue] as? Data,
+            let recOtCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String,
             let recOtKeyData = dict[Keys.recipientOneTimePublicKey.rawValue] as? Data else {
                 return nil
         }
         
-        guard let recPubKey = crypto.importPublicKey(from: recPubKeyData),
-            let recLtKey = crypto.importPublicKey(from: recLtKeyData),
-            let recOtKey = crypto.importPublicKey(from: recOtKeyData) else {
-                return nil
-        }
-        
-        self.init(creationDate: date, ephKeyName: ephKeyName, recipientPublicKey: recPubKey, recipientLongTermPublicKey: recLtKey, recipientOneTimePublicKey: recOtKey)
+        self.init(creationDate: date, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
     }
 }
 
@@ -59,8 +62,11 @@ extension InitiatorSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creationDate"
         case ephKeyName = "eph_key_name"
-        case recipientPublicKey = "recipientPublicKey"
-        case recipientLongTermPublicKey = "recipientLongTermPublicKey"
-        case recipientOneTimePublicKey = "recipientOneTimePublicKey"
+        case recipientCardId = "recipient_card_id"
+        case recipientPublicKey = "recipient_public_key"
+        case recipientLongTermCardId = "recipient_long_term_card_id"
+        case recipientLongTermPublicKey = "recipient_long_term_public_key"
+        case recipientOneTimeCardId = "recipient_one_time_card_id"
+        case recipientOneTimePublicKey = "recipient_one_time_public_key"
     }
 }

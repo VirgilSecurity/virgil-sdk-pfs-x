@@ -12,11 +12,11 @@ import VirgilCrypto
 
 class SecureTalkResponder: SecureTalk {
     public let secureChatKeyHelper: SecureChatKeyHelper
-    public let initiatorIdCard: VSSCard
+    public let initiatorIdCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, initiatorIdCard: VSSCard) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry) {
         self.secureChatKeyHelper = secureChatKeyHelper
-        self.initiatorIdCard = initiatorIdCard
+        self.initiatorIdCard = initiatorCardEntry
         
         super.init(crypto: crypto, myPrivateKey: myPrivateKey)
     }
