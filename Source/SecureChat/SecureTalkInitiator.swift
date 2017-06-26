@@ -13,18 +13,20 @@ import VirgilSDK
 class SecureTalkInitiator: SecureTalk {
     public let myIdCard: VSSCard
     public let ephPrivateKey: VSSPrivateKey
+    public let ephPrivateKeyName: String
     public let recipientIdCard: CardEntry
     public let recipientLtCard: CardEntry
     public let recipientOtCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool) throws {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
+        self.ephPrivateKeyName = ephPrivateKeyName
         self.recipientIdCard = recipientIdCard
         self.recipientLtCard = recipientLtCard
         self.recipientOtCard = recipientOtCard
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered, sessionHelper: sessionHelper)
         
         if self.wasRecovered {
             try self.initiateSession()
@@ -45,17 +47,16 @@ extension SecureTalkInitiator {
         }
         
         guard self.isSessionInitialized else {
-            throw NSError()
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
         if isFirstMessage {
             guard let messageData = message.data(using: .utf8) else {
-                throw NSError()
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data."])
             }
             
             guard let encryptedMessage = self.pfs.encryptData(messageData) else {
-                // FIXME
-                throw NSError()
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while encrypting message."])
             }
             // FIXME: Add support for weak sessions
             let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
@@ -79,7 +80,7 @@ extension SecureTalkInitiator {
     
     override func decrypt(_ encryptedMessage: Data) throws -> String {
         guard self.isSessionInitialized else {
-            throw NSError()
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
         return try super.decrypt(encryptedMessage)
@@ -93,11 +94,11 @@ extension SecureTalkInitiator {
         let ephPrivateKeyData = self.crypto.export(self.ephPrivateKey, withPassword: nil)
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
             let ephPrivateKey = VSCPfsPrivateKey(key: ephPrivateKeyData, password: nil) else {
-                throw NSError()
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
         
         guard let initiatorPrivateInfo = VSCPfsInitiatorPrivateInfo(identityPrivateKey: privateKey, ephemeralPrivateKey: ephPrivateKey) else {
-            throw NSError()
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating initiatorPrivateInfo."])
         }
         
         let responderPublicKeyData = self.recipientIdCard.publicKeyData
@@ -106,16 +107,26 @@ extension SecureTalkInitiator {
         guard let responderPublicKey = VSCPfsPublicKey(key: responderPublicKeyData),
             let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData),
             let responderOneTimePublicKey = VSCPfsPublicKey(key: responderOneTimePublicKeyData) else {
-                throw NSError()
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
         
         guard let responderPublicInfo = VSCPfsResponderPublicInfo(identityPublicKey: responderPublicKey, longTermPublicKey: responderLongTermPublicKey, oneTime: responderOneTimePublicKey) else {
-            throw NSError()
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPublicInfo."])
         }
         
-        // FIXME
-        guard let _ = self.pfs.startInitiatorSession(with: initiatorPrivateInfo, respondrerPublicInfo: responderPublicInfo, additionalData: nil) else {
-            throw NSError()
+        // FIXME: Additional data
+        guard let session = self.pfs.startInitiatorSession(with: initiatorPrivateInfo, respondrerPublicInfo: responderPublicInfo, additionalData: nil) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while initiating initiator session."])
+        }
+        
+        if !self.wasRecovered {
+            let date = Date()
+            let sessionId = session.identifier
+            
+            // FIXME: Optional one time key?
+            let sessionState = InitiatorSessionState(creationDate: date, sessionId: sessionId, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard.identifier, recipientOneTimePublicKey: self.recipientOtCard.publicKeyData)
+            
+            try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier, crypto: self.crypto)
         }
     }
 }

@@ -29,8 +29,7 @@ class SecureChatSessionHelper {
             }
             
             guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
-                // FIXME
-                throw NSError()
+                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
             }
             res[val.key] = state
         }
@@ -56,8 +55,7 @@ class SecureChatSessionHelper {
         }
         
         guard let state: SessionState = InitiatorSessionState(dictionary: dict) ?? ResponderSessionState(dictionary: dict) else {
-            // FIXME
-            throw NSError()
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
         return state

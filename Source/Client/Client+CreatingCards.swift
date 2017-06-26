@@ -30,7 +30,7 @@ extension Client {
             do {
                 let otc = try response.otc.map( { dict -> VSSCard in
                     guard let card = VSSCard(dict: dict) else {
-                        throw NSError()
+                        throw NSError(domain: Client.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error deserializing virgil card."])
                     }
                     
                     return card
@@ -104,7 +104,7 @@ extension Client {
             do {
                 let otc = try response.otc.map( { dict -> VSSCard in
                     guard let card = VSSCard(dict: dict) else {
-                        throw NSError()
+                        throw NSError(domain: Client.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error deserializing virgil card."])
                     }
                     
                     return card
