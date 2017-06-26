@@ -11,6 +11,7 @@ import Foundation
 struct ResponderSessionState: SessionState {
     let creationDate: Date
     let sessionId: Data
+    let additionalData: Data?
     let ephPublicKeyData: Data
     let recipientLongTermCardId: String
     let recipientOneTimeCardId: String
@@ -18,13 +19,17 @@ struct ResponderSessionState: SessionState {
 
 extension ResponderSessionState: Serializable {
     func serialize() -> NSObject {
-        let dict: NSDictionary = [
+        let dict: NSMutableDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
             Keys.sessionId.rawValue: self.sessionId,
             Keys.ephPublicKeyData.rawValue: self.ephPublicKeyData,
             Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
             Keys.recipientOneTimeCardId.rawValue: self.recipientOneTimeCardId
         ]
+        
+        if let ad = self.additionalData {
+            dict[Keys.additionalData.rawValue] = ad
+        }
         
         return dict
     }
@@ -44,14 +49,17 @@ extension ResponderSessionState: Deserializable {
                 return nil
         }
         
-        self.init(creationDate: date, sessionId: sessionId, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
+        let additionalData = dict[Keys.additionalData.rawValue] as? Data
+        
+        self.init(creationDate: date, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
     }
 }
 
 extension ResponderSessionState {
     fileprivate enum Keys: String {
-        case creationDate = "creationDate"
+        case creationDate = "creation_date"
         case sessionId = "session_id"
+        case additionalData = "additional_data"
         case ephPublicKeyData = "eph_public_key_data"
         case recipientLongTermCardId = "recipient_long_term_card_id"
         case recipientOneTimeCardId = "recipient_one_time_card_id"

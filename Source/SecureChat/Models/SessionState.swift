@@ -12,4 +12,5 @@ import VirgilSDK
 protocol SessionState: Serializable, Deserializable {
     var creationDate: Date { get }
     var sessionId: Data { get }
+    var additionalData: Data? { get }
 }
