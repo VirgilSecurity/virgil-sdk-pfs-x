@@ -61,17 +61,6 @@ extension SecureChat {
             return
         }
         
-        // FIXME: Optional one time key?
-        let sessionState = InitiatorSessionState(creationDate: Date(), ephKeyName: ephKeyName, recipientCardId: cardsSet.identityCard.identifier, recipientPublicKey: identityPublicKeyData, recipientLongTermCardId: cardsSet.longTermCard.identifier, recipientLongTermPublicKey: longTermPublicKeyData, recipientOneTimeCardId: cardsSet.oneTimeCard.identifier, recipientOneTimePublicKey: oneTimePublicKeyData)
-        
-        do {
-            try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId, crypto: self.preferences.crypto)
-        }
-        catch {
-            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving new session."]))
-            return
-        }
-        
         let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
         
         // FIXME validate identity card
@@ -103,13 +92,30 @@ extension SecureChat {
         let secureTalk: SecureTalk
         do {
             secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false)
+            
+            guard let sessionId = secureTalk.pfs.session?.identifier else {
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining session id."]))
+                return
+            }
+            
+            // FIXME: Optional one time key?
+            let sessionState = InitiatorSessionState(creationDate: Date(), sessionId: sessionId, ephKeyName: ephKeyName, recipientCardId: cardsSet.identityCard.identifier, recipientPublicKey: identityPublicKeyData, recipientLongTermCardId: cardsSet.longTermCard.identifier, recipientLongTermPublicKey: longTermPublicKeyData, recipientOneTimeCardId: cardsSet.oneTimeCard.identifier, recipientOneTimePublicKey: oneTimePublicKeyData)
+            
+            do {
+                try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: recipientCardId, crypto: self.preferences.crypto)
+            }
+            catch {
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving new session."]))
+                return
+            }
+         
+            completion(secureTalk, nil)
+            return
         }
         catch {
             completion(nil, error)
             return
         }
-        
-        completion(secureTalk, nil)
     }
     
     private func initiateTalk(withRecipientWithCard card: VSSCard, completion: @escaping (SecureTalk?, Error?)->()) {

@@ -115,15 +115,16 @@ extension SecureTalkResponder {
             throw NSError()
         }
         
-        if !self.wasRecovered {
-            let date = Date()
-            let session = ResponderSessionState(creationDate: date, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
-            try self.secureChatSessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier, crypto: self.crypto)
+        // FIXME
+        guard let session = self.pfs.startResponderSession(with: responderPrivateInfo, respondrerPublicInfo: responderPublicInfo, additionalData: nil) else {
+            throw NSError()
         }
         
-        // FIXME
-        guard let _ = self.pfs.startResponderSession(with: responderPrivateInfo, respondrerPublicInfo: responderPublicInfo, additionalData: nil) else {
-            throw NSError()
+        if !self.wasRecovered {
+            let date = Date()
+            let sessionId = session.identifier
+            let session = ResponderSessionState(creationDate: date, sessionId: sessionId, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
+            try self.secureChatSessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier, crypto: self.crypto)
         }
     }
 }

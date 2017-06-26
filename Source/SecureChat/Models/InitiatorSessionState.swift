@@ -11,6 +11,7 @@ import VirgilSDK
 
 struct InitiatorSessionState: SessionState {
     let creationDate: Date
+    let sessionId: Data
     let ephKeyName: String
     let recipientCardId: String
     let recipientPublicKey: Data
@@ -24,6 +25,7 @@ extension InitiatorSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
+            Keys.sessionId.rawValue: self.sessionId,
             Keys.ephKeyName.rawValue: self.ephKeyName,
             Keys.recipientCardId.rawValue: self.recipientCardId,
             Keys.recipientPublicKey.rawValue: self.recipientPublicKey,
@@ -44,6 +46,7 @@ extension InitiatorSessionState: Deserializable {
         }
         
         guard let date = dict[Keys.creationDate.rawValue] as? Date,
+            let sessionId = dict[Keys.sessionId.rawValue] as? Data,
             let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String,
             let recCardId = dict[Keys.recipientCardId.rawValue] as? String,
             let recPubKeyData = dict[Keys.recipientPublicKey.rawValue] as? Data,
@@ -54,13 +57,14 @@ extension InitiatorSessionState: Deserializable {
                 return nil
         }
         
-        self.init(creationDate: date, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
+        self.init(creationDate: date, sessionId: sessionId, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
     }
 }
 
 extension InitiatorSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creationDate"
+        case sessionId = "session_id"
         case ephKeyName = "eph_key_name"
         case recipientCardId = "recipient_card_id"
         case recipientPublicKey = "recipient_public_key"
