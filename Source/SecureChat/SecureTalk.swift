@@ -75,12 +75,30 @@ extension SecureTalk {
     }
     
     public func decrypt(_ encryptedMessage: Data) throws -> String {
-        let dict = try JSONSerialization.jsonObject(with: encryptedMessage, options: [])
+        let msg = try SecureTalk.extractMessage(encryptedMessage)
+        
+        return try self.decrypt(encryptedMessage: msg)
+    }
+}
+
+extension SecureTalk {
+    static func extractInitiationMessage(_ message: Data) throws -> InitiationMessage {
+        let dict = try JSONSerialization.jsonObject(with: message, options: [])
+        
+        guard let msg = InitiationMessage(dictionary: dict) else {
+            throw NSError()
+        }
+        
+        return msg
+    }
+    
+    static func extractMessage(_ message: Data) throws -> Message {
+        let dict = try JSONSerialization.jsonObject(with: message, options: [])
         
         guard let msg = Message(dictionary: dict) else {
             throw NSError()
         }
         
-        return try self.decrypt(encryptedMessage: msg)
+        return msg
     }
 }

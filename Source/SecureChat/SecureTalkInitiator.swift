@@ -17,7 +17,7 @@ class SecureTalkInitiator: SecureTalk {
     public let recipientLtCard: CardEntry
     public let recipientOtCard: CardEntry
     
-    init?(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool) throws {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
         self.recipientIdCard = recipientIdCard
@@ -27,12 +27,7 @@ class SecureTalkInitiator: SecureTalk {
         super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered)
         
         if self.wasRecovered {
-            do {
-                try self.initiateSession()
-            }
-            catch {
-                return nil
-            }
+            try self.initiateSession()
         }
     }
 }

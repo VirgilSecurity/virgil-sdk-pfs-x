@@ -205,8 +205,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
         [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
-            
-            [self.client getRecipientCardsSetForIdentities:@[card.identity] completion:^(NSArray<VSPRecipientCardsSet*> *credentials, NSError *error) {
+            [self.client getRecipientCardsSetForCardsIds:@[card.identifier] completion:^(NSArray<VSPRecipientCardsSet*> *credentials, NSError *error) {
                 XCTAssert(error == nil);
                 XCTAssert(credentials != nil);
                 
@@ -255,8 +254,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
         
         [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
-            
-            [self.client getRecipientCardsSetForIdentities:@[card.identity] completion:^(NSArray<VSPRecipientCardsSet *> *credentials, NSError *error) {
+            [self.client getRecipientCardsSetForCardsIds:@[card.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *credentials, NSError *error) {
                 [self.client getCardsStatusForUserWithCardId:card.identifier completion:^(VSPCardsStatus *cardsInfo, NSError *error) {
                     XCTAssert(error == nil);
                     XCTAssert(cardsInfo != nil);

@@ -19,7 +19,7 @@ class CredentialsHTTPRequest: PFSBaseHTTPRequest {
     }
     
     override var methodPath: String {
-        return "recipient/actions/search"
+        return "recipient/actions/search-by-ids"
     }
     
     override func handleResponse(_ candidate: NSObject?) -> Error? {

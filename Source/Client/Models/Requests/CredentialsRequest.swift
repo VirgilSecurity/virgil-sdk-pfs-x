@@ -9,13 +9,13 @@
 import Foundation
 
 struct CredentialsRequest {
-    let identities: [String]
+    let cardsIds: [String]
 }
 
 extension CredentialsRequest: Serializable {
     func serialize() -> NSObject {
         let dict: NSDictionary = [
-            "identities": self.identities,
+            "identity_cards_ids": self.cardsIds,
         ]
         
         return dict

@@ -15,19 +15,14 @@ class SecureTalkResponder: SecureTalk {
     public let secureChatSessionHelper: SecureChatSessionHelper
     public let initiatorIdCard: CardEntry
     
-    init?(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, secureChatSessionHelper: SecureChatSessionHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, secureChatSessionHelper: SecureChatSessionHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) throws {
         self.secureChatKeyHelper = secureChatKeyHelper
         self.initiatorIdCard = initiatorCardEntry
         self.secureChatSessionHelper = secureChatSessionHelper
         
         super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: true)
         
-        do {
-            try self.initiateSession(ephPublicKeyData: ephPublicKeyData, receiverLtcId: receiverLtcId, receiverOtcId: receiverOtcId)
-        }
-        catch {
-            return nil
-        }
+        try self.initiateSession(ephPublicKeyData: ephPublicKeyData, receiverLtcId: receiverLtcId, receiverOtcId: receiverOtcId)
     }
     
     init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, secureChatKeyHelper: SecureChatKeyHelper, secureChatSessionHelper: SecureChatSessionHelper, initiatorCardEntry: CardEntry) {
@@ -49,28 +44,27 @@ extension SecureTalkResponder {
         return try super.encrypt(message)
     }
     
+    func decrypt(_ initiationMessage: InitiationMessage) throws -> String {
+        try self.initiateSession(withInitiationMessage: initiationMessage)
+        
+        guard self.isSessionInitialized else {
+            throw NSError()
+        }
+        
+        guard let sessionId = self.pfs.session?.identifier else {
+            throw NSError()
+        }
+        
+        // FIXME: Weak sessions
+        let message = Message(sessionId: sessionId, salt: initiationMessage.strongSessionData.salt, cipherText: initiationMessage.strongSessionData.cipherText)
+        
+        return try self.decrypt(encryptedMessage: message)
+    }
+    
     override func decrypt(_ encryptedMessage: Data) throws -> String {
         if !self.isSessionInitialized {
-            let dict = try JSONSerialization.jsonObject(with: encryptedMessage, options: [])
-            
-            guard let msg = InitiationMessage(dictionary: dict) else {
-                throw NSError()
-            }
-            
-            try self.initiateSession(withInitiationMessage: msg)
-            
-            guard self.isSessionInitialized else {
-                throw NSError()
-            }
-            
-            guard let sessionId = self.pfs.session?.identifier else {
-                throw NSError()
-            }
-            
-            // FIXME: Weak sessions
-            let message = Message(sessionId: sessionId, salt: msg.strongSessionData.salt, cipherText: msg.strongSessionData.cipherText)
-            
-            return try self.decrypt(encryptedMessage: message)
+            let initiationMessage = try SecureTalkResponder.extractInitiationMessage(encryptedMessage)
+            return try self.decrypt(initiationMessage)
         }
         else {
             guard self.isSessionInitialized else {
