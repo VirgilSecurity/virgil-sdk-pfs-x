@@ -21,6 +21,7 @@ import VirgilCrypto
     let wasRecovered: Bool
     let additionalData: Data?
     let sessionHelper: SecureChatSessionHelper
+    let ttl: TimeInterval
     
     static public let ErrorDomain = "VSPSecureTalkErrorDomain"
     
@@ -31,12 +32,13 @@ import VirgilCrypto
     }
     
     // For initiator
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool, sessionHelper: SecureChatSessionHelper, additionalData: Data?) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool, sessionHelper: SecureChatSessionHelper, additionalData: Data?, ttl: TimeInterval) {
         self.crypto = crypto
         self.myPrivateKey = myPrivateKey
         self.wasRecovered = wasRecovered
         self.sessionHelper = sessionHelper
         self.additionalData = additionalData
+        self.ttl = ttl
         
         super.init()
     }

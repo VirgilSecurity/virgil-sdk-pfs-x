@@ -90,7 +90,7 @@ extension SecureChat {
         
         let secureTalk: SecureTalk
         do {
-            secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false)
+            secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, ttl: self.preferences.sessionTtl)
          
             completion(secureTalk, nil)
             return
@@ -110,7 +110,7 @@ extension SecureChat {
         // FIXME: Check is session active
         let session: SessionState?
         do {
-            session = try self.sessionHelper.getSessionState(forRecipientCardId: cardId, crypto: self.preferences.crypto)
+            session = try self.sessionHelper.getSessionState(forRecipientCardId: cardId)
         }
         catch {
             completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while obtaining save session."]))
@@ -166,7 +166,7 @@ extension SecureChat {
     private func respondToTalk(withCard card: VSSCard, message: Data, additionalData: Data?, completion: @escaping (SecureTalk?, String?, Error?)->()) {
         if let initiationMessage = try? SecureTalk.extractInitiationMessage(message) {
             let cardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
-            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry)
+            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, ttl: self.preferences.sessionTtl, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry)
             
             let message: String
             do {
@@ -184,7 +184,7 @@ extension SecureChat {
             let sessionId = message.sessionId
             
             // FIXME check session expiration
-            guard case let session?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier, crypto: self.preferences.crypto),
+            guard case let session?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
                 session.sessionId == sessionId else {
                 completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."]))
                 return
@@ -266,7 +266,7 @@ extension SecureChat {
         let otCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientOneTimeCardId, publicKeyData: initiatorSessionState.recipientOneTimePublicKey)
         let additionalData = initiatorSessionState.additionalData
         
-        let secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true)
+        let secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, ttl: self.preferences.sessionTtl)
         
         return secureTalk
     }
@@ -275,7 +275,7 @@ extension SecureChat {
         let initiatorCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
         let additionalData = responderSessionState.additionalData
         
-        let secureTalk = try SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId)
+        let secureTalk = try SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, ttl: self.preferences.sessionTtl, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId)
         
         return secureTalk
     }
@@ -288,26 +288,7 @@ extension SecureChat {
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
     private func removeOldSessions() throws {
-        let sessions = try self.sessionHelper.getAllSessions(crypto: self.preferences.crypto)
-        
-        let date = Date()
-        
-        var relevantEphKeys: [String] = []
-        
-        for session in sessions {
-            let sessionAge = date.timeIntervalSince1970 - session.value.creationDate.timeIntervalSince1970
-            if (sessionAge > TimeInterval(self.preferences.daysSessionLives) * SecureChat.SecondsInDay) {
-                // FIXME Remove session
-            }
-            else {
-                if let initiatorSession = session.value as? InitiatorSessionState {
-                    relevantEphKeys.append(initiatorSession.ephKeyName)
-                }
-                else if let responderSession = session.value as? ResponderSessionState {
-                    // FIXME
-                }
-            }
-        }
+        try self.sessionHelper.removeOldSessions()
     }
     
     // FIXME: Get all sessions and check status of LT OT keys

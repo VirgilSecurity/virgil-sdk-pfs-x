@@ -15,7 +15,7 @@ class SecureChatSessionHelper {
         self.cardId = cardId
     }
     
-    func getAllSessions(crypto: VSSCryptoProtocol) throws -> [String: SessionState] {
+    func getAllSessions() throws -> [String: SessionState] {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
@@ -37,7 +37,7 @@ class SecureChatSessionHelper {
         return res
     }
     
-    func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws {
+    func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
@@ -45,7 +45,7 @@ class SecureChatSessionHelper {
         userDefaults.set(sessionState.serialize(), forKey: self.getSessionName(forCardId: cardId))
     }
     
-    func getSessionState(forRecipientCardId cardId: String, crypto: VSSCryptoProtocol) throws -> SessionState? {
+    func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
@@ -59,6 +59,30 @@ class SecureChatSessionHelper {
         }
         
         return state
+    }
+    
+    private static let SecondsInDay: TimeInterval = 24 * 60 * 60
+    func removeOldSessions() throws {
+        let sessions = try self.getAllSessions()
+        
+        let date = Date()
+        
+        var relevantEphKeys: [String] = []
+        
+        for session in sessions {
+            let sessionAge = date.timeIntervalSince1970 - session.value.creationDate.timeIntervalSince1970
+//            if (sessionAge > TimeInterval(self.preferences.daysSessionLives) * SecureChat.SecondsInDay) {
+//                // FIXME Remove session
+//            }
+//            else {
+//                if let initiatorSession = session.value as? InitiatorSessionState {
+//                    relevantEphKeys.append(initiatorSession.ephKeyName)
+//                }
+//                else if let responderSession = session.value as? ResponderSessionState {
+//                    // FIXME
+//                }
+//            }
+        }
     }
 }
 

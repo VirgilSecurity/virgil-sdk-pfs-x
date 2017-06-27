@@ -11,6 +11,7 @@ import VirgilSDK
 
 struct InitiatorSessionState: SessionState {
     let creationDate: Date
+    let expirationDate: Date
     let sessionId: Data
     let additionalData: Data?
     let ephKeyName: String
@@ -26,6 +27,7 @@ extension InitiatorSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSMutableDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
+            Keys.expirationDate.rawValue: self.expirationDate,
             Keys.sessionId.rawValue: self.sessionId,
             Keys.ephKeyName.rawValue: self.ephKeyName,
             Keys.recipientCardId.rawValue: self.recipientCardId,
@@ -51,6 +53,7 @@ extension InitiatorSessionState: Deserializable {
         }
         
         guard let date = dict[Keys.creationDate.rawValue] as? Date,
+            let expirationDate = dict[Keys.expirationDate.rawValue] as? Date,
             let sessionId = dict[Keys.sessionId.rawValue] as? Data,
             let ephKeyName = dict[Keys.ephKeyName.rawValue] as? String,
             let recCardId = dict[Keys.recipientCardId.rawValue] as? String,
@@ -64,13 +67,14 @@ extension InitiatorSessionState: Deserializable {
         
         let additionalData = dict[Keys.additionalData.rawValue] as? Data
         
-        self.init(creationDate: date, sessionId: sessionId, additionalData: additionalData, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
+        self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
     }
 }
 
 extension InitiatorSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creation_date"
+        case expirationDate = "expiration_date"
         case sessionId = "session_id"
         case additionalData = "additional_data"
         case ephKeyName = "eph_key_name"

@@ -14,20 +14,20 @@ class SecureTalkResponder: SecureTalk {
     public let secureChatKeyHelper: SecureChatKeyHelper
     public let initiatorIdCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, ttl: TimeInterval, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) throws {
         self.secureChatKeyHelper = secureChatKeyHelper
         self.initiatorIdCard = initiatorCardEntry
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: true, sessionHelper: sessionHelper, additionalData: additionalData)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: true, sessionHelper: sessionHelper, additionalData: additionalData, ttl: ttl)
         
         try self.initiateSession(ephPublicKeyData: ephPublicKeyData, receiverLtcId: receiverLtcId, receiverOtcId: receiverOtcId)
     }
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, ttl: TimeInterval, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry) {
         self.initiatorIdCard = initiatorCardEntry
         self.secureChatKeyHelper = secureChatKeyHelper
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: false, sessionHelper: sessionHelper, additionalData: additionalData)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: false, sessionHelper: sessionHelper, additionalData: additionalData, ttl: ttl)
     }
 }
 
@@ -119,9 +119,10 @@ extension SecureTalkResponder {
         
         if !self.wasRecovered {
             let date = Date()
+            let expirationDate = date.addingTimeInterval(self.ttl)
             let sessionId = session.identifier
-            let session = ResponderSessionState(creationDate: date, sessionId: sessionId, additionalData: self.additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
-            try self.sessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier, crypto: self.crypto)
+            let session = ResponderSessionState(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
+            try self.sessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier)
         }
     }
 }

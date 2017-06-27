@@ -18,7 +18,7 @@ class SecureTalkInitiator: SecureTalk {
     let recipientLtCard: CardEntry
     let recipientOtCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool, ttl: TimeInterval) throws {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
         self.ephPrivateKeyName = ephPrivateKeyName
@@ -26,7 +26,7 @@ class SecureTalkInitiator: SecureTalk {
         self.recipientLtCard = recipientLtCard
         self.recipientOtCard = recipientOtCard
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered, sessionHelper: sessionHelper, additionalData: additionalData)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered, sessionHelper: sessionHelper, additionalData: additionalData, ttl: ttl)
         
         if self.wasRecovered {
             try self.initiateSession()
@@ -121,12 +121,13 @@ extension SecureTalkInitiator {
         
         if !self.wasRecovered {
             let date = Date()
+            let expirationDate = date.addingTimeInterval(self.ttl)
             let sessionId = session.identifier
             
             // FIXME: Optional one time key?
-            let sessionState = InitiatorSessionState(creationDate: date, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard.identifier, recipientOneTimePublicKey: self.recipientOtCard.publicKeyData)
+            let sessionState = InitiatorSessionState(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard.identifier, recipientOneTimePublicKey: self.recipientOtCard.publicKeyData)
             
-            try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier, crypto: self.crypto)
+            try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier)
         }
     }
 }

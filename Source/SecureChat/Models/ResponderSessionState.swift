@@ -10,6 +10,7 @@ import Foundation
 
 struct ResponderSessionState: SessionState {
     let creationDate: Date
+    let expirationDate: Date
     let sessionId: Data
     let additionalData: Data?
     let ephPublicKeyData: Data
@@ -21,6 +22,7 @@ extension ResponderSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSMutableDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
+            Keys.expirationDate.rawValue: self.expirationDate,
             Keys.sessionId.rawValue: self.sessionId,
             Keys.ephPublicKeyData.rawValue: self.ephPublicKeyData,
             Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
@@ -42,6 +44,7 @@ extension ResponderSessionState: Deserializable {
         }
         
         guard let date = dict[Keys.creationDate.rawValue] as? Date,
+            let expirationDate = dict[Keys.expirationDate.rawValue] as? Date,
             let sessionId = dict[Keys.sessionId.rawValue] as? Data,
             let ephPublicKeyData = dict[Keys.ephPublicKeyData.rawValue] as? Data,
             let recipientLongTermCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String,
@@ -51,13 +54,14 @@ extension ResponderSessionState: Deserializable {
         
         let additionalData = dict[Keys.additionalData.rawValue] as? Data
         
-        self.init(creationDate: date, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
+        self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
     }
 }
 
 extension ResponderSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creation_date"
+        case expirationDate = "expiration_date"
         case sessionId = "session_id"
         case additionalData = "additional_data"
         case ephPublicKeyData = "eph_public_key_data"
