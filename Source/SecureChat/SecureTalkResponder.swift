@@ -76,7 +76,17 @@ extension SecureTalkResponder {
 // Session initialization
 extension SecureTalkResponder {
     fileprivate func initiateSession(withInitiationMessage initiationMessage: InitiationMessage) throws {
-        // FIXME: Check signature
+        guard let initiatorPublicKey = self.crypto.importPublicKey(from: self.initiatorIdCard.publicKeyData) else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error importing initiator public key from identity card."])
+        }
+        
+        do {
+            try self.crypto.verify(initiationMessage.ephPublicKey, withSignature: initiationMessage.ephPublicKeySignature, using: initiatorPublicKey)
+        }
+        catch {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error validating initiator signature."])
+        }
+        
         guard initiationMessage.initiatorIcId == self.initiatorIdCard.identifier else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator identity card id for this talk and InitiationMessage doesn't match."])
         }
