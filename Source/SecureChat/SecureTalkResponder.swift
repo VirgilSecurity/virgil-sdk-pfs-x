@@ -122,8 +122,7 @@ extension SecureTalkResponder {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating initiatorPublicInfo."])
         }
         
-        // FIXME: Additional data
-        guard let session = self.pfs.startResponderSession(with: responderPrivateInfo, initiatorPublicInfo: initiatorPublicInfo, additionalData: nil) else {
+        guard let session = self.pfs.startResponderSession(with: responderPrivateInfo, initiatorPublicInfo: initiatorPublicInfo, additionalData: self.additionalData) else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while initiating responder session."])
         }
         
