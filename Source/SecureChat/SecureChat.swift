@@ -27,7 +27,7 @@ import VirgilSDK
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
         self.virgilClient = VSSClient(serviceConfig: self.preferences.virgilServiceConfig)
         
-        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myCardId)
+        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myCardId, longTermKeyTtl: self.preferences.longTermKeysTtl)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
         self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.myCardId)
         
@@ -53,7 +53,7 @@ extension SecureChat {
         
         let ephKeyName: String
         do {
-            ephKeyName = try self.keyHelper.saveEphPrivateKey(ephPrivateKey, name: recipientCardId)
+            ephKeyName = try self.keyHelper.persistEphPrivateKey(ephPrivateKey, name: recipientCardId)
         }
         catch {
             completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving ephemeral key."]))
@@ -287,30 +287,69 @@ extension SecureChat {
     public typealias CompletionHandler = (Error?) -> ()
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
-    private func removeOldSessions() throws {
-        try self.sessionHelper.removeOldSessions()
+    private func cleanup(completion: @escaping (Error?)->()) {
+        let relevantEphKeys: Set<String>
+        let relevantLtCards: Set<String>
+        let relevantOtCards: Set<String>
+        do {
+            (relevantEphKeys, relevantLtCards, relevantOtCards) = try self.sessionHelper.removeOldSessions()
+        }
+        catch {
+            completion(error)
+            return
+        }
+        
+        let otKeys: [String]
+        do {
+            otKeys = try self.keyHelper.getAllOtCardsIds()
+        }
+        catch {
+            completion(error)
+            return
+        }
+        
+        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.myCardId, cardsIds: otKeys) { exhaustedCardsIds, error in
+            guard error == nil else {
+                completion(error)
+                return
+            }
+            
+            guard let exhaustedCardsIds = exhaustedCardsIds else {
+                completion(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error validation OTC."]))
+                return
+            }
+            
+            let relevantOtCards = Set<String>(otKeys).subtracting(Set<String>(exhaustedCardsIds)).union(relevantOtCards)
+            
+            do {
+                try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: relevantOtCards)
+            }
+            catch {
+                completion(error)
+                return
+            }
+            
+            completion(nil)
+        }
     }
     
     // FIXME: Get all sessions and check status of LT OT keys
     // FIXME: Check status of old keys and remove unneeded keys
     public func initialize(completion: CompletionHandler? = nil) {
+        var errorHandled = false
         let errorCallback = { (error: Error?) in
-            completion?(error)
-        }
-        
-        do {
-            try self.removeOldSessions()
-        }
-        catch {
-            completion?(error)
-            return
+            guard !errorHandled else {
+                errorHandled = true
+                completion?(error)
+                return
+            }
         }
         
         var identityCard: VSSCard?
         var numberOfMissingCards: Int?
         
         var numberOfCompletedOperations = 0
-        let numberOfOperations = 2
+        let numberOfOperations = 3
         let operationCompletedCallback = {
             numberOfCompletedOperations += 1
             
@@ -342,6 +381,15 @@ extension SecureChat {
                     completion?(nil)
                 }
             }
+        }
+        
+        self.cleanup() { error in
+            guard error == nil else {
+                errorCallback(error!)
+                return
+            }
+            
+            operationCompletedCallback()
         }
         
         // Get identity card

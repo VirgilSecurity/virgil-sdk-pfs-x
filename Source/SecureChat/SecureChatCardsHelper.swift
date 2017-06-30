@@ -70,7 +70,7 @@ class SecureChatCardsHelper {
             ltcCardRequest = nil
         }
         
-        try self.keyHelper.saveKeys(keys: otcKeys, ltKey: ltcKey)
+        try self.keyHelper.persistKeys(keys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
             completion(error)

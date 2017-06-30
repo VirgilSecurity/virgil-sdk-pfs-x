@@ -20,14 +20,32 @@ class SecureChatKeyHelper {
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let keyStorage: VSSKeyStorageProtocol
     fileprivate let identityCardId: String
+    fileprivate let longTermKeyTtl: TimeInterval
     
-    init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, identityCardId: String) {
+    init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, identityCardId: String, longTermKeyTtl: TimeInterval) {
         self.crypto = crypto
         self.keyStorage = keyStorage
         self.identityCardId = identityCardId
+        self.longTermKeyTtl = longTermKeyTtl
     }
     
-    func saveKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
+    func persistEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+        let ephKeyEntryName = try self.saveEphPrivateKey(key, name: name)
+        
+        let newServiceInfo: ServiceInfoEntry
+        if let serviceInfo = self.getServiceInfoEntry() {
+            newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys, otcKeysNames: serviceInfo.otcKeysNames, ephKeysNames: serviceInfo.ephKeysNames + [ephKeyEntryName])
+        }
+        else {
+            newServiceInfo = ServiceInfoEntry(ltcKeys: [], otcKeysNames: [], ephKeysNames: [ephKeyEntryName])
+        }
+        
+        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
+        
+        return ephKeyEntryName
+    }
+    
+    func persistKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
         var keyEntryNames: [String] = []
         keyEntryNames.reserveCapacity(keys.count)
         
@@ -45,23 +63,49 @@ class SecureChatKeyHelper {
         
         let newServiceInfo: ServiceInfoEntry
         if let serviceInfo = self.getServiceInfoEntry() {
-            newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName ?? serviceInfo.ltcKeyName, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames)
+            let ltcEntryArray = ltcKeyEntryName == nil ? [] : [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName!, date: Date())]
+            newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys + ltcEntryArray, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames, ephKeysNames: serviceInfo.ephKeysNames)
         }
         else {
             guard let ltcKeyEntryName = ltcKeyEntryName else {
                 throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "LT key not found and ney key was not specified."])
             }
-            newServiceInfo = ServiceInfoEntry(ltcKeyName: ltcKeyEntryName, otcKeysNames: keyEntryNames)
+            newServiceInfo = ServiceInfoEntry(ltcKeys: [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName, date: Date())], otcKeysNames: keyEntryNames, ephKeysNames: [])
         }
         
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
     
-    static private let ServiceKeyName = "VIRGIL.SERVICE.INFO.%@"
+    func getAllOtCardsIds() throws -> [String] {
+        guard let serviceInfo = self.getServiceInfoEntry() else {
+            return []
+        }
+        
+        return serviceInfo.otcKeysNames.map({ self.extractCardId(fromOTKeyEntryName: $0) })
+    }
+    
+    func removeOldKeys(relevantEphKeys: Set<String>, relevantLtCards: Set<String>, relevantOtCards: Set<String>) throws {
+        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+            if relevantEphKeys.count > 0 || relevantLtCards.count > 0 || relevantOtCards.count > 0 {
+                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
+            }
+            return
+        }
+        
+        let date = Date()
+        let outdatedLtKeysNames = Set<String>(serviceInfoEntry.ltcKeys.filter({ date > $0.date.addingTimeInterval(self.longTermKeyTtl)}).map({ $0.keyName }))
+        let ltKeysToRemove = outdatedLtKeysNames.subtracting(Set<String>(relevantLtCards.map({ self.getPrivateKeyName(self.getLtPrivateKeyName($0)) })))
+        let otKeysToRemove = Set<String>(serviceInfoEntry.otcKeysNames).subtracting(Set<String>(relevantOtCards.map({ self.getPrivateKeyName(self.getOtPrivateKeyName($0)) })))
+        let ephKeysToRemove = Set<String>(serviceInfoEntry.ephKeysNames).subtracting(relevantEphKeys)
+        
+        for key in ltKeysToRemove.union(otKeysToRemove).union(ephKeysToRemove) {
+            try self.removePrivateKey(withKeyEntryName: key)
+        }
+    }
+    
     private func updateServiceInfoEntry(newEntry: ServiceInfoEntry) throws {
         // FIXME: Replace with update
-        let entryName = String(format: SecureChatKeyHelper.ServiceKeyName, self.identityCardId)
-        
+        let entryName = self.getServiceInfoName()
         try? self.keyStorage.deleteKeyEntry(withName: entryName)
         
         let data = NSKeyedArchiver.archivedData(withRootObject: newEntry)
@@ -71,7 +115,7 @@ class SecureChatKeyHelper {
     }
     
     private func getServiceInfoEntry() -> ServiceInfoEntry? {
-        guard let keyEntry = try? self.keyStorage.loadKeyEntry(withName: SecureChatKeyHelper.ServiceKeyName) else {
+        guard let keyEntry = try? self.keyStorage.loadKeyEntry(withName: self.getServiceInfoName()) else {
             return nil
         }
         
@@ -80,6 +124,15 @@ class SecureChatKeyHelper {
         }
         
         return serviceInfoEntry
+    }
+}
+
+// Service Info
+extension SecureChatKeyHelper {
+    static private let ServiceKeyName = "VIRGIL.SERVICE.INFO.%@"
+    
+    fileprivate func getServiceInfoName() -> String {
+        return String(format: SecureChatKeyHelper.ServiceKeyName, self.identityCardId)
     }
 }
 
@@ -94,7 +147,7 @@ extension SecureChatKeyHelper {
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
-    func saveEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+    fileprivate func saveEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
         let keyName = self.getEphPrivateKeyName(name)
         return try self.savePrivateKey(key, keyName: keyName)
     }
@@ -135,6 +188,10 @@ extension SecureChatKeyHelper {
         return privateKey
     }
     
+    fileprivate func removePrivateKey(withKeyEntryName keyEntryName: String) throws {
+        try self.keyStorage.deleteKeyEntry(withName: keyEntryName)
+    }
+    
     private func savePrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
         let privateKeyData = self.crypto.export(key, withPassword: nil)
         
@@ -146,19 +203,23 @@ extension SecureChatKeyHelper {
         return keyEntryName
     }
     
-    private func getPrivateKeyName(_ name: String) -> String {
+    fileprivate func extractCardId(fromOTKeyEntryName OTkeyEntryName: String) -> String {
+        return OTkeyEntryName.replacingOccurrences(of: "VIRGIL.OT_KEY.", with: "")
+    }
+    
+    fileprivate func getPrivateKeyName(_ name: String) -> String {
         return String(format: "VIRGIL.%@", name)
     }
     
-    private func getEphPrivateKeyName(_ name: String) -> String {
+    fileprivate func getEphPrivateKeyName(_ name: String) -> String {
         return String(format: "EPH_KEY.%@", name)
     }
     
-    private func getLtPrivateKeyName(_ name: String) -> String {
+    fileprivate func getLtPrivateKeyName(_ name: String) -> String {
         return String(format: "LT_KEY.%@", name)
     }
     
-    private func getOtPrivateKeyName(_ name: String) -> String {
+    fileprivate func getOtPrivateKeyName(_ name: String) -> String {
         return String(format: "OT_KEY.%@", name)
     }
 }

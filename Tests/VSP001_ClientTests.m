@@ -274,4 +274,45 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
+- (void)test007_ValidateOTC {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Entry should be created. Credentials should be obtained. OTC should be validated."];
+    
+    NSUInteger numberOfRequests = 4;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        VSPCreateEphemeralCardRequest *longTermCardRequest = [self.utils instantiateEphemeralCreateCardRequestsWithKeyPair:nil identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        NSArray<VSPCreateEphemeralCardRequest *> *oneTimeCards = [self.utils instantiateMultipleEphemeralCreateCardRequestsForNumber:self.numberOfCards identityCardId:card.identifier identityPrivateKey:keyPair.privateKey];
+        
+        [self.client bootstrapCardsSetForUserWithCardId:card.identifier longTermCardRequest:longTermCardRequest oneTimeCardsRequests:oneTimeCards completion:^(VSSCard *longTermCard, NSArray<VSSCard *> *oneTimeCards, NSError * error) {
+            
+            NSMutableArray *cardsIds = [[NSMutableArray alloc] init];
+            
+            for (VSSCard *card in oneTimeCards) {
+                [cardsIds addObject:card.identifier];
+            }
+            
+            [self.client getRecipientCardsSetForCardsIds:@[card.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *credentials, NSError *error) {
+                [self.client validateOneTimeCardsForRecipientWithId:card.identifier cardsIds:cardsIds completion:^(NSArray<NSString *> *exhaustedCardsIds, NSError *error) {
+                    XCTAssert(error == nil);
+                    XCTAssert(exhaustedCardsIds.count == 1);
+                    XCTAssert([exhaustedCardsIds[0] isEqualToString:credentials[0].oneTimeCard.identifier]);
+                    
+                    [ex fulfill];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
 @end

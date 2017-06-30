@@ -45,6 +45,14 @@ class SecureChatSessionHelper {
         userDefaults.set(sessionState.serialize(), forKey: self.getSessionName(forCardId: cardId))
     }
     
+    func removeSessionState(forRecipientCardId cardId: String) throws {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        userDefaults.removeObject(forKey: self.getSessionName(forCardId: cardId))
+    }
+    
     func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
@@ -61,48 +69,41 @@ class SecureChatSessionHelper {
         return state
     }
     
-    private static let SecondsInDay: TimeInterval = 24 * 60 * 60
-    func removeOldSessions() throws {
+    func removeOldSessions() throws -> (Set<String>, Set<String>, Set<String>) {
         let sessions = try self.getAllSessions()
         
         let date = Date()
         
-        var relevantEphKeys: [String] = []
+        var relevantEphKeys = Set<String>()
+        var relevantLtCards = Set<String>()
+        var relevantOtCards = Set<String>()
         
         for session in sessions {
-            let sessionAge = date.timeIntervalSince1970 - session.value.creationDate.timeIntervalSince1970
-//            if (sessionAge > TimeInterval(self.preferences.daysSessionLives) * SecureChat.SecondsInDay) {
-//                // FIXME Remove session
-//            }
-//            else {
-//                if let initiatorSession = session.value as? InitiatorSessionState {
-//                    relevantEphKeys.append(initiatorSession.ephKeyName)
-//                }
-//                else if let responderSession = session.value as? ResponderSessionState {
-//                    // FIXME
-//                }
-//            }
+            if (date > session.value.expirationDate) {
+                try self.removeSessionState(forRecipientCardId: session.key)
+            }
+            else {
+                if let initiatorSession = session.value as? InitiatorSessionState {
+                    relevantEphKeys.insert(initiatorSession.ephKeyName)
+                }
+                else if let responderSession = session.value as? ResponderSessionState {
+                    relevantLtCards.insert(responderSession.recipientLongTermCardId)
+                    relevantOtCards.insert(responderSession.recipientOneTimeCardId)
+                }
+            }
         }
+        
+        return (relevantEphKeys, relevantLtCards, relevantOtCards)
     }
 }
 
 extension SecureChatSessionHelper {
     static private let DefaultsSuiteName = "VIRGIL.DEFAULTS.%@"
     static private let DefaultsSessionName = "VIRGIL.SESSION.%@"
+    static private let DefaultsSessionNameSearchPattern = "VIRGIL.SESSION."
     
     fileprivate func isSessionName(name: String) -> Bool {
-        guard name.characters.count > SecureChatSessionHelper.DefaultsSessionName.characters.count else {
-            return false
-        }
-        
-        let index = name.index(name.startIndex, offsetBy: SecureChatSessionHelper.DefaultsSessionName.characters.count)
-        let substr = name.substring(to: index)
-        
-        guard substr == SecureChatSessionHelper.DefaultsSessionName else {
-            return false
-        }
-        
-        return true
+        return name.range(of: SecureChatSessionHelper.DefaultsSessionNameSearchPattern) != nil
     }
     
     fileprivate func getSessionName(forCardId cardId: String) -> String {

@@ -18,11 +18,11 @@ import VirgilSDK
     public let virgilServiceConfig: VSSServiceConfig
     public let deviceManager: VSSDeviceManagerProtocol
     public let numberOfActiveOneTimeCards: Int
-    public let daysLongTermCardLives: Int
+    public let longTermKeysTtl: TimeInterval
     public let sessionTtl: TimeInterval
     
     
-    public init(myCardId: String, myPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, serviceConfig: ServiceConfig, virgilServiceConfig: VSSServiceConfig, deviceManager: VSSDeviceManagerProtocol, numberOfActiveOneTimeCards: Int, daysLongTermCardLives: Int, sessionTtl: TimeInterval) {
+    public init(myCardId: String, myPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, serviceConfig: ServiceConfig, virgilServiceConfig: VSSServiceConfig, deviceManager: VSSDeviceManagerProtocol, numberOfActiveOneTimeCards: Int, longTermKeysTtl: TimeInterval, sessionTtl: TimeInterval) {
         self.myCardId = myCardId
         self.myPrivateKey = myPrivateKey
         self.crypto = crypto
@@ -31,11 +31,11 @@ import VirgilSDK
         self.virgilServiceConfig = virgilServiceConfig
         self.deviceManager = deviceManager
         self.numberOfActiveOneTimeCards = numberOfActiveOneTimeCards
-        self.daysLongTermCardLives = daysLongTermCardLives
+        self.longTermKeysTtl = longTermKeysTtl
         self.sessionTtl = sessionTtl
     }
     
     convenience public init(myCardId: String, myPrivateKey: VSSPrivateKey, accessToken: String) {
-        self.init(myCardId: myCardId, myPrivateKey: myPrivateKey, crypto: VSSCrypto(), keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), virgilServiceConfig: VSSServiceConfig(token: accessToken), deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, daysLongTermCardLives: 7, sessionTtl: 60*60*24*3)
+        self.init(myCardId: myCardId, myPrivateKey: myPrivateKey, crypto: VSSCrypto(), keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), virgilServiceConfig: VSSServiceConfig(token: accessToken), deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, longTermKeysTtl: 60*60*24*7, sessionTtl: 60*60*24*3)
     }
 }
