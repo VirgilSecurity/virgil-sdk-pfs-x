@@ -224,7 +224,16 @@ extension SecureChat {
     }
     
     public func respondToTalk(withInitiatorWithCardId cardId: String, message: Data, additionalData: Data? = nil, completion: @escaping (SecureTalk?, String?, Error?)->()) {
-        // FIXME: Add otc key on new session
+        guard let identityCard = self.identityCard else {
+            completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
+            return
+        }
+        
+        // Added new one time card
+        try? self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
+            // FIXME: handle error?
+        }
+        
         self.virgilClient.getCard(withId: cardId) { card, error in
             guard error == nil else {
                 completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining initiator identity card."]))
@@ -342,7 +351,7 @@ extension SecureChat {
     public func initialize(completion: CompletionHandler? = nil) {
         var errorHandled = false
         let errorCallback = { (error: Error?) in
-            guard !errorHandled else {
+            guard errorHandled else {
                 errorHandled = true
                 completion?(error)
                 return
@@ -366,9 +375,9 @@ extension SecureChat {
 
                 self.identityCard = identityCard
                 if numberOfMissingCards > 0 {
-                    // FIXME: Add longtermcard management
+                    let addLtCard = !self.keyHelper.hasRelevantLtKey()
                     do {
-                        try self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: true, numberOfOtcCards: numberOfMissingCards) { error in
+                        try self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                             guard error == nil else {
                                 errorCallback(error!)
                                 return

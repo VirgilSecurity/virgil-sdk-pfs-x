@@ -15,28 +15,6 @@ class SecureChatSessionHelper {
         self.cardId = cardId
     }
     
-    func getAllSessions() throws -> [String: SessionState] {
-        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        let dict = userDefaults.dictionaryRepresentation()
-        
-        var res: [String: SessionState] = [:]
-        for val in dict {
-            guard self.isSessionName(name: val.key) else {
-                continue
-            }
-            
-            guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
-                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
-            }
-            res[val.key] = state
-        }
-        
-        return res
-    }
-    
     func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
@@ -66,6 +44,10 @@ class SecureChatSessionHelper {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
+        guard !self.isSessionStateExpired(now: Date(), session: state) else {
+            return nil
+        }
+        
         return state
     }
     
@@ -79,7 +61,7 @@ class SecureChatSessionHelper {
         var relevantOtCards = Set<String>()
         
         for session in sessions {
-            if (date > session.value.expirationDate) {
+            if self.isSessionStateExpired(now: date, session: session.value) {
                 try self.removeSessionState(forRecipientCardId: session.key)
             }
             else {
@@ -94,6 +76,32 @@ class SecureChatSessionHelper {
         }
         
         return (relevantEphKeys, relevantLtCards, relevantOtCards)
+    }
+    
+    private func getAllSessions() throws -> [String: SessionState] {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        let dict = userDefaults.dictionaryRepresentation()
+        
+        var res: [String: SessionState] = [:]
+        for val in dict {
+            guard self.isSessionName(name: val.key) else {
+                continue
+            }
+            
+            guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
+                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
+            }
+            res[val.key] = state
+        }
+        
+        return res
+    }
+    
+    private func isSessionStateExpired(now: Date, session: SessionState) -> Bool {
+        return (now > session.expirationDate)
     }
 }
 

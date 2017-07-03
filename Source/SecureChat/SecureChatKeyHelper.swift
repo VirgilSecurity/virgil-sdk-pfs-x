@@ -68,7 +68,7 @@ class SecureChatKeyHelper {
         }
         else {
             guard let ltcKeyEntryName = ltcKeyEntryName else {
-                throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "LT key not found and ney key was not specified."])
+                throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "LT key not found and new key was not specified."])
             }
             newServiceInfo = ServiceInfoEntry(ltcKeys: [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName, date: Date())], otcKeysNames: keyEntryNames, ephKeysNames: [])
         }
@@ -101,6 +101,15 @@ class SecureChatKeyHelper {
         for key in ltKeysToRemove.union(otKeysToRemove).union(ephKeysToRemove) {
             try self.removePrivateKey(withKeyEntryName: key)
         }
+    }
+    
+    func hasRelevantLtKey() -> Bool {
+        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+            return false
+        }
+        
+        let date = Date()
+        return !serviceInfoEntry.ltcKeys.filter({ date < $0.date.addingTimeInterval(self.longTermKeyTtl)}).isEmpty
     }
     
     private func updateServiceInfoEntry(newEntry: ServiceInfoEntry) throws {

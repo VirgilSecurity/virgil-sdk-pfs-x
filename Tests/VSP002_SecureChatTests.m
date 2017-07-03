@@ -564,4 +564,68 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
+- (void)test011_ExpireLongTermCard {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. LongTerm card should be added."];
+    
+    NSUInteger numberOfRequests = 7;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair];
+    
+    NSString * __block identityId1, * __block identityId2, * __block longTermId1, * __block longTermId2, * __block oneTimeId1, * __block oneTimeId2;
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
+        sleep(5);
+        
+        VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyCardId:initiatorCard.identifier myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig virgilServiceConfig:self.virgilClient.serviceConfig deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:5 sessionTtl:self.sessionTtl];
+        
+        self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+        
+        [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+            [self.client getRecipientCardsSetForCardsIds:@[initiatorCard.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *cardsSet, NSError *error) {
+                XCTAssert(error == nil);
+                XCTAssert(cardsSet.count == 1);
+                VSPRecipientCardsSet *cardSet = cardsSet[0];
+                identityId1 = cardSet.identityCard.identifier;
+                longTermId1 = cardSet.longTermCard.identifier;
+                oneTimeId1 = cardSet.oneTimeCard.identifier;
+                
+                sleep(5);
+                
+                [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+                    [self.client getRecipientCardsSetForCardsIds:@[initiatorCard.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *cardsSet, NSError *error) {
+                        XCTAssert(error == nil);
+                        XCTAssert(cardsSet.count == 1);
+                        VSPRecipientCardsSet *cardSet = cardsSet[0];
+                        identityId2 = cardSet.identityCard.identifier;
+                        longTermId2 = cardSet.longTermCard.identifier;
+                        oneTimeId2 = cardSet.oneTimeCard.identifier;
+                        
+                        XCTAssert(identityId1.length > 0);
+                        XCTAssert(identityId2.length > 0);
+                        XCTAssert([identityId1 isEqualToString:identityId2]);
+                        
+                        XCTAssert(longTermId1.length > 0);
+                        XCTAssert(longTermId2.length > 0);
+                        XCTAssert(![longTermId1 isEqualToString:longTermId2]);
+                        
+                        XCTAssert(oneTimeId1.length > 0);
+                        XCTAssert(oneTimeId2.length > 0);
+                        XCTAssert(![oneTimeId1 isEqualToString:oneTimeId2]);
+                        
+                        [ex fulfill];
+                    }];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
 @end
