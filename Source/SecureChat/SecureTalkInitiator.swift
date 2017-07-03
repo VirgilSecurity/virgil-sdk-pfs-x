@@ -123,7 +123,7 @@ extension SecureTalkInitiator {
             let expirationDate = date.addingTimeInterval(self.ttl)
             let sessionId = session.identifier
             
-            // FIXME: Optional one time key?
+            // FIXME: Add support for weak sessions
             let sessionState = InitiatorSessionState(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard.identifier, recipientOneTimePublicKey: self.recipientOtCard.publicKeyData)
             
             try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier)

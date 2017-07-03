@@ -52,7 +52,7 @@ extension SecureTalkResponder {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session id is missing."])
         }
         
-        // FIXME: Weak sessions
+        // FIXME: Add support for weak sessions
         let message = Message(sessionId: sessionId, salt: initiationMessage.strongSessionData.salt, cipherText: initiationMessage.strongSessionData.cipherText)
         
         return try self.decrypt(encryptedMessage: message)
@@ -101,7 +101,7 @@ extension SecureTalkResponder {
         let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(name: receiverOtcId)
         
         let ltPrivateKeyData = self.crypto.export(myLtPrivateKey, withPassword: nil)
-        // FIXME: Weak sessions
+        // FIXME: Add support for weak sessions
         let otPrivateKeyData = self.crypto.export(myOtPrivateKey, withPassword: nil)
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
             let ltPrivateKey = VSCPfsPrivateKey(key: ltPrivateKeyData, password: nil),

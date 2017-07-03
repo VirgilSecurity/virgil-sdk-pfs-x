@@ -60,9 +60,15 @@ extension SecureChat {
             return
         }
         
-        let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
+        if let cardValidator = self.virgilClient.serviceConfig.cardValidator {
+            guard cardValidator.validate(cardsSet.identityCard.cardResponse) else {
+                completion(nil, NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder identity card validation failed."]))
+                return
+            }
+        }
         
-        // FIXME validate identity card
+        let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
+
         do {
             try validator.addVerifier(withId: cardsSet.identityCard.identifier, publicKeyData: cardsSet.identityCard.publicKeyData)
         }
@@ -73,10 +79,10 @@ extension SecureChat {
         
         do {
             guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator LongTerm card validation failed."])
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder LongTerm card validation failed."])
             }
             guard validator.validate(cardResponse: cardsSet.oneTimeCard.cardResponse) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator OneTime card validation failed."])
+                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder OneTime card validation failed."])
             }
         }
         catch {
@@ -333,8 +339,6 @@ extension SecureChat {
         }
     }
     
-    // FIXME: Get all sessions and check status of LT OT keys
-    // FIXME: Check status of old keys and remove unneeded keys
     public func initialize(completion: CompletionHandler? = nil) {
         var errorHandled = false
         let errorCallback = { (error: Error?) in
