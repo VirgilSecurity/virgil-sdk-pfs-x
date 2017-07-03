@@ -32,11 +32,12 @@ extension Client {
             
             for cred in response.credentials {
                 guard let ic = VSSCard(dict: cred.ic),
-                    let ltc = VSSCard(dict: cred.ltc),
-                    let otc = VSSCard(dict: cred.otc) else {
+                    let ltc = VSSCard(dict: cred.ltc) else {
                         completion(nil, nil)
                         return
                 }
+                
+                let otc = cred.otc != nil ? VSSCard(dict: cred.otc!) : nil
                 
                 credentials.append(RecipientCardsSet(identityCard: ic, longTermCard: ltc, oneTimeCard: otc))
             }

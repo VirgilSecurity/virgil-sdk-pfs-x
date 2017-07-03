@@ -15,7 +15,7 @@ struct ResponderSessionState: SessionState {
     let additionalData: Data?
     let ephPublicKeyData: Data
     let recipientLongTermCardId: String
-    let recipientOneTimeCardId: String
+    let recipientOneTimeCardId: String?
 }
 
 extension ResponderSessionState: Serializable {
@@ -25,12 +25,15 @@ extension ResponderSessionState: Serializable {
             Keys.expirationDate.rawValue: self.expirationDate,
             Keys.sessionId.rawValue: self.sessionId,
             Keys.ephPublicKeyData.rawValue: self.ephPublicKeyData,
-            Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
-            Keys.recipientOneTimeCardId.rawValue: self.recipientOneTimeCardId
+            Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId
         ]
         
         if let ad = self.additionalData {
             dict[Keys.additionalData.rawValue] = ad
+        }
+        
+        if let recOtId = self.recipientOneTimeCardId {
+            dict[Keys.recipientOneTimeCardId.rawValue] = recOtId
         }
         
         return dict
@@ -47,12 +50,13 @@ extension ResponderSessionState: Deserializable {
             let expirationDate = dict[Keys.expirationDate.rawValue] as? Date,
             let sessionId = dict[Keys.sessionId.rawValue] as? Data,
             let ephPublicKeyData = dict[Keys.ephPublicKeyData.rawValue] as? Data,
-            let recipientLongTermCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String,
-            let recipientOneTimeCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String else {
+            let recipientLongTermCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String else {
                 return nil
         }
         
         let additionalData = dict[Keys.additionalData.rawValue] as? Data
+        
+        let recipientOneTimeCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String
         
         self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
     }

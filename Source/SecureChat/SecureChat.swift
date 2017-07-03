@@ -63,7 +63,7 @@ extension SecureChat {
         
         let identityPublicKeyData = cardsSet.identityCard.publicKeyData
         let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
-        let oneTimePublicKeyData = cardsSet.oneTimeCard.publicKeyData
+        let oneTimePublicKeyData = cardsSet.oneTimeCard?.publicKeyData
         let recipientCardId = cardsSet.identityCard.identifier
         
         let ephKeyPair = self.preferences.crypto.generateKeyPair()
@@ -99,8 +99,11 @@ extension SecureChat {
             guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
                 throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder LongTerm card validation failed."])
             }
-            guard validator.validate(cardResponse: cardsSet.oneTimeCard.cardResponse) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder OneTime card validation failed."])
+            
+            if let oneTimeCard = cardsSet.oneTimeCard {
+                guard validator.validate(cardResponse: oneTimeCard.cardResponse) else {
+                    throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder OneTime card validation failed."])
+                }
             }
         }
         catch {
@@ -110,7 +113,14 @@ extension SecureChat {
         
         let identityCardEntry = SecureTalk.CardEntry(identifier: cardsSet.identityCard.identifier, publicKeyData: identityPublicKeyData)
         let ltCardEntry = SecureTalk.CardEntry(identifier: cardsSet.longTermCard.identifier, publicKeyData: longTermPublicKeyData)
-        let otCardEntry = SecureTalk.CardEntry(identifier: cardsSet.oneTimeCard.identifier, publicKeyData: oneTimePublicKeyData)
+        
+        let otCardEntry: SecureTalk.CardEntry?
+        if let oneTimeCard = cardsSet.oneTimeCard, let oneTimePublicKeyData = oneTimePublicKeyData {
+            otCardEntry = SecureTalk.CardEntry(identifier: oneTimeCard.identifier, publicKeyData: oneTimePublicKeyData)
+        }
+        else {
+            otCardEntry = nil
+        }
         
         let secureTalk: SecureTalk
         do {
@@ -297,7 +307,13 @@ extension SecureChat {
         
         let identityCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
         let ltCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientLongTermCardId, publicKeyData: initiatorSessionState.recipientLongTermPublicKey)
-        let otCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientOneTimeCardId, publicKeyData: initiatorSessionState.recipientOneTimePublicKey)
+        let otCardEntry: SecureTalk.CardEntry?
+        if let recOtId = initiatorSessionState.recipientOneTimeCardId, let recOtPub = initiatorSessionState.recipientOneTimePublicKey {
+            otCardEntry = SecureTalk.CardEntry(identifier: recOtId, publicKeyData: recOtPub)
+        }
+        else {
+            otCardEntry = nil
+        }
         let additionalData = initiatorSessionState.additionalData
         
         let secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, creationDate: initiatorSessionState.creationDate, expirationDate: initiatorSessionState.expirationDate)

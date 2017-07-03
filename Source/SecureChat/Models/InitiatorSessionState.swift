@@ -19,8 +19,8 @@ struct InitiatorSessionState: SessionState {
     let recipientPublicKey: Data
     let recipientLongTermCardId: String
     let recipientLongTermPublicKey: Data
-    let recipientOneTimeCardId: String
-    let recipientOneTimePublicKey: Data
+    let recipientOneTimeCardId: String?
+    let recipientOneTimePublicKey: Data?
 }
 
 extension InitiatorSessionState: Serializable {
@@ -34,12 +34,16 @@ extension InitiatorSessionState: Serializable {
             Keys.recipientPublicKey.rawValue: self.recipientPublicKey,
             Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
             Keys.recipientLongTermPublicKey.rawValue: self.recipientLongTermPublicKey,
-            Keys.recipientOneTimeCardId.rawValue: self.recipientOneTimeCardId,
-            Keys.recipientOneTimePublicKey.rawValue: self.recipientOneTimePublicKey
+            
         ]
         
         if let ad = self.additionalData {
             dict[Keys.additionalData.rawValue] = ad
+        }
+        
+        if let otId = self.recipientOneTimeCardId, let otPubData = self.recipientOneTimePublicKey {
+            dict[Keys.recipientOneTimeCardId.rawValue] = otId
+            dict[Keys.recipientOneTimePublicKey.rawValue] = otPubData
         }
         
         return dict
@@ -59,13 +63,14 @@ extension InitiatorSessionState: Deserializable {
             let recCardId = dict[Keys.recipientCardId.rawValue] as? String,
             let recPubKeyData = dict[Keys.recipientPublicKey.rawValue] as? Data,
             let recLtCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String,
-            let recLtKeyData = dict[Keys.recipientLongTermPublicKey.rawValue] as? Data,
-            let recOtCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String,
-            let recOtKeyData = dict[Keys.recipientOneTimePublicKey.rawValue] as? Data else {
+            let recLtKeyData = dict[Keys.recipientLongTermPublicKey.rawValue] as? Data else {
                 return nil
         }
         
         let additionalData = dict[Keys.additionalData.rawValue] as? Data
+        
+        let recOtCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String
+        let recOtKeyData = dict[Keys.recipientOneTimePublicKey.rawValue] as? Data
         
         self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephKeyName: ephKeyName, recipientCardId: recCardId, recipientPublicKey: recPubKeyData, recipientLongTermCardId: recLtCardId, recipientLongTermPublicKey: recLtKeyData, recipientOneTimeCardId: recOtCardId, recipientOneTimePublicKey: recOtKeyData)
     }

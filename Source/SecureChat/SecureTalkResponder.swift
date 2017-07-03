@@ -14,7 +14,7 @@ class SecureTalkResponder: SecureTalk {
     public let secureChatKeyHelper: SecureChatKeyHelper
     public let initiatorIdCard: CardEntry
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String, creationDate: Date, expirationDate: Date) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, secureChatKeyHelper: SecureChatKeyHelper, initiatorCardEntry: CardEntry, ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String?, creationDate: Date, expirationDate: Date) throws {
         self.secureChatKeyHelper = secureChatKeyHelper
         self.initiatorIdCard = initiatorCardEntry
         
@@ -52,8 +52,7 @@ extension SecureTalkResponder {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session id is missing."])
         }
         
-        // FIXME: Add support for weak sessions
-        let message = Message(sessionId: sessionId, salt: initiationMessage.strongSessionData.salt, cipherText: initiationMessage.strongSessionData.cipherText)
+        let message = Message(sessionId: sessionId, salt: initiationMessage.salt, cipherText: initiationMessage.cipherText)
         
         return try self.decrypt(encryptedMessage: message)
     }
@@ -91,23 +90,23 @@ extension SecureTalkResponder {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator identity card id for this talk and InitiationMessage doesn't match."])
         }
         
-        try self.initiateSession(ephPublicKeyData: initiationMessage.ephPublicKey, receiverLtcId: initiationMessage.receiverLtcId, receiverOtcId: initiationMessage.strongSessionData.receiverOtcId)
+        try self.initiateSession(ephPublicKeyData: initiationMessage.ephPublicKey, receiverLtcId: initiationMessage.responderLtcId, receiverOtcId: initiationMessage.responderOtcId)
     }
     
-    fileprivate func initiateSession(ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String) throws {
+    fileprivate func initiateSession(ephPublicKeyData: Data, receiverLtcId: String, receiverOtcId: String?) throws {
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         
         let myLtPrivateKey = try self.secureChatKeyHelper.getLtPrivateKey(withName: receiverLtcId)
-        let myOtPrivateKey = try self.secureChatKeyHelper.getOtPrivateKey(name: receiverOtcId)
+        let myOtPrivateKey = receiverOtcId != nil ? try self.secureChatKeyHelper.getOtPrivateKey(name: receiverOtcId!) : nil
         
         let ltPrivateKeyData = self.crypto.export(myLtPrivateKey, withPassword: nil)
-        // FIXME: Add support for weak sessions
-        let otPrivateKeyData = self.crypto.export(myOtPrivateKey, withPassword: nil)
+        let otPrivateKeyData = myOtPrivateKey != nil ? self.crypto.export(myOtPrivateKey!, withPassword: nil) : nil
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
-            let ltPrivateKey = VSCPfsPrivateKey(key: ltPrivateKeyData, password: nil),
-            let otPrivateKey = VSCPfsPrivateKey(key: otPrivateKeyData, password: nil) else {
+            let ltPrivateKey = VSCPfsPrivateKey(key: ltPrivateKeyData, password: nil) else {
                 throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
+        
+        let otPrivateKey = otPrivateKeyData != nil ? VSCPfsPrivateKey(key: otPrivateKeyData!, password: nil) : nil
         
         guard let responderPrivateInfo = VSCPfsResponderPrivateInfo(identityPrivateKey: privateKey, longTermPrivateKey: ltPrivateKey, oneTime: otPrivateKey) else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPrivateInfo."])

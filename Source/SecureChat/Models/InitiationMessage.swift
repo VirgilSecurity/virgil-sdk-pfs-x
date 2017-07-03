@@ -10,37 +10,43 @@ import Foundation
 
 struct InitiationMessage {
     let initiatorIcId: String
-    let receiverIcId: String
-    let receiverLtcId: String
+    let responderIcId: String
+    let responderLtcId: String
+    let responderOtcId: String?
     let ephPublicKey: Data
     let ephPublicKeySignature: Data
-    let weakSessionData: WeakSessionData
-    let strongSessionData: StrongSessionData
+    let salt: Data
+    let cipherText: Data
 }
 
 extension InitiationMessage {
     fileprivate enum Keys: String {
         case initiatorIcId = "initiator_ic_id"
-        case receiverIcId = "receiver_ic_id"
-        case receiverLtcId = "receiver_ltc_id"
+        case responderIcId = "responder_ic_id"
+        case responderLtcId = "responder_ltc_id"
+        case responderOtcId = "responder_otc_id"
         case eph = "eph"
         case sign = "sign"
-        case sessionW = "session_w"
-        case sessionS = "session_s"
+        case salt = "salt"
+        case cipherText = "ciphertext"
     }
 }
 
 extension InitiationMessage: Serializable {
     func serialize() -> NSObject {
-        let dict: NSDictionary = [
+        let dict: NSMutableDictionary = [
             Keys.initiatorIcId.rawValue: self.initiatorIcId,
-            Keys.receiverIcId.rawValue: self.receiverIcId,
-            Keys.receiverLtcId.rawValue: self.receiverLtcId,
+            Keys.responderIcId.rawValue: self.responderIcId,
+            Keys.responderLtcId.rawValue: self.responderLtcId,
             Keys.eph.rawValue: self.ephPublicKey.base64EncodedString(),
             Keys.sign.rawValue: self.ephPublicKeySignature.base64EncodedString(),
-            Keys.sessionW.rawValue: self.weakSessionData.serialize(),
-            Keys.sessionS.rawValue: self.strongSessionData.serialize()
+            Keys.salt.rawValue: self.salt.base64EncodedString(),
+            Keys.cipherText.rawValue: self.cipherText.base64EncodedString()
         ]
+        
+        if let otcId = self.responderOtcId {
+            dict[Keys.responderOtcId.rawValue] = otcId
+        }
         
         return dict
     }
@@ -53,22 +59,21 @@ extension InitiationMessage: Deserializable {
         }
         
         guard let initiatorIcId = dict[Keys.initiatorIcId.rawValue] as? String,
-            let receiverIcId = dict[Keys.receiverIcId.rawValue] as? String,
-            let receiverLtcId = dict[Keys.receiverLtcId.rawValue] as? String,
+            let responderIcId = dict[Keys.responderIcId.rawValue] as? String,
+            let responderLtcId = dict[Keys.responderLtcId.rawValue] as? String,
             let ephPublicKeyStr = dict[Keys.eph.rawValue] as? String,
             let ephPublicKey = Data(base64Encoded: ephPublicKeyStr),
             let ephPublicKeySignatureStr = dict[Keys.sign.rawValue] as? String,
             let ephPublicKeySignature = Data(base64Encoded: ephPublicKeySignatureStr),
-            let weakSessionDataDict = dict[Keys.sessionW.rawValue],
-            let strongSessionDataDict = dict[Keys.sessionS.rawValue] else {
+            let saltStr = dict[Keys.salt.rawValue] as? String,
+            let salt = Data(base64Encoded: saltStr),
+            let cipherTextStr = dict[Keys.cipherText.rawValue] as? String,
+            let cipherText = Data(base64Encoded: cipherTextStr) else {
                 return nil
         }
         
-        guard let weakSessionData = WeakSessionData(dictionary: weakSessionDataDict),
-            let strongSessionData = StrongSessionData(dictionary: strongSessionDataDict) else {
-                return nil
-        }
+        let responderOtcId = dict[Keys.responderOtcId.rawValue] as? String
         
-        self.init(initiatorIcId: initiatorIcId, receiverIcId: receiverIcId, receiverLtcId: receiverLtcId, ephPublicKey: ephPublicKey, ephPublicKeySignature: ephPublicKeySignature, weakSessionData: weakSessionData, strongSessionData: strongSessionData)
+        self.init(initiatorIcId: initiatorIcId, responderIcId: responderIcId, responderLtcId: responderLtcId, responderOtcId: responderOtcId, ephPublicKey: ephPublicKey, ephPublicKeySignature: ephPublicKeySignature, salt: salt, cipherText: cipherText)
     }
 }

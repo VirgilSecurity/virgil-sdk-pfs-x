@@ -16,9 +16,9 @@ class SecureTalkInitiator: SecureTalk {
     let ephPrivateKeyName: String
     let recipientIdCard: CardEntry
     let recipientLtCard: CardEntry
-    let recipientOtCard: CardEntry
+    let recipientOtCard: CardEntry?
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry, wasRecovered: Bool, creationDate: Date, expirationDate: Date) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry?, wasRecovered: Bool, creationDate: Date, expirationDate: Date) throws {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
         self.ephPrivateKeyName = ephPrivateKeyName
@@ -58,22 +58,18 @@ extension SecureTalkInitiator {
             guard let encryptedMessage = self.pfs.encryptData(messageData) else {
                 throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while encrypting message."])
             }
-            // FIXME: Add support for weak sessions
+
             let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
-            let weakSessionData = WeakSessionData(salt: msg.salt, cipherText: msg.cipherText)
-            let strongSessionData = StrongSessionData(receiverOtcId: self.recipientOtCard.identifier, salt: msg.salt, cipherText: msg.cipherText)
             let ephPublicKey = self.crypto.extractPublicKey(from: self.ephPrivateKey)
             let ephPublicKeyData = self.crypto.export(ephPublicKey)
             let ephPublicKeySignature = try self.crypto.generateSignature(for: ephPublicKeyData, with: self.myPrivateKey)
             
-            let initMsg = InitiationMessage(initiatorIcId: self.myIdCard.identifier, receiverIcId: self.recipientIdCard.identifier, receiverLtcId: self.recipientLtCard.identifier, ephPublicKey: ephPublicKeyData, ephPublicKeySignature: ephPublicKeySignature, weakSessionData: weakSessionData, strongSessionData: strongSessionData)
+            let initMsg = InitiationMessage(initiatorIcId: self.myIdCard.identifier, responderIcId: self.recipientIdCard.identifier, responderLtcId: self.recipientLtCard.identifier, responderOtcId: self.recipientOtCard?.identifier, ephPublicKey: ephPublicKeyData, ephPublicKeySignature: ephPublicKeySignature, salt: msg.salt, cipherText: msg.cipherText)
             
             let msgData = try JSONSerialization.data(withJSONObject: initMsg.serialize(), options: [])
             return msgData
         }
         else {
-            // FIXME: Add support for weak sessions
-            
             return try super.encrypt(message)
         }
     }
@@ -103,12 +99,13 @@ extension SecureTalkInitiator {
         
         let responderPublicKeyData = self.recipientIdCard.publicKeyData
         let responderLongTermPublicKeyData = self.recipientLtCard.publicKeyData
-        let responderOneTimePublicKeyData = self.recipientOtCard.publicKeyData
+        let responderOneTimePublicKeyData = self.recipientOtCard?.publicKeyData
         guard let responderPublicKey = VSCPfsPublicKey(key: responderPublicKeyData),
-            let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData),
-            let responderOneTimePublicKey = VSCPfsPublicKey(key: responderOneTimePublicKeyData) else {
+            let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData) else {
                 throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
+        
+        let responderOneTimePublicKey = responderOneTimePublicKeyData != nil ? VSCPfsPublicKey(key: responderOneTimePublicKeyData!) : nil
         
         guard let responderPublicInfo = VSCPfsResponderPublicInfo(identityPublicKey: responderPublicKey, longTermPublicKey: responderLongTermPublicKey, oneTime: responderOneTimePublicKey) else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPublicInfo."])
@@ -120,8 +117,7 @@ extension SecureTalkInitiator {
         
         if !self.wasRecovered {
             let sessionId = session.identifier
-            // FIXME: Add support for weak sessions
-            let sessionState = InitiatorSessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard.identifier, recipientOneTimePublicKey: self.recipientOtCard.publicKeyData)
+            let sessionState = InitiatorSessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard?.identifier, recipientOneTimePublicKey: self.recipientOtCard?.publicKeyData)
             
             try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier)
         }

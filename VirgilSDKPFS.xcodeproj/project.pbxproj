@@ -40,8 +40,6 @@
 		425A02361EF93B9100D9BBEF /* SecureTalk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02351EF93B9100D9BBEF /* SecureTalk.swift */; };
 		425A02381EF9416C00D9BBEF /* SecureChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02371EF9416C00D9BBEF /* SecureChat.swift */; };
 		425A023B1EF974DD00D9BBEF /* InitiationMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */; };
-		425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */; };
-		425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A023E1EF9783600D9BBEF /* StrongSessionData.swift */; };
 		425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */; };
 		425A02431EFBC5A400D9BBEF /* InitiatorSessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */; };
 		425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */; };
@@ -111,8 +109,6 @@
 		425A02351EF93B9100D9BBEF /* SecureTalk.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureTalk.swift; sourceTree = "<group>"; };
 		425A02371EF9416C00D9BBEF /* SecureChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChat.swift; sourceTree = "<group>"; };
 		425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitiationMessage.swift; sourceTree = "<group>"; };
-		425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeakSessionData.swift; sourceTree = "<group>"; };
-		425A023E1EF9783600D9BBEF /* StrongSessionData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StrongSessionData.swift; sourceTree = "<group>"; };
 		425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceInfoEntry.swift; sourceTree = "<group>"; };
 		425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitiatorSessionState.swift; sourceTree = "<group>"; };
 		425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatKeyHelper.swift; sourceTree = "<group>"; };
@@ -340,8 +336,6 @@
 			isa = PBXGroup;
 			children = (
 				425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */,
-				425A023C1EF9782B00D9BBEF /* WeakSessionData.swift */,
-				425A023E1EF9783600D9BBEF /* StrongSessionData.swift */,
 				425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */,
 				425A02581EFD17A600D9BBEF /* SessionState.swift */,
 				425A02421EFBC5A400D9BBEF /* InitiatorSessionState.swift */,
@@ -493,9 +487,7 @@
 				425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */,
 				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
-				425A023D1EF9782B00D9BBEF /* WeakSessionData.swift in Sources */,
 				425A02521EFC13E100D9BBEF /* SecureTalkInitiator.swift in Sources */,
-				425A023F1EF9783600D9BBEF /* StrongSessionData.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
 				425A02561EFD176E00D9BBEF /* ResponderSessionState.swift in Sources */,
 				425A025F1F05055D00D9BBEF /* ValidateOTCHTTPRequest.swift in Sources */,

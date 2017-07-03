@@ -70,7 +70,9 @@ class SecureChatSessionHelper {
                 }
                 else if let responderSession = session.value as? ResponderSessionState {
                     relevantLtCards.insert(responderSession.recipientLongTermCardId)
-                    relevantOtCards.insert(responderSession.recipientOneTimeCardId)
+                    if let recOtId = responderSession.recipientOneTimeCardId {
+                        relevantOtCards.insert(recOtId)
+                    }
                 }
             }
         }

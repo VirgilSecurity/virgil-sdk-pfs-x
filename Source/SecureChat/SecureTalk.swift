@@ -80,7 +80,6 @@ extension SecureTalk {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error encrypting message."])
         }
         
-        // FIXME: Add support for weak sessions
         let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
         
         let msgData: Data
