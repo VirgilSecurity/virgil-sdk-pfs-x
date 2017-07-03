@@ -35,6 +35,24 @@ import VirgilSDK
     }
 }
 
+extension SecureChat {
+    func isMessageInitiation(_ message: Data) -> Bool {
+        let dict: Any
+        do {
+            dict = try JSONSerialization.jsonObject(with: message, options: [])
+        }
+        catch {
+            return false
+        }
+        
+        guard InitiationMessage(dictionary: dict) != nil else {
+            return false
+        }
+        
+        return true
+    }
+}
+
 // MARK: Talk initiation
 extension SecureChat {
     private func initiateTalk(withCardsSet cardsSet: RecipientCardsSet, additionalData: Data?, completion: @escaping (SecureTalk?, Error?)->()) {
@@ -96,7 +114,8 @@ extension SecureChat {
         
         let secureTalk: SecureTalk
         do {
-            secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, ttl: self.preferences.sessionTtl)
+            let date = Date()
+            secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
          
             completion(secureTalk, nil)
             return
@@ -113,7 +132,6 @@ extension SecureChat {
             return
         }
         
-        // FIXME: Check is session active
         let session: SessionState?
         do {
             session = try self.sessionHelper.getSessionState(forRecipientCardId: cardId)
@@ -172,7 +190,9 @@ extension SecureChat {
     private func respondToTalk(withCard card: VSSCard, message: Data, additionalData: Data?, completion: @escaping (SecureTalk?, String?, Error?)->()) {
         if let initiationMessage = try? SecureTalk.extractInitiationMessage(message) {
             let cardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
-            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, ttl: self.preferences.sessionTtl, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry)
+            
+            let date = Date()
+            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
             
             let message: String
             do {
@@ -189,7 +209,6 @@ extension SecureChat {
         else if let message = try? SecureTalk.extractMessage(message) {
             let sessionId = message.sessionId
             
-            // FIXME check session expiration
             guard case let session?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
                 session.sessionId == sessionId else {
                 completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."]))
@@ -281,7 +300,7 @@ extension SecureChat {
         let otCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientOneTimeCardId, publicKeyData: initiatorSessionState.recipientOneTimePublicKey)
         let additionalData = initiatorSessionState.additionalData
         
-        let secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, ttl: self.preferences.sessionTtl)
+        let secureTalk = try SecureTalkInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, creationDate: initiatorSessionState.creationDate, expirationDate: initiatorSessionState.expirationDate)
         
         return secureTalk
     }
@@ -290,7 +309,7 @@ extension SecureChat {
         let initiatorCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
         let additionalData = responderSessionState.additionalData
         
-        let secureTalk = try SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, ttl: self.preferences.sessionTtl, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId)
+        let secureTalk = try SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId, creationDate: responderSessionState.creationDate, expirationDate: responderSessionState.expirationDate)
         
         return secureTalk
     }

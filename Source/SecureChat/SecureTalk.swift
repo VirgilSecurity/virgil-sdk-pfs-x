@@ -21,7 +21,8 @@ import VirgilCrypto
     let wasRecovered: Bool
     let additionalData: Data?
     let sessionHelper: SecureChatSessionHelper
-    let ttl: TimeInterval
+    let creationDate: Date
+    let expirationDate: Date
     
     static public let ErrorDomain = "VSPSecureTalkErrorDomain"
     
@@ -31,16 +32,22 @@ import VirgilCrypto
         return self.pfs.session != nil
     }
     
-    // For initiator
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool, sessionHelper: SecureChatSessionHelper, additionalData: Data?, ttl: TimeInterval) {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool, sessionHelper: SecureChatSessionHelper, additionalData: Data?, creationDate: Date, expirationDate: Date) {
         self.crypto = crypto
         self.myPrivateKey = myPrivateKey
         self.wasRecovered = wasRecovered
         self.sessionHelper = sessionHelper
         self.additionalData = additionalData
-        self.ttl = ttl
+        self.creationDate = creationDate
+        self.expirationDate = expirationDate
         
         super.init()
+    }
+}
+
+extension SecureTalk {
+    var isExpired: Bool {
+        return Date() > self.expirationDate
     }
 }
 
