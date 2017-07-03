@@ -15,9 +15,14 @@ class PFSBaseHTTPRequest: VSSHTTPJSONRequest {
             return error
         }
         
-        if let candidate = candidate,
-            let pfsError = PFSError(dictionary: candidate) {
+        if let candidate = candidate {
+            if let pfsError = PFSError(dictionary: candidate) {
                 return pfsError.nsError
+            }
+            else if let candidate = candidate as? [AnyHashable: Any],
+                let cardsError = VSSCardsError(dict: candidate) {
+                return cardsError.nsError()
+            }
         }
         
         return nil
