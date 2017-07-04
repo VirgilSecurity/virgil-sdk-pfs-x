@@ -91,7 +91,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
         sleep(5);
         
-        VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:card myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+        VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:card myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
         
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
         
@@ -121,12 +121,12 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
         sleep(5);
         
-        VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:card myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+        VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:card myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
         
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
         
         [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
-            [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:card.identifier additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
+            [self.initiatorSecureChat  startNewSessionWithRecipientWithCard:card additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
                 XCTAssert(error == nil);
                 XCTAssert(session != nil);
                 [ex fulfill];
@@ -156,16 +156,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSError *err;
                         NSData *encryptedMessage = [initiatorSession encrypt:self.message1 error:&err];
                         XCTAssert(err == nil);
@@ -207,16 +207,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         NSError *err;
@@ -268,16 +268,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -320,16 +320,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -372,16 +372,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -424,16 +424,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -476,16 +476,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -527,16 +527,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
-            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat startNewSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         VSPSecureSession *responderSession = [self.responderSecureChat loadSessionForInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
@@ -577,7 +577,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
         sleep(5);
         
-        VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:5 sessionTtl:self.sessionTtl];
+        VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:5 sessionTtl:self.sessionTtl];
         
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
         
@@ -586,7 +586,6 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                 XCTAssert(error == nil);
                 XCTAssert(cardsSet.count == 1);
                 VSPRecipientCardsSet *cardSet = cardsSet[0];
-                identityId1 = cardSet.identityCard.identifier;
                 longTermId1 = cardSet.longTermCard.identifier;
                 oneTimeId1 = cardSet.oneTimeCard.identifier;
                 
@@ -597,13 +596,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                         XCTAssert(error == nil);
                         XCTAssert(cardsSet.count == 1);
                         VSPRecipientCardsSet *cardSet = cardsSet[0];
-                        identityId2 = cardSet.identityCard.identifier;
                         longTermId2 = cardSet.longTermCard.identifier;
                         oneTimeId2 = cardSet.oneTimeCard.identifier;
-                        
-                        XCTAssert(identityId1.length > 0);
-                        XCTAssert(identityId2.length > 0);
-                        XCTAssert([identityId1 isEqualToString:identityId2]);
                         
                         XCTAssert(longTermId1.length > 0);
                         XCTAssert(longTermId2.length > 0);
@@ -639,7 +633,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
         sleep(5);
         
-        VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig cardValidator:self.cardValidator deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:1 longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+        VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:1 longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
         
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
         
@@ -649,7 +643,6 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
                 [self.client getRecipientCardsSetForCardsIds:@[initiatorCard.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *cardsSet, NSError *error) {
                     XCTAssert(error == nil);
-                    XCTAssert(cardsSet[0].identityCard != nil);
                     XCTAssert(cardsSet[0].longTermCard != nil);
                     XCTAssert(cardsSet[0].oneTimeCard == nil);
                     

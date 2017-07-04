@@ -31,15 +31,14 @@ extension Client {
             credentials.reserveCapacity(response.credentials.count)
             
             for cred in response.credentials {
-                guard let ic = VSSCard(dict: cred.ic),
-                    let ltc = VSSCard(dict: cred.ltc) else {
+                guard let ltc = VSSCard(dict: cred.ltc) else {
                         completion(nil, nil)
                         return
                 }
                 
                 let otc = cred.otc != nil ? VSSCard(dict: cred.otc!) : nil
                 
-                credentials.append(RecipientCardsSet(identityCard: ic, longTermCard: ltc, oneTimeCard: otc))
+                credentials.append(RecipientCardsSet(longTermCard: ltc, oneTimeCard: otc))
             }
             
             completion(credentials, nil)

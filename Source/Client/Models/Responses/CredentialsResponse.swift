@@ -9,12 +9,10 @@
 import Foundation
 
 final class CredentialsResponse: NSObject, Deserializable {
-    let ic: [AnyHashable: Any]
     let ltc: [AnyHashable: Any]
     let otc: [AnyHashable: Any]?
     
-    fileprivate init(ic: [AnyHashable: Any], ltc: [AnyHashable: Any], otc: [AnyHashable: Any]?) {
-        self.ic = ic
+    fileprivate init(ltc: [AnyHashable: Any], otc: [AnyHashable: Any]?) {
         self.ltc = ltc
         self.otc = otc
     }
@@ -24,12 +22,11 @@ final class CredentialsResponse: NSObject, Deserializable {
             return nil
         }
         
-        guard let ic = dictionary["identity_card"] as? [AnyHashable: Any],
-            let ltc = dictionary["long_time_card"] as? [AnyHashable: Any] else {
-                return nil
+        guard let ltc = dictionary["long_time_card"] as? [AnyHashable: Any] else {
+            return nil
         }
         
-        self.init(ic: ic, ltc: ltc, otc: dictionary["one_time_card"] as? [AnyHashable: Any])
+        self.init(ltc: ltc, otc: dictionary["one_time_card"] as? [AnyHashable: Any])
     }
 }
 

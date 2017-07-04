@@ -214,7 +214,6 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                 VSPRecipientCardsSet *cred = credentials[0];
                 XCTAssert(cred != nil);
                 
-                XCTAssert([card.identifier isEqualToString:cred.identityCard.identifier]);
                 XCTAssert([longTermCard.identifier isEqualToString:cred.longTermCard.identifier]);
                 
                 BOOL containsCard = NO;
