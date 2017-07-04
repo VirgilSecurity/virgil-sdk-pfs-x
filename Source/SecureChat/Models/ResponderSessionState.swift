@@ -14,6 +14,8 @@ struct ResponderSessionState: SessionState {
     let sessionId: Data
     let additionalData: Data?
     let ephPublicKeyData: Data
+    let recipientIdentityCardId: String
+    let recipientIdentityPublicKey: Data
     let recipientLongTermCardId: String
     let recipientOneTimeCardId: String?
 }
@@ -25,6 +27,8 @@ extension ResponderSessionState: Serializable {
             Keys.expirationDate.rawValue: self.expirationDate,
             Keys.sessionId.rawValue: self.sessionId,
             Keys.ephPublicKeyData.rawValue: self.ephPublicKeyData,
+            Keys.recipientIdentityCardId.rawValue: self.recipientIdentityCardId,
+            Keys.recipientIdentityPublicKey.rawValue: self.recipientIdentityPublicKey,
             Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId
         ]
         
@@ -50,6 +54,8 @@ extension ResponderSessionState: Deserializable {
             let expirationDate = dict[Keys.expirationDate.rawValue] as? Date,
             let sessionId = dict[Keys.sessionId.rawValue] as? Data,
             let ephPublicKeyData = dict[Keys.ephPublicKeyData.rawValue] as? Data,
+            let recipientIdentityCardId = dict[Keys.recipientIdentityCardId.rawValue] as? String,
+            let recipientIdentityPublicKey = dict[Keys.recipientIdentityPublicKey.rawValue] as? Data,
             let recipientLongTermCardId = dict[Keys.recipientLongTermCardId.rawValue] as? String else {
                 return nil
         }
@@ -58,7 +64,7 @@ extension ResponderSessionState: Deserializable {
         
         let recipientOneTimeCardId = dict[Keys.recipientOneTimeCardId.rawValue] as? String
         
-        self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
+        self.init(creationDate: date, expirationDate: expirationDate, sessionId: sessionId, additionalData: additionalData, ephPublicKeyData: ephPublicKeyData, recipientIdentityCardId: recipientIdentityCardId, recipientIdentityPublicKey: recipientIdentityPublicKey, recipientLongTermCardId: recipientLongTermCardId, recipientOneTimeCardId: recipientOneTimeCardId)
     }
 }
 
@@ -69,6 +75,8 @@ extension ResponderSessionState {
         case sessionId = "session_id"
         case additionalData = "additional_data"
         case ephPublicKeyData = "eph_public_key_data"
+        case recipientIdentityCardId = "recipient_identity_card_id"
+        case recipientIdentityPublicKey = "recipient_identity_public_key"
         case recipientLongTermCardId = "recipient_long_term_card_id"
         case recipientOneTimeCardId = "recipient_one_time_card_id"
     }

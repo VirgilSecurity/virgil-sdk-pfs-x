@@ -42,7 +42,9 @@ extension SecureTalkResponder {
     }
     
     func decrypt(_ initiationMessage: InitiationMessage) throws -> String {
-        try self.initiateSession(withInitiationMessage: initiationMessage)
+        if !self.isSessionInitialized {
+            try self.initiateSession(withInitiationMessage: initiationMessage)
+        }
         
         guard self.isSessionInitialized else {
             throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
@@ -58,16 +60,18 @@ extension SecureTalkResponder {
     }
     
     override func decrypt(_ encryptedMessage: Data) throws -> String {
-        if !self.isSessionInitialized {
-            let initiationMessage = try SecureTalkResponder.extractInitiationMessage(encryptedMessage)
+        if let initiationMessage = try? SecureTalkResponder.extractInitiationMessage(encryptedMessage) {
             return try self.decrypt(initiationMessage)
         }
-        else {
+        else if let msg = try? SecureTalk.extractMessage(encryptedMessage) {
             guard self.isSessionInitialized else {
                 throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
             }
             
-            return try super.decrypt(encryptedMessage)
+            return try super.decrypt(encryptedMessage: msg)
+        }
+        else {
+            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown message format."])
         }
     }
 }
@@ -127,7 +131,7 @@ extension SecureTalkResponder {
         
         if !self.wasRecovered {
             let sessionId = session.identifier
-            let session = ResponderSessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephPublicKeyData: ephPublicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
+            let session = ResponderSessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephPublicKeyData: ephPublicKeyData, recipientIdentityCardId: self.initiatorIdCard.identifier, recipientIdentityPublicKey: self.initiatorIdCard.publicKeyData, recipientLongTermCardId: receiverLtcId, recipientOneTimeCardId: receiverOtcId)
             try self.sessionHelper.saveSessionState(session, forRecipientCardId: self.initiatorIdCard.identifier)
         }
     }

@@ -197,65 +197,9 @@ extension SecureChat {
 
 // MARK: Talk responding
 extension SecureChat {
-    private func respondToTalk(withCard card: VSSCard, message: Data, additionalData: Data?, completion: @escaping (SecureTalk?, String?, Error?)->()) {
-        if let initiationMessage = try? SecureTalk.extractInitiationMessage(message) {
-            let cardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
-            
-            let date = Date()
-            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
-            
-            let message: String
-            do {
-                message = try secureTalk.decrypt(initiationMessage)
-            }
-            catch {
-                completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error decrypting first message."]))
-                return
-            }
-            
-            completion(secureTalk, message, nil)
-            return
-        }
-        else if let message = try? SecureTalk.extractMessage(message) {
-            let sessionId = message.sessionId
-            
-            guard case let session?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
-                session.sessionId == sessionId else {
-                completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."]))
-                return
-            }
-            
-            let talk: SecureTalk
-            do {
-                talk = try self.recoverTalk(withRecipientWithCard: card, myIdentityCard: self.identityCard!, sessionState: session)
-            }
-            catch {
-                completion(nil, nil, error)
-                return
-            }
-            
-            let decryptedMessage: String
-            do {
-                decryptedMessage = try talk.decrypt(encryptedMessage: message)
-            }
-            catch {
-                completion(nil, nil, error)
-                return
-            }
-            
-            completion(talk, decryptedMessage, nil)
-            return
-        }
-        else {
-            completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown message structure."]))
-            return
-        }
-    }
-    
-    public func respondToTalk(withInitiatorWithCardId cardId: String, message: Data, additionalData: Data? = nil, completion: @escaping (SecureTalk?, String?, Error?)->()) {
+    public func respondToTalk(withInitiatorWithCard card: VSSCard, message: Data, additionalData: Data?) throws -> SecureTalk {
         guard let identityCard = self.identityCard else {
-            completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
-            return
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."])
         }
         
         // Added new one time card
@@ -263,20 +207,30 @@ extension SecureChat {
             // FIXME: handle error?
         }
         
-        self.virgilClient.getCard(withId: cardId) { card, error in
-            guard error == nil else {
-                completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining initiator identity card."]))
-                return
+        if let initiationMessage = try? SecureTalk.extractInitiationMessage(message) {
+            let cardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
+            
+            let date = Date()
+            let secureTalk = SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
+            
+            let _ = try secureTalk.decrypt(initiationMessage)
+            
+            return secureTalk
+        }
+        else if let message = try? SecureTalk.extractMessage(message) {
+            let sessionId = message.sessionId
+            
+            guard case let session?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
+                session.sessionId == sessionId else {
+                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."])
             }
             
-            guard let card = card else {
-                completion(nil, nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid initiator identity card."]))
-                return
-            }
+            let talk = try self.recoverTalk(withRecipientWithCard: card, myIdentityCard: self.identityCard!, sessionState: session)
             
-            self.respondToTalk(withCard: card, message: message, additionalData: additionalData) { secureTalk, decryptedMessage, error in
-                completion(secureTalk, decryptedMessage, error)
-            }
+            return talk
+        }
+        else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown message structure."])
         }
     }
 }
@@ -285,17 +239,17 @@ extension SecureChat {
 extension SecureChat {
     fileprivate func recoverTalk(withRecipientWithCard card: VSSCard, myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureTalk {
         if let session = sessionState as? InitiatorSessionState {
-            return try self.recoverInitiatorTalk(withRecipientWithCard: card, myIdentityCard: myIdentityCard, initiatorSessionState: session)
+            return try self.recoverInitiatorTalk(myIdentityCard: myIdentityCard, initiatorSessionState: session)
         }
         else if let session = sessionState as? ResponderSessionState {
-            return try self.recoverResponderTalk(withRecipientWithCard: card, myIdentityCard: myIdentityCard, responderSessionState: session)
+            return try self.recoverResponderTalk(myIdentityCard: myIdentityCard, responderSessionState: session)
         }
         else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown session state."])
         }
     }
     
-    private func recoverInitiatorTalk(withRecipientWithCard card: VSSCard, myIdentityCard: VSSCard, initiatorSessionState: InitiatorSessionState) throws -> SecureTalk {
+    private func recoverInitiatorTalk(myIdentityCard: VSSCard, initiatorSessionState: InitiatorSessionState) throws -> SecureTalk {
         let ephKeyName = initiatorSessionState.ephKeyName
         let ephPrivateKey: VSSPrivateKey
         do {
@@ -305,7 +259,7 @@ extension SecureChat {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting ephemeral key from storage."])
         }
         
-        let identityCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
+        let identityCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientCardId, publicKeyData: initiatorSessionState.recipientPublicKey)
         let ltCardEntry = SecureTalk.CardEntry(identifier: initiatorSessionState.recipientLongTermCardId, publicKeyData: initiatorSessionState.recipientLongTermPublicKey)
         let otCardEntry: SecureTalk.CardEntry?
         if let recOtId = initiatorSessionState.recipientOneTimeCardId, let recOtPub = initiatorSessionState.recipientOneTimePublicKey {
@@ -321,8 +275,8 @@ extension SecureChat {
         return secureTalk
     }
     
-    private func recoverResponderTalk(withRecipientWithCard card: VSSCard, myIdentityCard: VSSCard, responderSessionState: ResponderSessionState) throws -> SecureTalk {
-        let initiatorCardEntry = SecureTalk.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
+    private func recoverResponderTalk(myIdentityCard: VSSCard, responderSessionState: ResponderSessionState) throws -> SecureTalk {
+        let initiatorCardEntry = SecureTalk.CardEntry(identifier: responderSessionState.recipientIdentityCardId, publicKeyData: responderSessionState.recipientIdentityPublicKey)
         let additionalData = responderSessionState.additionalData
         
         let secureTalk = try SecureTalkResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId, creationDate: responderSessionState.creationDate, expirationDate: responderSessionState.expirationDate)
