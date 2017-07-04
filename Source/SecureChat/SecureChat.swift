@@ -14,53 +14,26 @@ import VirgilSDK
     
     public let preferences: SecureChatPreferences
     public let client: Client
-    public let virgilClient: VSSClient
     
     fileprivate let keyHelper: SecureChatKeyHelper
     fileprivate let cardsHelper: SecureChatCardsHelper
     fileprivate let sessionHelper: SecureChatSessionHelper
     
-    fileprivate var identityCard: VSSCard?
-    
     public init(preferences: SecureChatPreferences) {
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
-        self.virgilClient = VSSClient(serviceConfig: self.preferences.virgilServiceConfig)
         
-        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myCardId, longTermKeyTtl: self.preferences.longTermKeysTtl)
+        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myIdentityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
-        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.myCardId)
+        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.myIdentityCard.identifier)
         
         super.init()
-    }
-}
-
-extension SecureChat {
-    func isMessageInitiation(_ message: Data) -> Bool {
-        let dict: Any
-        do {
-            dict = try JSONSerialization.jsonObject(with: message, options: [])
-        }
-        catch {
-            return false
-        }
-        
-        guard InitiationMessage(dictionary: dict) != nil else {
-            return false
-        }
-        
-        return true
     }
 }
 
 // MARK: Session initiation
 extension SecureChat {
     private func initiateSession(withCardsSet cardsSet: RecipientCardsSet, additionalData: Data?, completion: @escaping (SecureSession?, Error?)->()) {
-        guard let identityCard = self.identityCard else {
-            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
-            return
-        }
-        
         let identityPublicKeyData = cardsSet.identityCard.publicKeyData
         let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
         let oneTimePublicKeyData = cardsSet.oneTimeCard?.publicKeyData
@@ -78,11 +51,9 @@ extension SecureChat {
             return
         }
         
-        if let cardValidator = self.virgilClient.serviceConfig.cardValidator {
-            guard cardValidator.validate(cardsSet.identityCard.cardResponse) else {
-                completion(nil, NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder identity card validation failed."]))
-                return
-            }
+        guard self.preferences.cardValidator.validate(cardsSet.identityCard.cardResponse) else {
+            completion(nil, NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder identity card validation failed."]))
+            return
         }
         
         let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
@@ -125,7 +96,7 @@ extension SecureChat {
         let secureSession: SecureSession
         do {
             let date = Date()
-            secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
+            secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: self.preferences.myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
          
             completion(secureSession, nil)
             return
@@ -137,41 +108,24 @@ extension SecureChat {
     }
     
     public func initiateSession(withRecipientWithCardId cardId: String, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
-        guard let myIdentityCard = self.identityCard else {
-            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."]))
-            return
-        }
-        
         let session: SessionState?
         do {
             session = try self.sessionHelper.getSessionState(forRecipientCardId: cardId)
         }
         catch {
-            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while obtaining save session."]))
+            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while obtaining saved session."]))
             return
         }
         
         if let session = session {
-            self.virgilClient.getCard(withId: cardId) { card, error in
-                guard error == nil else {
-                    completion(nil, error)
-                    return
-                }
-                
-                guard let recipientIdentityCard = card else {
-                    completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient card."]))
-                    return
-                }
-                
-                do {
-                    let secureSession = try self.recoverSession(withRecipientWithCard: recipientIdentityCard, myIdentityCard: myIdentityCard, sessionState: session)
-                    completion(secureSession, nil)
-                    return
-                }
-                catch {
-                    completion(nil, error)
-                    return
-                }
+            do {
+                let secureSession = try self.recoverSession(myIdentityCard: self.preferences.myIdentityCard, sessionState: session)
+                completion(secureSession, nil)
+                return
+            }
+            catch {
+                completion(nil, error)
+                return
             }
         }
         else {
@@ -198,12 +152,8 @@ extension SecureChat {
 // MARK: Session responding
 extension SecureChat {
     public func respondToSession(withInitiatorWithCard card: VSSCard, message: Data, additionalData: Data?) throws -> SecureSession {
-        guard let identityCard = self.identityCard else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Identity card missing. Probably, SecureChat was not initialized."])
-        }
-        
         // Added new one time card
-        try? self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
+        try? self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
             // FIXME: handle error?
         }
         
@@ -225,7 +175,7 @@ extension SecureChat {
                 throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."])
             }
             
-            let session = try self.recoverSession(withRecipientWithCard: card, myIdentityCard: self.identityCard!, sessionState: sessionState)
+            let session = try self.recoverSession(myIdentityCard: self.preferences.myIdentityCard, sessionState: sessionState)
             
             return session
         }
@@ -237,7 +187,7 @@ extension SecureChat {
 
 // MARK: Session recovering
 extension SecureChat {
-    fileprivate func recoverSession(withRecipientWithCard card: VSSCard, myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureSession {
+    fileprivate func recoverSession(myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureSession {
         if let session = sessionState as? InitiatorSessionState {
             return try self.recoverInitiatorSession(myIdentityCard: myIdentityCard, initiatorSessionState: session)
         }
@@ -312,7 +262,7 @@ extension SecureChat {
             return
         }
         
-        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.myCardId, cardsIds: otKeys) { exhaustedCardsIds, error in
+        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.myIdentityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
             guard error == nil else {
                 completion(error)
                 return
@@ -347,26 +297,23 @@ extension SecureChat {
             }
         }
         
-        var identityCard: VSSCard?
         var numberOfMissingCards: Int?
         
         var numberOfCompletedOperations = 0
-        let numberOfOperations = 3
+        let numberOfOperations = 2
         let operationCompletedCallback = {
             numberOfCompletedOperations += 1
             
             if numberOfOperations == numberOfCompletedOperations {
-                guard let identityCard = identityCard,
-                    let numberOfMissingCards = numberOfMissingCards else {
-                        errorCallback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "One or more initialization operations failed."]))
-                        return
+                guard let numberOfMissingCards = numberOfMissingCards else {
+                    errorCallback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "One or more initialization operations failed."]))
+                    return
                 }
 
-                self.identityCard = identityCard
                 if numberOfMissingCards > 0 {
                     let addLtCard = !self.keyHelper.hasRelevantLtKey()
                     do {
-                        try self.cardsHelper.addCards(forIdentityCard: identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
+                        try self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                             guard error == nil else {
                                 errorCallback(error!)
                                 return
@@ -394,24 +341,8 @@ extension SecureChat {
             operationCompletedCallback()
         }
         
-        // Get identity card
-        self.virgilClient.getCard(withId: self.preferences.myCardId) { card, error in
-            guard error == nil else {
-                errorCallback(error)
-                return
-            }
-            
-            guard let card = card else {
-                errorCallback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining identity card."]))
-                return
-            }
-            
-            identityCard = card
-            operationCompletedCallback()
-        }
-        
         // Check ephemeral cards status
-        self.client.getCardsStatus(forUserWithCardId: self.preferences.myCardId) { status, error in
+        self.client.getCardsStatus(forUserWithCardId: self.preferences.myIdentityCard.identifier) { status, error in
             guard error == nil else {
                 errorCallback(error)
                 return

@@ -10,32 +10,32 @@ import Foundation
 import VirgilSDK
 
 @objc(VSPSecureChatPreferences) public class SecureChatPreferences: NSObject {
-    public let myCardId: String
+    public let myIdentityCard: VSSCard
     public let myPrivateKey: VSSPrivateKey
     public let crypto: VSSCryptoProtocol
     public let keyStorage: VSSKeyStorageProtocol
     public let serviceConfig: ServiceConfig
-    public let virgilServiceConfig: VSSServiceConfig
+    public let cardValidator: VSSCardValidator
     public let deviceManager: VSSDeviceManagerProtocol
     public let numberOfActiveOneTimeCards: Int
     public let longTermKeysTtl: TimeInterval
     public let sessionTtl: TimeInterval
     
     
-    public init(myCardId: String, myPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, serviceConfig: ServiceConfig, virgilServiceConfig: VSSServiceConfig, deviceManager: VSSDeviceManagerProtocol, numberOfActiveOneTimeCards: Int, longTermKeysTtl: TimeInterval, sessionTtl: TimeInterval) {
-        self.myCardId = myCardId
+    public init(myIdentityCard: VSSCard, myPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, serviceConfig: ServiceConfig, cardValidator: VSSCardValidator, deviceManager: VSSDeviceManagerProtocol, numberOfActiveOneTimeCards: Int, longTermKeysTtl: TimeInterval, sessionTtl: TimeInterval) {
+        self.myIdentityCard = myIdentityCard
         self.myPrivateKey = myPrivateKey
         self.crypto = crypto
         self.keyStorage = keyStorage
         self.serviceConfig = serviceConfig
-        self.virgilServiceConfig = virgilServiceConfig
+        self.cardValidator = cardValidator
         self.deviceManager = deviceManager
         self.numberOfActiveOneTimeCards = numberOfActiveOneTimeCards
         self.longTermKeysTtl = longTermKeysTtl
         self.sessionTtl = sessionTtl
     }
     
-    convenience public init(myCardId: String, myPrivateKey: VSSPrivateKey, accessToken: String) {
-        self.init(myCardId: myCardId, myPrivateKey: myPrivateKey, crypto: VSSCrypto(), keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), virgilServiceConfig: VSSServiceConfig(token: accessToken), deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, longTermKeysTtl: 60*60*24*7, sessionTtl: 60*60*24*3)
+    convenience public init(myIdentityCard: VSSCard, myPrivateKey: VSSPrivateKey, accessToken: String, cardValidator: VSSCardValidator) {
+        self.init(myIdentityCard: myIdentityCard, myPrivateKey: myPrivateKey, crypto: VSSCrypto(), keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), cardValidator: cardValidator, deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, longTermKeysTtl: 60*60*24*7, sessionTtl: 60*60*24*3)
     }
 }
