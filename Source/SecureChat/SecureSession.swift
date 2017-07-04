@@ -1,5 +1,5 @@
 //
-//  SecureTalk.swift
+//  SecureSession.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/20/17.
@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 import VirgilCrypto
 
-@objc(VSPSecureTalk) public class SecureTalk: NSObject {
+@objc(VSPSecureSession) public class SecureSession: NSObject {
     struct CardEntry {
         let identifier: String
         let publicKeyData: Data
@@ -24,7 +24,7 @@ import VirgilCrypto
     let creationDate: Date
     let expirationDate: Date
     
-    static public let ErrorDomain = "VSPSecureTalkErrorDomain"
+    static public let ErrorDomain = "VSPSecureSessionErrorDomain"
     
     let pfs = VSCPfs()
     
@@ -45,24 +45,24 @@ import VirgilCrypto
     }
 }
 
-extension SecureTalk {
+extension SecureSession {
     var isExpired: Bool {
         return Date() > self.expirationDate
     }
 }
 
-extension SecureTalk {
+extension SecureSession {
     func decrypt(encryptedMessage: Message) throws -> String {
         guard let message = VSCPfsEncryptedMessage(sessionIdentifier: encryptedMessage.sessionId, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
         }
         
         guard let msgData = self.pfs.decryptMessage(message) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error decrypting message."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error decrypting message."])
         }
         
         guard let str = String(data: msgData, encoding: .utf8) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message to string."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message to string."])
         }
         
         return str
@@ -70,14 +70,14 @@ extension SecureTalk {
 }
 
 // Encryption
-extension SecureTalk {
+extension SecureSession {
     public func encrypt(_ message: String) throws -> Data {
         guard let messageData = message.data(using: .utf8) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message while encrypting."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message while encrypting."])
         }
         
         guard let encryptedMessage = self.pfs.encryptData(messageData) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error encrypting message."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error encrypting message."])
         }
         
         let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
@@ -87,25 +87,25 @@ extension SecureTalk {
             msgData = try JSONSerialization.data(withJSONObject: msg.serialize(), options: [])
         }
         catch {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json."])
         }
         
         return msgData
     }
     
     public func decrypt(_ encryptedMessage: Data) throws -> String {
-        let msg = try SecureTalk.extractMessage(encryptedMessage)
+        let msg = try SecureSession.extractMessage(encryptedMessage)
         
         return try self.decrypt(encryptedMessage: msg)
     }
 }
 
-extension SecureTalk {
+extension SecureSession {
     static func extractInitiationMessage(_ message: Data) throws -> InitiationMessage {
         let dict = try JSONSerialization.jsonObject(with: message, options: [])
         
         guard let msg = InitiationMessage(dictionary: dict) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting initiation message."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting initiation message."])
         }
         
         return msg
@@ -115,7 +115,7 @@ extension SecureTalk {
         let dict = try JSONSerialization.jsonObject(with: message, options: [])
         
         guard let msg = Message(dictionary: dict) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting message."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting message."])
         }
         
         return msg

@@ -78,7 +78,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test001_CreateAndInitializeSecureChat {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created"];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created"];
     
     NSUInteger numberOfRequests = 3;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -107,8 +107,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
-- (void)test002_InitiateTalk {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated."];
+- (void)test002_Initiatev {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated."];
     
     NSUInteger numberOfRequests = 4;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -125,9 +125,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
         
         [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
-            [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:card.identifier additionalData:nil completion:^(VSPSecureTalk *talk, NSError *error) {
+            [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:card.identifier additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
                 XCTAssert(error == nil);
-                XCTAssert(talk != nil);
+                XCTAssert(session != nil);
                 [ex fulfill];
             }];
         }];
@@ -140,7 +140,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test003_SetupSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created."];
     
     NSUInteger numberOfRequests = 8;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -164,16 +164,16 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
                         NSError *err;
-                        NSData *encryptedMessage = [initiatorTalk encrypt:self.message1 error:&err];
+                        NSData *encryptedMessage = [initiatorSession encrypt:self.message1 error:&err];
                         XCTAssert(err == nil);
                         XCTAssert(encryptedMessage.length > 0);
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage additionalData:nil error:&err];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage additionalData:nil error:&err];
                         XCTAssert(err == nil);
-                        XCTAssert(responderTalk != nil);
-                        NSString *decryptedMessage = [responderTalk decrypt:encryptedMessage error:&err];
+                        XCTAssert(responderSession != nil);
+                        NSString *decryptedMessage = [responderSession decrypt:encryptedMessage error:&err];
                         XCTAssert(err == nil);
                         XCTAssert([self.message1 isEqualToString:decryptedMessage]);
                             
@@ -191,7 +191,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test004_SetupSessionEncryptDecrypt {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Further encryption/decryption should work."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 8;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -215,26 +215,26 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
                         NSError *err;
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:&err];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:&err];
                         XCTAssert(err == nil);
-                        XCTAssert(responderTalk != nil);
-                        NSString *decryptedMessage1 = [responderTalk decrypt:encryptedMessage1 error:&err];
+                        XCTAssert(responderSession != nil);
+                        NSString *decryptedMessage1 = [responderSession decrypt:encryptedMessage1 error:&err];
                         XCTAssert(err == nil);
                         XCTAssert([self.message1 isEqualToString:decryptedMessage1]);
                         
-                        NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:&err];
+                        NSData *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:&err];
                         XCTAssert(err == nil);
-                        NSString *message2 = [responderTalk decrypt:encryptedMessage2 error:&err];
+                        NSString *message2 = [responderSession decrypt:encryptedMessage2 error:&err];
                         XCTAssert(err == nil);
                         XCTAssert([self.message2 isEqualToString:message2]);
                         
-                        NSData *encryptedMessage3 = [responderTalk encrypt:self.message3 error:&err];
+                        NSData *encryptedMessage3 = [responderSession encrypt:self.message3 error:&err];
                         XCTAssert(err == nil);
-                        NSString *message3 = [initiatorTalk decrypt:encryptedMessage3 error:&err];
+                        NSString *message3 = [initiatorSession decrypt:encryptedMessage3 error:&err];
                         XCTAssert(err == nil);
                         XCTAssert([self.message3 isEqualToString:message3]);
                         
@@ -252,7 +252,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test005_RecoverInitiatorSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Initiator talk should be recovered. Further encryption/decryption should work."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator session should be recovered. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -276,18 +276,18 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
                         
-                        [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *recoveredInitiatorTalk, NSError *error) {
+                        [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *recoveredInitiatorSession, NSError *error) {
                             XCTAssert(error == nil);
-                            XCTAssert(recoveredInitiatorTalk != nil);
+                            XCTAssert(recoveredInitiatorSession != nil);
                             NSError *err;
-                            NSData *encryptedMessage2 = [recoveredInitiatorTalk encrypt:self.message2 error:&err];
+                            NSData *encryptedMessage2 = [recoveredInitiatorSession encrypt:self.message2 error:&err];
                             XCTAssert(err == nil);
-                            NSString *message2 = [responderTalk decrypt:encryptedMessage2 error:&err];
+                            NSString *message2 = [responderSession decrypt:encryptedMessage2 error:&err];
                             XCTAssert(err == nil);
                             XCTAssert([self.message2 isEqualToString:message2]);
                             
@@ -306,7 +306,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test006_RecoverInitiatorSessionWithMessage {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Initiator talk should be recovered using message. Further encryption/decryption should work."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator session should be recovered using message. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -330,17 +330,17 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
-                        NSData *encryptedMessage2 = [responderTalk encrypt:self.message2 error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        NSData *encryptedMessage2 = [responderSession encrypt:self.message2 error:nil];
                         
                         NSError *err;
-                        VSPSecureTalk *recoveredInitiatorTalk = [self.initiatorSecureChat respondToTalkWithInitiatorWithCard:responderCard message:encryptedMessage2 additionalData:nil error:&err];
+                        VSPSecureSession *recoveredInitiatorSession = [self.initiatorSecureChat respondToSessionWithInitiatorWithCard:responderCard message:encryptedMessage2 additionalData:nil error:&err];
                         XCTAssert(err == nil);
-                        XCTAssert(recoveredInitiatorTalk != nil);
-                        NSString *message2 = [recoveredInitiatorTalk decrypt:encryptedMessage2 error:&err];
+                        XCTAssert(recoveredInitiatorSession != nil);
+                        NSString *message2 = [recoveredInitiatorSession decrypt:encryptedMessage2 error:&err];
                         XCTAssert(err == nil);
                         XCTAssert([self.message2 isEqualToString:message2]);
                         
@@ -358,7 +358,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test007_RecoverResponderSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Responder talk should be recovered. Further encryption/decryption should work."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder session should be recovered. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -382,18 +382,18 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
                         
-                        [self.responderSecureChat initiateTalkWithRecipientWithCardId:initiatorCard.identifier additionalData:nil completion:^(VSPSecureTalk *recoveredResponderTalk, NSError *error) {
+                        [self.responderSecureChat initiateSessionWithRecipientWithCardId:initiatorCard.identifier additionalData:nil completion:^(VSPSecureSession *recoveredResponderSession, NSError *error) {
                             XCTAssert(error == nil);
-                            XCTAssert(recoveredResponderTalk != nil);
+                            XCTAssert(recoveredResponderSession != nil);
                             NSError *err;
-                            NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:&err];
+                            NSData *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:&err];
                             XCTAssert(err == nil);
-                            NSString *message2 = [recoveredResponderTalk decrypt:encryptedMessage2 error:&err];
+                            NSString *message2 = [recoveredResponderSession decrypt:encryptedMessage2 error:&err];
                             XCTAssert(err == nil);
                             XCTAssert([self.message2 isEqualToString:message2]);
                             
@@ -412,7 +412,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test008_RecoverResponderSessionWithMessage {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Responder talk should be recovered using message. Further encryption/decryption should work."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder session should be recovered using message. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -436,18 +436,18 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
                         
-                        NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:nil];
+                        NSData *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
                         
                         NSError *err;
-                        VSPSecureTalk *recoveredResponderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage2 additionalData:nil error:&err];
-                        NSString *message2 = [recoveredResponderTalk decrypt:encryptedMessage2 error:&err];
+                        VSPSecureSession *recoveredResponderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage2 additionalData:nil error:&err];
+                        NSString *message2 = [recoveredResponderSession decrypt:encryptedMessage2 error:&err];
                         XCTAssert(err == nil);
-                        XCTAssert(recoveredResponderTalk != nil);
+                        XCTAssert(recoveredResponderSession != nil);
                         XCTAssert([self.message2 isEqualToString:message2]);
                         
                         [ex fulfill];
@@ -464,7 +464,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test009_ExpireInitiatorSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Initiator secure chat should be initialized."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator secure chat should be initialized."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -488,12 +488,12 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
                         
-                        NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:nil];
+                        NSData *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
                         
                         self.initiatorSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
                         
@@ -515,7 +515,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test010_ExpireResponderSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. Security talk should be initiated. Security talk should be responded. Session should be created. Responder secure chat should be initialized."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder secure chat should be initialized."];
     
     NSUInteger numberOfRequests = 9;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 200;
@@ -539,12 +539,12 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
                 [self.responderSecureChat initializeWithCompletion:^(NSError * error) {
-                    [self.initiatorSecureChat initiateTalkWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureTalk *initiatorTalk, NSError *error) {
-                        NSData *encryptedMessage1 = [initiatorTalk encrypt:self.message1 error:nil];
+                    [self.initiatorSecureChat initiateSessionWithRecipientWithCardId:responderCard.identifier additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        NSData *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
                         
-                        VSPSecureTalk *responderTalk = [self.responderSecureChat respondToTalkWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
+                        VSPSecureSession *responderSession = [self.responderSecureChat respondToSessionWithInitiatorWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:nil];
                         
-                        NSData *encryptedMessage2 = [initiatorTalk encrypt:self.message2 error:nil];
+                        NSData *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
                             
                         self.responderSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
                         
@@ -566,7 +566,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test011_ExpireLongTermCard {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. LongTerm card should be added."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
     
     NSUInteger numberOfRequests = 7;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -630,7 +630,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test012_ForceWeakSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security talk should be created. LongTerm card should be added."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
     
     NSUInteger numberOfRequests = 7;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;

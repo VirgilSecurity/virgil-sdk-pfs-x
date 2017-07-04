@@ -1,5 +1,5 @@
 //
-//  SecureTalkInitiator.swift
+//  SecureSessionInitiator.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/22/17.
@@ -10,7 +10,7 @@ import Foundation
 import VirgilCrypto
 import VirgilSDK
 
-class SecureTalkInitiator: SecureTalk {
+class SecureSessionInitiator: SecureSession {
     let myIdCard: VSSCard
     let ephPrivateKey: VSSPrivateKey
     let ephPrivateKeyName: String
@@ -35,7 +35,7 @@ class SecureTalkInitiator: SecureTalk {
 }
 
 // Encryption
-extension SecureTalkInitiator {
+extension SecureSessionInitiator {
     override func encrypt(_ message: String) throws -> Data {
         let isFirstMessage: Bool
         if !self.isSessionInitialized {
@@ -47,16 +47,16 @@ extension SecureTalkInitiator {
         }
         
         guard self.isSessionInitialized else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
         if isFirstMessage {
             guard let messageData = message.data(using: .utf8) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data."])
+                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data."])
             }
             
             guard let encryptedMessage = self.pfs.encryptData(messageData) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while encrypting message."])
+                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while encrypting message."])
             }
 
             let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
@@ -76,7 +76,7 @@ extension SecureTalkInitiator {
     
     override func decrypt(_ encryptedMessage: Data) throws -> String {
         guard self.isSessionInitialized else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
         return try super.decrypt(encryptedMessage)
@@ -84,17 +84,17 @@ extension SecureTalkInitiator {
 }
 
 // Session initialization
-extension SecureTalkInitiator {
+extension SecureSessionInitiator {
     fileprivate func initiateSession() throws {
         let privateKeyData = self.crypto.export(self.myPrivateKey, withPassword: nil)
         let ephPrivateKeyData = self.crypto.export(self.ephPrivateKey, withPassword: nil)
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
             let ephPrivateKey = VSCPfsPrivateKey(key: ephPrivateKeyData, password: nil) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
+                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
         
         guard let initiatorPrivateInfo = VSCPfsInitiatorPrivateInfo(identityPrivateKey: privateKey, ephemeralPrivateKey: ephPrivateKey) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating initiatorPrivateInfo."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating initiatorPrivateInfo."])
         }
         
         let responderPublicKeyData = self.recipientIdCard.publicKeyData
@@ -102,17 +102,17 @@ extension SecureTalkInitiator {
         let responderOneTimePublicKeyData = self.recipientOtCard?.publicKeyData
         guard let responderPublicKey = VSCPfsPublicKey(key: responderPublicKeyData),
             let responderLongTermPublicKey = VSCPfsPublicKey(key: responderLongTermPublicKeyData) else {
-                throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
+                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
         }
         
         let responderOneTimePublicKey = responderOneTimePublicKeyData != nil ? VSCPfsPublicKey(key: responderOneTimePublicKeyData!) : nil
         
         guard let responderPublicInfo = VSCPfsResponderPublicInfo(identityPublicKey: responderPublicKey, longTermPublicKey: responderLongTermPublicKey, oneTime: responderOneTimePublicKey) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPublicInfo."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPublicInfo."])
         }
         
         guard let session = self.pfs.startInitiatorSession(with: initiatorPrivateInfo, respondrerPublicInfo: responderPublicInfo, additionalData: self.additionalData) else {
-            throw NSError(domain: SecureTalk.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while initiating initiator session."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while initiating initiator session."])
         }
         
         if !self.wasRecovered {
