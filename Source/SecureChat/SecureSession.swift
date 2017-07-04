@@ -94,9 +94,7 @@ extension SecureSession {
     }
     
     public func decrypt(_ encryptedMessage: Data) throws -> String {
-        let msg = try SecureSession.extractMessage(encryptedMessage)
-        
-        return try self.decrypt(encryptedMessage: msg)
+        throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Decrypt should be overrided in subclasses"])
     }
 }
 

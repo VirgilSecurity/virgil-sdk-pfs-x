@@ -79,7 +79,9 @@ extension SecureSessionInitiator {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
-        return try super.decrypt(encryptedMessage)
+        let message = try SecureSession.extractMessage(encryptedMessage)
+        
+        return try super.decrypt(encryptedMessage: message)
     }
 }
 
