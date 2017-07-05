@@ -36,7 +36,7 @@ class SecureSessionInitiator: SecureSession {
 
 // Encryption
 extension SecureSessionInitiator {
-    override func encrypt(_ message: String) throws -> Data {
+    override func encrypt(_ message: String) throws -> String {
         let isFirstMessage: Bool
         if !self.isSessionInitialized {
             isFirstMessage = true
@@ -67,19 +67,28 @@ extension SecureSessionInitiator {
             let initMsg = InitiationMessage(initiatorIcId: self.myIdCard.identifier, responderIcId: self.recipientIdCard.identifier, responderLtcId: self.recipientLtCard.identifier, responderOtcId: self.recipientOtCard?.identifier, ephPublicKey: ephPublicKeyData, ephPublicKeySignature: ephPublicKeySignature, salt: msg.salt, cipherText: msg.cipherText)
             
             let msgData = try JSONSerialization.data(withJSONObject: initMsg.serialize(), options: [])
-            return msgData
+            
+            guard let msgStr = String(data: msgData, encoding: .utf8) else {
+                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data using utf8."])
+            }
+            
+            return msgStr
         }
         else {
             return try super.encrypt(message)
         }
     }
     
-    override func decrypt(_ encryptedMessage: Data) throws -> String {
+    override func decrypt(_ encryptedMessage: String) throws -> String {
         guard self.isSessionInitialized else {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
-        let message = try SecureSession.extractMessage(encryptedMessage)
+        guard let messageData = encryptedMessage.data(using: .utf8) else {
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
+        }
+        
+        let message = try SecureSession.extractMessage(messageData)
         
         return try super.decrypt(encryptedMessage: message)
     }

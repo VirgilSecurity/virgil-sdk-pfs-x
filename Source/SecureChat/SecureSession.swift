@@ -71,7 +71,7 @@ extension SecureSession {
 
 // Encryption
 extension SecureSession {
-    public func encrypt(_ message: String) throws -> Data {
+    public func encrypt(_ message: String) throws -> String {
         guard let messageData = message.data(using: .utf8) else {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message while encrypting."])
         }
@@ -90,10 +90,14 @@ extension SecureSession {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json."])
         }
         
-        return msgData
+        guard let msgStr = String(data: msgData, encoding: .utf8) else {
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data using utf8."])
+        }
+        
+        return msgStr
     }
     
-    public func decrypt(_ encryptedMessage: Data) throws -> String {
+    public func decrypt(_ encryptedMessage: String) throws -> String {
         throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Decrypt should be overrided in subclasses"])
     }
 }

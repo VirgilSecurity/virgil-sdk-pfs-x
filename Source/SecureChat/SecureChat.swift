@@ -128,8 +128,12 @@ extension SecureChat {
 
 // MARK: Session responding
 extension SecureChat {
-    public func loadSession(forInitiatorWithCard card: VSSCard, message: Data, additionalData: Data?) throws -> SecureSession {
-        if let initiationMessage = try? SecureSession.extractInitiationMessage(message) {
+    public func loadSession(forInitiatorWithCard card: VSSCard, message: String, additionalData: Data?) throws -> SecureSession {
+        guard let messageData = message.data(using: .utf8) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid message string."])
+        }
+        
+        if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
             // Added new one time card
             try? self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
                 // FIXME: handle error?
@@ -144,7 +148,7 @@ extension SecureChat {
             
             return secureSession
         }
-        else if let message = try? SecureSession.extractMessage(message) {
+        else if let message = try? SecureSession.extractMessage(messageData) {
             let sessionId = message.sessionId
             
             guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),

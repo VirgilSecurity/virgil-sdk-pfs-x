@@ -33,7 +33,7 @@ class SecureSessionResponder: SecureSession {
 
 // Encryption
 extension SecureSessionResponder {
-    override func encrypt(_ message: String) throws -> Data {
+    override func encrypt(_ message: String) throws -> String {
         guard self.isSessionInitialized else {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
@@ -59,11 +59,15 @@ extension SecureSessionResponder {
         return try self.decrypt(encryptedMessage: message)
     }
     
-    override func decrypt(_ encryptedMessage: Data) throws -> String {
-        if let initiationMessage = try? SecureSessionResponder.extractInitiationMessage(encryptedMessage) {
+    override func decrypt(_ encryptedMessage: String) throws -> String {
+        guard let messageData = encryptedMessage.data(using: .utf8) else {
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
+        }
+        
+        if let initiationMessage = try? SecureSessionResponder.extractInitiationMessage(messageData) {
             return try self.decrypt(initiationMessage)
         }
-        else if let msg = try? SecureSession.extractMessage(encryptedMessage) {
+        else if let msg = try? SecureSession.extractMessage(messageData) {
             guard self.isSessionInitialized else {
                 throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
             }
