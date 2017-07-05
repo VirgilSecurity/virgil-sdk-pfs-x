@@ -624,7 +624,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
     
     NSUInteger numberOfRequests = 7;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 200;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
