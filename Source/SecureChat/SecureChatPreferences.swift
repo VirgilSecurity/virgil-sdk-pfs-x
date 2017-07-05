@@ -33,7 +33,7 @@ import VirgilSDK
         self.sessionTtl = sessionTtl
     }
     
-    convenience public init(myIdentityCard: VSSCard, myPrivateKey: VSSPrivateKey, accessToken: String) {
-        self.init(myIdentityCard: myIdentityCard, myPrivateKey: myPrivateKey, crypto: VSSCrypto(), keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, longTermKeysTtl: 60*60*24*7, sessionTtl: 60*60*24*3)
+    convenience public init(crypto: VSSCryptoProtocol, myIdentityCard: VSSCard, myPrivateKey: VSSPrivateKey, accessToken: String) {
+        self.init(myIdentityCard: myIdentityCard, myPrivateKey: myPrivateKey, crypto: crypto, keyStorage: VSSKeyStorage(), serviceConfig: ServiceConfig(token: accessToken), deviceManager: VSSDeviceManager(), numberOfActiveOneTimeCards: 100, longTermKeysTtl: 60*60*24*7, sessionTtl: 60*60*24*3)
     }
 }
