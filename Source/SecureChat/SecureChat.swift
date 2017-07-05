@@ -128,7 +128,7 @@ extension SecureChat {
 
 // MARK: Session responding
 extension SecureChat {
-    public func loadSession(forInitiatorWithCard card: VSSCard, message: String, additionalData: Data?) throws -> SecureSession {
+    public func loadUpSession(forInitiatorWithCard card: VSSCard, message: String, additionalData: Data?) throws -> SecureSession {
         guard let messageData = message.data(using: .utf8) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid message string."])
         }
