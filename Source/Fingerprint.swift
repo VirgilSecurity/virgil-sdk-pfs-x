@@ -14,7 +14,7 @@ import VirgilCrypto
     
     public static let ErrorDomain = "VSPFingerprintErrorDomain"
     
-    //NumberFingerprint generates a 60-digit string representation of 384 bit hash of supplied strings
+    // NOTE: takes ~0.07s on iPhone 6 
     public static func calculateFingerprint(forCardsIds cardsIds: [String]) throws -> String {
         let sortedCardsIds = cardsIds.sorted()
         
