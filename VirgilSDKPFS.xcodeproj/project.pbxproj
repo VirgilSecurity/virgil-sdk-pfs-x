@@ -61,6 +61,8 @@
 		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
 		425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsStatus.swift */; };
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
+		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
+		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +132,8 @@
 		425E082F1EF8248500A74C29 /* Client+Info.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+Info.swift"; sourceTree = "<group>"; };
 		425E08311EF824E300A74C29 /* CardsStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsStatus.swift; sourceTree = "<group>"; };
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
+		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
+		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +196,7 @@
 				420D152A1EF40F24002A9C22 /* VSPTestUtils.m */,
 				420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */,
 				425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */,
+				429624181F15038900284665 /* VSP003_FingerprintTests.m */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -211,6 +216,7 @@
 				420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */,
 				420D0B531EEFE0A8002A9C22 /* Client */,
 				425A02321EF93B2800D9BBEF /* SecureChat */,
+				429623E71F13BD3600284665 /* Fingerprint.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -504,6 +510,7 @@
 				420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */,
 				425A025D1F05053600D9BBEF /* ValidateOTCRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
+				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				425A02471EFBE86500D9BBEF /* SecureChatCardsHelper.swift in Sources */,
 				425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
@@ -530,6 +537,7 @@
 				425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */,
 				420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */,
 				420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */,
+				4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
