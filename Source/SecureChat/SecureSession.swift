@@ -87,7 +87,7 @@ extension SecureSession {
             msgData = try JSONSerialization.data(withJSONObject: msg.serialize(), options: [])
         }
         catch {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json. Underlying error: \(error.localizedDescription)"])
         }
         
         guard let msgStr = String(data: msgData, encoding: .utf8) else {

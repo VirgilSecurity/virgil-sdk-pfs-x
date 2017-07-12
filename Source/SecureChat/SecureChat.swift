@@ -59,7 +59,7 @@ extension SecureChat {
             ephKeyName = try self.keyHelper.persistEphPrivateKey(ephPrivateKey, name: identityCardId)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving ephemeral key."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving ephemeral key. Underlying error: \(error.localizedDescription)"])
         }
         
         let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
@@ -68,7 +68,7 @@ extension SecureChat {
             try validator.addVerifier(withId: identityCardId, publicKeyData: identityPublicKeyData)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while adding verifier."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while adding verifier. Underlying error: \(error.localizedDescription)"])
         }
         
         guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
@@ -99,9 +99,23 @@ extension SecureChat {
     }
     
     public func startNewSession(withRecipientWithCard card: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
+        let sessionState: SessionState?
+        do {
+            sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: card.identifier)
+        }
+        catch {
+            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error checking for existing session. Underlying error: \(error.localizedDescription)"]))
+            return
+        }
+        
+        guard sessionState == nil else {
+            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Found active session for given recipient. Try to loadUpSession."]))
+            return
+        }
+        
         self.client.getRecipientCardsSet(forCardsIds: [card.identifier]) { cardsSets, error in
             guard error == nil else {
-                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set."]))
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set. Underlying error: \(error!.localizedDescription)"]))
                 return
             }
             
@@ -187,7 +201,7 @@ extension SecureChat {
             ephPrivateKey = try self.keyHelper.getEphPrivateKey(withKeyEntryName: ephKeyName)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting ephemeral key from storage."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting ephemeral key from storage. Underlying error: \(error.localizedDescription)"])
         }
         
         let identityCardEntry = SecureSession.CardEntry(identifier: initiatorSessionState.recipientCardId, publicKeyData: initiatorSessionState.recipientPublicKey)

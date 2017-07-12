@@ -563,7 +563,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test011_ExpireLongTermCard {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added. LongTerm card should expire."];
     
     NSUInteger numberOfRequests = 7;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -621,7 +621,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test012_ForceWeakSession {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. OTC cards should end. Weak session should be started."];
     
     NSUInteger numberOfRequests = 7;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
@@ -679,6 +679,170 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                                 XCTAssert([self.message3 isEqualToString:message3]);
                                 
                                 [ex fulfill];
+                            }];
+                        }];
+                    }];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test013_Start2SeparateResponderSessions {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
+    
+    NSUInteger numberOfRequests = 11;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair1 = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair2 = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair];
+    VSSCreateCardRequest *responderIdentityRequest1 = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair1];
+    VSSCreateCardRequest *responderIdentityRequest2 = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair2];
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
+        [self.virgilClient createCardWithRequest:responderIdentityRequest1 completion:^(VSSCard *responderCard1, NSError *error) {
+            [self.virgilClient createCardWithRequest:responderIdentityRequest2 completion:^(VSSCard *responderCard2, NSError *error) {
+                sleep(5);
+                
+                VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard myPrivateKey:initiatorKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                VSPSecureChatPreferences *responderPreferences1 = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard1 myPrivateKey:responderKeyPair1.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                VSPSecureChatPreferences *responderPreferences2 = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard2 myPrivateKey:responderKeyPair2.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                
+                self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+                self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences1];
+                self.responderSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:responderPreferences2];
+                
+                [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+                    [self.responderSecureChat initializeWithCompletion:^(NSError *error) {
+                        [self.responderSecureChat2 initializeWithCompletion:^(NSError *error) {
+                            [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard1 additionalData:nil completion:^(VSPSecureSession *initiatorSession1, NSError *error) {
+                                XCTAssert(error == nil);
+                                XCTAssert(initiatorSession1 != nil);
+                                
+                                NSError *err;
+                                
+                                NSString *encryptedMessage11 = [initiatorSession1 encrypt:self.message1 error:&err];
+                                
+                                VSPSecureSession *responderSession1 = [self.responderSecureChat loadUpSessionForInitiatorWithCard:initiatorCard message:encryptedMessage11 additionalData:nil error:&err];
+                                XCTAssert(err == nil);
+                                XCTAssert(responderSession1 != nil);
+                                NSString *decryptedMessage11 = [responderSession1 decrypt:encryptedMessage11 error:&err];
+                                XCTAssert(err == nil);
+                                XCTAssert([self.message1 isEqualToString:decryptedMessage11]);
+                                
+                                [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard2 additionalData:nil completion:^(VSPSecureSession *initiatorSession2, NSError *error) {
+                                    XCTAssert(error == nil);
+                                    XCTAssert(initiatorSession2 != nil);
+                                    
+                                    NSError *err;
+                                    
+                                    NSString *encryptedMessage22 = [initiatorSession2 encrypt:self.message2 error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert(encryptedMessage22.length > 0);
+                                    
+                                    VSPSecureSession *foreignSession = [self.responderSecureChat2 activeSessionForRecipientWithCardId:initiatorCard.identifier];
+                                    XCTAssert(foreignSession == nil);
+                                    
+                                    VSPSecureSession *responderSession2 = [self.responderSecureChat2 loadUpSessionForInitiatorWithCard:initiatorCard message:encryptedMessage22 additionalData:nil error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert(responderSession2 != nil);
+                                    
+                                    NSString *decryptedMessage22 = [responderSession2 decrypt:encryptedMessage22 error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert([self.message2 isEqualToString:decryptedMessage22]);
+                                    
+                                    [ex fulfill];
+                                }];
+                            }];
+                        }];
+                    }];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test014_Start2SeparateInitiatorSessions {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
+    
+    NSUInteger numberOfRequests = 11;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair1 = [self.crypto generateKeyPair];
+    VSSKeyPair *initiatorKeyPair2 = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest1 = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair1];
+    VSSCreateCardRequest *initiatorIdentityRequest2 = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair2];
+    VSSCreateCardRequest *responderIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair];
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest1 completion:^(VSSCard *initiatorCard1, NSError *error) {
+        [self.virgilClient createCardWithRequest:initiatorIdentityRequest2 completion:^(VSSCard *initiatorCard2, NSError *error) {
+            [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
+                sleep(5);
+                
+                VSPSecureChatPreferences *initiatorPreferences1 = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard1 myPrivateKey:initiatorKeyPair1.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                VSPSecureChatPreferences *initiatorPreferences2 = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:initiatorCard2 myPrivateKey:initiatorKeyPair2.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:responderCard myPrivateKey:responderKeyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+                
+                self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences1];
+                self.initiatorSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences2];
+                self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
+                
+                [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+                    [self.initiatorSecureChat2 initializeWithCompletion:^(NSError *error) {
+                        [self.responderSecureChat initializeWithCompletion:^(NSError *error) {
+                            [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession1, NSError *error) {
+                                XCTAssert(error == nil);
+                                XCTAssert(initiatorSession1 != nil);
+                                
+                                NSError *err;
+                                
+                                NSString *encryptedMessage11 = [initiatorSession1 encrypt:self.message1 error:&err];
+                                
+                                VSPSecureSession *responderSession1 = [self.responderSecureChat loadUpSessionForInitiatorWithCard:initiatorCard1 message:encryptedMessage11 additionalData:nil error:&err];
+                                XCTAssert(err == nil);
+                                XCTAssert(responderSession1 != nil);
+                                NSString *decryptedMessage11 = [responderSession1 decrypt:encryptedMessage11 error:&err];
+                                XCTAssert(err == nil);
+                                XCTAssert([self.message1 isEqualToString:decryptedMessage11]);
+                                
+                                VSPSecureSession *foreignSession = [self.initiatorSecureChat2 activeSessionForRecipientWithCardId:responderCard.identifier];
+                                XCTAssert(foreignSession == nil);
+                                
+                                [self.initiatorSecureChat2 startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession2, NSError *error) {
+                                    XCTAssert(error == nil);
+                                    XCTAssert(initiatorSession2 != nil);
+                                    
+                                    NSError *err;
+                                    
+                                    NSString *encryptedMessage22 = [initiatorSession2 encrypt:self.message2 error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert(encryptedMessage22.length > 0);
+                                    
+                                    VSPSecureSession *responderSession2 = [self.responderSecureChat loadUpSessionForInitiatorWithCard:initiatorCard2 message:encryptedMessage22 additionalData:nil error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert(responderSession2 != nil);
+                                    
+                                    NSString *decryptedMessage22 = [responderSession2 decrypt:encryptedMessage22 error:&err];
+                                    XCTAssert(err == nil);
+                                    XCTAssert([self.message2 isEqualToString:decryptedMessage22]);
+                                    
+                                    [ex fulfill];
+                                }];
                             }];
                         }];
                     }];

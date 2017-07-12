@@ -217,7 +217,7 @@ extension SecureChatKeyHelper {
     }
     
     fileprivate func getPrivateKeyName(_ name: String) -> String {
-        return String(format: "VIRGIL.%@", name)
+        return String(format: "VIRGIL.OWNER=%@.%@", self.identityCardId, name)
     }
     
     fileprivate func getEphPrivateKeyName(_ name: String) -> String {
