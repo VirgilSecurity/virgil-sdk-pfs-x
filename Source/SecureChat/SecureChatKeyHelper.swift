@@ -103,6 +103,11 @@ class SecureChatKeyHelper {
         }
     }
     
+    func removeOneTimePrivateKey(withName name: String) throws {
+        let keyEntryName = self.getPrivateKeyName(self.getOtPrivateKeyName(name))
+        try self.removePrivateKey(withKeyEntryName: keyEntryName)
+    }
+    
     func hasRelevantLtKey() -> Bool {
         guard let serviceInfoEntry = self.getServiceInfoEntry() else {
             return false
@@ -197,7 +202,7 @@ extension SecureChatKeyHelper {
         return privateKey
     }
     
-    fileprivate func removePrivateKey(withKeyEntryName keyEntryName: String) throws {
+    func removePrivateKey(withKeyEntryName keyEntryName: String) throws {
         try self.keyStorage.deleteKeyEntry(withName: keyEntryName)
     }
     

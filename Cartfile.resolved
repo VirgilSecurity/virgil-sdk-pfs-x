@@ -1,2 +1,2 @@
-github "VirgilSecurity/virgil-foundation-x" "919663277552b29d7380715c6e880f525183ad87"
-github "VirgilSecurity/virgil-sdk-x" "82a1d851bf7f4caeee44b72fe270624c5462cc2c"
+github "VirgilSecurity/virgil-foundation-x" "2.3.0"
+github "VirgilSecurity/virgil-sdk-x" "4.6.0"

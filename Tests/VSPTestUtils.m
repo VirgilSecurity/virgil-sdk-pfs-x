@@ -11,12 +11,11 @@
 
 @implementation VSPTestUtils
 
-- (instancetype)init
-{
+- (instancetype __nonnull)initWithCrypto:(id<VSSCrypto>)crypto consts:(VSPTestsConst *)consts {
     self = [super init];
     if (self) {
-        _consts = [[VSPTestsConst alloc] init];
-        _crypto = [[VSSCrypto alloc] init];
+        _consts = consts;
+        _crypto = crypto;
     }
     return self;
 }

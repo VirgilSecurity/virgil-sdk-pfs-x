@@ -31,8 +31,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     [super setUp];
     
     self.consts = [[VSPTestsConst alloc] init];
-    self.utils = [[VSPTestUtils alloc] init];
     self.crypto = [[VSSCrypto alloc] init];
+    self.utils = [[VSPTestUtils alloc] initWithCrypto:self.crypto consts:self.consts];
     
     VSSServiceConfig *virgilConfig = [VSSServiceConfig serviceConfigWithToken:self.consts.applicationToken];
     

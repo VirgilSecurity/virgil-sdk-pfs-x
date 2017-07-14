@@ -14,23 +14,9 @@ class SecureChatSessionHelper {
     init(cardId: String) {
         self.cardId = cardId
     }
-    
-    func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
-        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        userDefaults.set(sessionState.serialize(), forKey: self.getSessionName(forCardId: cardId))
-    }
-    
-    func removeSessionState(forRecipientCardId cardId: String) throws {
-        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        userDefaults.removeObject(forKey: self.getSessionName(forCardId: cardId))
-    }
-    
+}
+
+extension SecureChatSessionHelper {
     func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
@@ -44,47 +30,20 @@ class SecureChatSessionHelper {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
-        guard !self.isSessionStateExpired(now: Date(), session: state) else {
-            return nil
-        }
-        
         return state
     }
-    
-    func removeOldSessions() throws -> (Set<String>, Set<String>, Set<String>) {
-        let sessions = try self.getAllSessions()
-        
-        let date = Date()
-        
-        var relevantEphKeys = Set<String>()
-        var relevantLtCards = Set<String>()
-        var relevantOtCards = Set<String>()
-        
-        for session in sessions {
-            if self.isSessionStateExpired(now: date, session: session.value) {
-                try self.removeSessionState(forRecipientCardId: session.key)
-            }
-            else {
-                if let initiatorSession = session.value as? InitiatorSessionState {
-                    relevantEphKeys.insert(initiatorSession.ephKeyName)
-                }
-                else if let responderSession = session.value as? ResponderSessionState {
-                    relevantLtCards.insert(responderSession.recipientLongTermCardId)
-                    if let recOtId = responderSession.recipientOneTimeCardId {
-                        relevantOtCards.insert(recOtId)
-                    }
-                }
-            }
-        }
-        
-        return (relevantEphKeys, relevantLtCards, relevantOtCards)
-    }
-    
-    private func getAllSessions() throws -> [String: SessionState] {
+}
+
+extension SecureChatSessionHelper {
+    func getAllSessionsStates() throws -> [String: SessionState] {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
+        return try self.getAllSessionsStates(userDefaults: userDefaults)
+    }
+    
+    private func getAllSessionsStates(userDefaults: UserDefaults) throws -> [String: SessionState] {
         let dict = userDefaults.dictionaryRepresentation()
         
         var res: [String: SessionState] = [:]
@@ -101,9 +60,45 @@ class SecureChatSessionHelper {
         
         return res
     }
+}
+
+extension SecureChatSessionHelper {
+    func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String, synchronize: Bool = true) throws {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        self.saveSessionState(sessionState, forRecipientCardId: cardId, userDefaults: userDefaults, synchronize: synchronize)
+    }
     
-    private func isSessionStateExpired(now: Date, session: SessionState) -> Bool {
-        return (now > session.expirationDate)
+    private func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String, userDefaults: UserDefaults, synchronize: Bool) {
+        userDefaults.set(sessionState.serialize(), forKey: self.getSessionName(forCardId: cardId))
+        
+        if synchronize {
+            userDefaults.synchronize()
+        }
+    }
+}
+
+extension SecureChatSessionHelper {
+    func removeSessionsStates(_ sessionsStates: [String]) throws {
+        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+        }
+        
+        for sessionState in sessionsStates {
+            self.removeSessionState(forRecipientCardId: sessionState, userDefaults: userDefaults, synchronize: false)
+        }
+        
+        userDefaults.synchronize()
+    }
+        
+    private func removeSessionState(forRecipientCardId cardId: String, userDefaults: UserDefaults, synchronize: Bool) {
+        userDefaults.removeObject(forKey: self.getSessionName(forCardId: cardId))
+        
+        if synchronize {
+            userDefaults.synchronize()
+        }
     }
 }
 
