@@ -179,7 +179,10 @@ extension SecureChat {
         if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
             // Added new one time card
             try? self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
-                NSLog("WARNING: Error occured while adding new otc in loadUpSession")
+                guard error == nil else {
+                    NSLog("WARNING: Error occured while adding new otc in loadUpSession")
+                    return
+                }
             }
             
             let cardEntry = SecureSession.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
