@@ -998,4 +998,45 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
+- (void)test016_RestartInvalidSession {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Another session with same participant should be started."];
+    
+    NSUInteger numberOfRequests = 4;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        sleep(5);
+        
+        VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithMyIdentityCard:card myPrivateKey:keyPair.privateKey crypto:self.crypto keyStorage:[[VSSKeyStorage alloc] init] serviceConfig:self.client.serviceConfig  deviceManager:[[VSSDeviceManager alloc] init] numberOfActiveOneTimeCards:self.numberOfCards longTermKeysTtl:self.longTermKeysTtl sessionTtl:self.sessionTtl];
+        
+        self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
+        
+        [self.initiatorSecureChat initializeWithCompletion:^(NSError *error) {
+            [self.initiatorSecureChat  startNewSessionWithRecipientWithCard:card additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
+                XCTAssert(error == nil);
+                XCTAssert(session != nil);
+                
+                NSError *err;
+                BOOL res = [self.initiatorSecureChat removeSessionWithParticipantWithCardId:card.identifier error:&err];
+                XCTAssert(res && err == nil);
+                
+                [self.initiatorSecureChat  startNewSessionWithRecipientWithCard:card additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
+                    XCTAssert(error == nil);
+                    XCTAssert(session != nil);
+                    [ex fulfill];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
 @end

@@ -94,8 +94,8 @@ class SecureChatKeyHelper {
         
         let date = Date()
         let outdatedLtKeysNames = Set<String>(serviceInfoEntry.ltcKeys.filter({ date > $0.date.addingTimeInterval(self.longTermKeyTtl)}).map({ $0.keyName }))
-        let ltKeysToRemove = outdatedLtKeysNames.subtracting(Set<String>(relevantLtCards.map({ self.getPrivateKeyName(self.getLtPrivateKeyName($0)) })))
-        let otKeysToRemove = Set<String>(serviceInfoEntry.otcKeysNames).subtracting(Set<String>(relevantOtCards.map({ self.getPrivateKeyName(self.getOtPrivateKeyName($0)) })))
+        let ltKeysToRemove = outdatedLtKeysNames.subtracting(Set<String>(relevantLtCards.map({ self.getPrivateKeyEntryName(self.getLtPrivateKeyName($0)) })))
+        let otKeysToRemove = Set<String>(serviceInfoEntry.otcKeysNames).subtracting(Set<String>(relevantOtCards.map({ self.getPrivateKeyEntryName(self.getOtPrivateKeyName($0)) })))
         let ephKeysToRemove = Set<String>(serviceInfoEntry.ephKeysNames).subtracting(relevantEphKeys)
         
         for key in ltKeysToRemove.union(otKeysToRemove).union(ephKeysToRemove) {
@@ -103,8 +103,13 @@ class SecureChatKeyHelper {
         }
     }
     
+    func removeEphPrivateKey(withName name: String) throws {
+        let keyEntryName = self.getPrivateKeyEntryName(self.getEphPrivateKeyName(name))
+        try self.removePrivateKey(withKeyEntryName: keyEntryName)
+    }
+    
     func removeOneTimePrivateKey(withName name: String) throws {
-        let keyEntryName = self.getPrivateKeyName(self.getOtPrivateKeyName(name))
+        let keyEntryName = self.getPrivateKeyEntryName(self.getOtPrivateKeyName(name))
         try self.removePrivateKey(withKeyEntryName: keyEntryName)
     }
     
@@ -150,6 +155,19 @@ extension SecureChatKeyHelper {
     }
 }
 
+// MARK: Keys existence
+extension SecureChatKeyHelper {
+    func ephKeyExists(ephName: String) -> Bool {
+        let keyEntryName = self.getPrivateKeyEntryName(self.getEphPrivateKeyName(ephName))
+        return self.keyStorage.existsKeyEntry(withName: keyEntryName)
+    }
+    
+    func otKeyExists(otName: String) -> Bool {
+        let keyEntryName = self.getPrivateKeyEntryName(self.getOtPrivateKeyName(otName))
+        return self.keyStorage.existsKeyEntry(withName: keyEntryName)
+    }
+}
+
 // MARK: Keys base functions
 extension SecureChatKeyHelper {
     func getEphPrivateKey(withName name: String) throws -> VSSPrivateKey {
@@ -187,7 +205,7 @@ extension SecureChatKeyHelper {
     }
     
     private func getPrivateKey(withKeyName keyName: String) throws -> VSSPrivateKey {
-        let keyEntryName = self.getPrivateKeyName(keyName)
+        let keyEntryName = self.getPrivateKeyEntryName(keyName)
         
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
@@ -209,7 +227,7 @@ extension SecureChatKeyHelper {
     private func savePrivateKey(_ key: VSSPrivateKey, keyName: String) throws -> String {
         let privateKeyData = self.crypto.export(key, withPassword: nil)
         
-        let keyEntryName = self.getPrivateKeyName(keyName)
+        let keyEntryName = self.getPrivateKeyEntryName(keyName)
         let keyEntry = VSSKeyEntry(name: keyEntryName, value: privateKeyData)
         
         try self.keyStorage.store(keyEntry)
@@ -221,7 +239,7 @@ extension SecureChatKeyHelper {
         return OTkeyEntryName.replacingOccurrences(of: "VIRGIL.OT_KEY.", with: "")
     }
     
-    fileprivate func getPrivateKeyName(_ name: String) -> String {
+    fileprivate func getPrivateKeyEntryName(_ name: String) -> String {
         return String(format: "VIRGIL.OWNER=%@.%@", self.identityCardId, name)
     }
     

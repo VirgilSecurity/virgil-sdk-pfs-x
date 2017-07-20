@@ -265,13 +265,53 @@ extension SecureChat {
 // MARK: Session removal
 extension SecureChat {
     public func removeSession(withParticipantWithCardId cardId: String) throws {
-        guard let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) else {
-            // Session was not found.
-            return
+        if let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) {
+            var err: Error?
+            do {
+                try self.removeSessionKeys(usingSessionState: sessionState)
+            }
+            catch {
+                err = error
+            }
+            try self.sessionHelper.removeSessionsStates([cardId])
+            if let err = err {
+                throw err
+            }
+        }
+        else {
+            try self.removeSessionKeys(forUnknownSessionWithParticipantWithCardId: cardId)
+        }
+    }
+    
+    private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
+        var ephErr, otErr: Error?
+        if self.keyHelper.ephKeyExists(ephName: cardId) {
+            do {
+                try self.keyHelper.removeEphPrivateKey(withName: cardId)
+            }
+            catch {
+                ephErr = error
+            }
+        }
+        if self.keyHelper.otKeyExists(otName: cardId) {
+            do {
+                try self.keyHelper.removeOneTimePrivateKey(withName: cardId)
+            }
+            catch {
+                otErr = error
+            }
         }
         
-        try self.removeSessionKeys(usingSessionState: sessionState)
-        try self.sessionHelper.removeSessionsStates([cardId])
+        if let ephErr = ephErr, let otErr = otErr {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing both eph and ot keys: \(ephErr.localizedDescription); \(otErr.localizedDescription)"])
+        }
+        
+        if let ephErr = ephErr {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing eph key: \(ephErr.localizedDescription)"])
+        }
+        if let otErr = otErr {
+            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing ot key: \(otErr.localizedDescription)"])
+        }
     }
     
     private func removeSessionKeys(usingSessionState sessionState: SessionState) throws {
