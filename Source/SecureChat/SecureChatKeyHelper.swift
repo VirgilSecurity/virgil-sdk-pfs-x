@@ -236,11 +236,15 @@ extension SecureChatKeyHelper {
     }
     
     fileprivate func extractCardId(fromOTKeyEntryName OTkeyEntryName: String) -> String {
-        return OTkeyEntryName.replacingOccurrences(of: "VIRGIL.OT_KEY.", with: "")
+        return OTkeyEntryName.replacingOccurrences(of: self.getPrivateKeyEntryHeader() + self.getOtPrivateKeyNameHeader(), with: "")
+    }
+    
+    private func getPrivateKeyEntryHeader() -> String {
+        return String(format: "VIRGIL.OWNER=%@.", self.identityCardId)
     }
     
     fileprivate func getPrivateKeyEntryName(_ name: String) -> String {
-        return String(format: "VIRGIL.OWNER=%@.%@", self.identityCardId, name)
+        return String(format: "%@%@", self.getPrivateKeyEntryHeader(), name)
     }
     
     fileprivate func getEphPrivateKeyName(_ name: String) -> String {
@@ -251,7 +255,11 @@ extension SecureChatKeyHelper {
         return String(format: "LT_KEY.%@", name)
     }
     
+    private func getOtPrivateKeyNameHeader() -> String {
+        return "OT_KEY."
+    }
+    
     fileprivate func getOtPrivateKeyName(_ name: String) -> String {
-        return String(format: "OT_KEY.%@", name)
+        return String(format: "%@%@", self.getOtPrivateKeyNameHeader(), name)
     }
 }
