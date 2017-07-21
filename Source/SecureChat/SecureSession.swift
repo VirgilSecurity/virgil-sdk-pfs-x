@@ -28,7 +28,7 @@ import VirgilCrypto
     
     let pfs = VSCPfs()
     
-    var isSessionInitialized: Bool {
+    public var isInitialized: Bool {
         return self.pfs.session != nil
     }
     
@@ -46,8 +46,12 @@ import VirgilCrypto
 }
 
 extension SecureSession {
-    var isExpired: Bool {
-        return Date() > self.expirationDate
+    public func isSessionExpired(relativelyToCurrentDate currentDate: Date) -> Bool {
+        return currentDate > self.expirationDate
+    }
+    
+    public var isExpired: Bool {
+        return self.isSessionExpired(relativelyToCurrentDate: Date())
     }
 }
 

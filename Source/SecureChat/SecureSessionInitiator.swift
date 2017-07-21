@@ -38,7 +38,7 @@ class SecureSessionInitiator: SecureSession {
 extension SecureSessionInitiator {
     override func encrypt(_ message: String) throws -> String {
         let isFirstMessage: Bool
-        if !self.isSessionInitialized {
+        if !self.isInitialized {
             isFirstMessage = true
             try self.initiateSession()
         }
@@ -46,7 +46,7 @@ extension SecureSessionInitiator {
             isFirstMessage = false
         }
         
-        guard self.isSessionInitialized else {
+        guard self.isInitialized else {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
@@ -80,7 +80,7 @@ extension SecureSessionInitiator {
     }
     
     override func decrypt(_ encryptedMessage: String) throws -> String {
-        guard self.isSessionInitialized else {
+        guard self.isInitialized else {
             throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
         }
         
