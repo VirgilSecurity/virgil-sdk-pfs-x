@@ -23,9 +23,9 @@ import VirgilSDK
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
         
-        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.myIdentityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
-        self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
-        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.myIdentityCard.identifier)
+        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.identityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
+        self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
+        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier)
         
         super.init()
     }
@@ -52,7 +52,7 @@ extension SecureChat {
             return nil
         }
         
-        let secureSession = try? self.recoverSession(myIdentityCard: self.preferences.myIdentityCard, sessionState: sessionState)
+        let secureSession = try? self.recoverSession(myIdentityCard: self.preferences.identityCard, sessionState: sessionState)
     
         return secureSession
     }
@@ -108,7 +108,7 @@ extension SecureChat {
         }
         
         let date = Date()
-        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: self.preferences.myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
+        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: self.preferences.identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
      
         return secureSession
     }
@@ -178,7 +178,7 @@ extension SecureChat {
         
         if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
             // Added new one time card
-            try? self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
+            try? self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
                 guard error == nil else {
                     NSLog("WARNING: Error occured while adding new otc in loadUpSession")
                     return
@@ -188,7 +188,7 @@ extension SecureChat {
             let cardEntry = SecureSession.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
             
             let date = Date()
-            let secureSession = SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
+            let secureSession = SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
             
             let _ = try secureSession.decrypt(initiationMessage)
             
@@ -202,7 +202,7 @@ extension SecureChat {
                 throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."])
             }
             
-            let session = try self.recoverSession(myIdentityCard: self.preferences.myIdentityCard, sessionState: sessionState)
+            let session = try self.recoverSession(myIdentityCard: self.preferences.identityCard, sessionState: sessionState)
             
             return session
         }
@@ -247,7 +247,7 @@ extension SecureChat {
         }
         let additionalData = initiatorSessionState.additionalData
         
-        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, creationDate: initiatorSessionState.creationDate, expirationDate: initiatorSessionState.expirationDate)
+        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, creationDate: initiatorSessionState.creationDate, expirationDate: initiatorSessionState.expirationDate)
         
         return secureSession
     }
@@ -256,7 +256,7 @@ extension SecureChat {
         let initiatorCardEntry = SecureSession.CardEntry(identifier: responderSessionState.recipientIdentityCardId, publicKeyData: responderSessionState.recipientIdentityPublicKey)
         let additionalData = responderSessionState.additionalData
         
-        let secureSession = try SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.myPrivateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId, creationDate: responderSessionState.creationDate, expirationDate: responderSessionState.expirationDate)
+        let secureSession = try SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId, creationDate: responderSessionState.creationDate, expirationDate: responderSessionState.expirationDate)
         
         return secureSession
     }
@@ -400,7 +400,7 @@ extension SecureChat {
             return
         }
         
-        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.myIdentityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
+        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
             guard error == nil else {
                 completion(error)
                 return
@@ -451,7 +451,7 @@ extension SecureChat {
                 if numberOfMissingCards > 0 {
                     let addLtCard = !self.keyHelper.hasRelevantLtKey()
                     do {
-                        try self.cardsHelper.addCards(forIdentityCard: self.preferences.myIdentityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
+                        try self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                             guard error == nil else {
                                 errorCallback(error!)
                                 return
@@ -480,7 +480,7 @@ extension SecureChat {
         }
         
         // Check ephemeral cards status
-        self.client.getCardsStatus(forUserWithCardId: self.preferences.myIdentityCard.identifier) { status, error in
+        self.client.getCardsStatus(forUserWithCardId: self.preferences.identityCard.identifier) { status, error in
             guard error == nil else {
                 errorCallback(error)
                 return
