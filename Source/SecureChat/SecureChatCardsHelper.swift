@@ -84,7 +84,7 @@ class SecureChatCardsHelper {
                 }
                 
                 guard ltcCard != nil, otcCards != nil else {
-                    callback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error while bootstraping ephemeral cards"]))
+                    callback(NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.bootstrapingEphemeralCards.rawValue, userInfo: [ NSLocalizedDescriptionKey: "Error while bootstraping ephemeral cards"]))
                     return
                 }
                 
@@ -99,7 +99,7 @@ class SecureChatCardsHelper {
                 }
                 
                 guard otcCards != nil else {
-                    callback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [ NSLocalizedDescriptionKey: "Error while adding one-time ephemeral cards"]))
+                    callback(NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.addingOneTimeEphemeralCards.rawValue, userInfo: [ NSLocalizedDescriptionKey: "Error while adding one-time ephemeral cards"]))
                     return
                 }
                 

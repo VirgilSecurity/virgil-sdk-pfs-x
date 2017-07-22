@@ -9,6 +9,11 @@
 import Foundation
 import VirgilCrypto
 
+@objc(VSPFingerprintErrorCode) public enum FingerpintErrorCode: Int {
+    case invalidCardId
+    case invalidHashLength
+}
+
 @objc(VSPFingerprint) public class Fingerpint: NSObject {
     private static let Iterations = 4096
     
@@ -22,7 +27,7 @@ import VirgilCrypto
         
         let cardsData = try sortedCardsIds.reduce(Data(), {
             guard let d = $1.data(using: .utf8) else {
-                throw NSError(domain: Fingerpint.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid card Id."])
+                throw NSError(domain: Fingerpint.ErrorDomain, code: FingerpintErrorCode.invalidCardId.rawValue, userInfo: [NSLocalizedDescriptionKey: "Invalid card Id."])
             }
             return $0 + d
         })
@@ -38,7 +43,7 @@ import VirgilCrypto
     
     private static func hashToStr(hash: Data) throws -> String {
         guard hash.count == 48 else {
-            throw NSError(domain: Fingerpint.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid hash legnth."])
+            throw NSError(domain: Fingerpint.ErrorDomain, code: FingerpintErrorCode.invalidHashLength.rawValue, userInfo: [NSLocalizedDescriptionKey: "Invalid hash legnth."])
         }
         
         var res = ""

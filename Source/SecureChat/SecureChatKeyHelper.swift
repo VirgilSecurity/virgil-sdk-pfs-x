@@ -68,7 +68,7 @@ class SecureChatKeyHelper {
         }
         else {
             guard let ltcKeyEntryName = ltcKeyEntryName else {
-                throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "LT key not found and new key was not specified."])
+                throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: SecureChatErrorCode.longTermKeyNotFoundAndNewKeyNowSpecified.rawValue, userInfo: [NSLocalizedDescriptionKey: "LT key not found and new key was not specified."])
             }
             newServiceInfo = ServiceInfoEntry(ltcKeys: [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName, date: Date())], otcKeysNames: keyEntryNames, ephKeysNames: [])
         }
@@ -87,7 +87,7 @@ class SecureChatKeyHelper {
     func removeOldKeys(relevantEphKeys: Set<String>, relevantLtCards: Set<String>, relevantOtCards: Set<String>) throws {
         guard let serviceInfoEntry = self.getServiceInfoEntry() else {
             if relevantEphKeys.count > 0 || relevantLtCards.count > 0 || relevantOtCards.count > 0 {
-                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
+                throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
             }
             return
         }
@@ -214,7 +214,7 @@ extension SecureChatKeyHelper {
         let keyEntry = try self.keyStorage.loadKeyEntry(withName: keyEntryName)
         
         guard let privateKey = self.crypto.importPrivateKey(from: keyEntry.value) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error loading private key."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.loadingPrivateKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error loading private key."])
         }
         
         return privateKey

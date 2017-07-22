@@ -9,6 +9,10 @@
 import Foundation
 import VirgilSDK
 
+@objc(VSPClientErrorCode) public enum ClientErrorCode: Int {
+    case deserializingVirgilCard
+}
+
 @objc(VSPClient) public class Client: VSSBaseClient {
     public static let ErrorDomain = "VSPClientErrorDomain"
     

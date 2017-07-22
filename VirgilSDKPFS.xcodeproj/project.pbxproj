@@ -63,6 +63,8 @@
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
+		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
+		42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -134,6 +136,8 @@
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
+		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
+		42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatErrorCode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -328,6 +332,8 @@
 				425A02391EF974B600D9BBEF /* Models */,
 				425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */,
 				425A02371EF9416C00D9BBEF /* SecureChat.swift */,
+				42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */,
+				42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */,
 				425A02441EFBDDE400D9BBEF /* SecureChatKeyHelper.swift */,
 				425A02461EFBE86500D9BBEF /* SecureChatCardsHelper.swift */,
 				425A02481EFBE98E00D9BBEF /* SecureChatSessionHelper.swift */,
@@ -510,9 +516,11 @@
 				420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */,
 				425A025D1F05053600D9BBEF /* ValidateOTCRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
+				42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */,
 				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				425A02471EFBE86500D9BBEF /* SecureChatCardsHelper.swift in Sources */,
 				425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */,
+				42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,

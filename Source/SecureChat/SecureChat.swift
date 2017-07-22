@@ -74,7 +74,7 @@ extension SecureChat {
             ephKeyName = try self.keyHelper.persistEphPrivateKey(ephPrivateKey, name: identityCardId)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while saving ephemeral key. Underlying error: \(error.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.savingEphemeralKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while saving ephemeral key. Underlying error: \(error.localizedDescription)"])
         }
         
         let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
@@ -83,16 +83,16 @@ extension SecureChat {
             try validator.addVerifier(withId: identityCardId, publicKeyData: identityPublicKeyData)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while adding verifier. Underlying error: \(error.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.addingVerifier.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while adding verifier. Underlying error: \(error.localizedDescription)"])
         }
         
         guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder LongTerm card validation failed."])
+            throw NSError(domain: SecureSession.ErrorDomain, code: SecureChatErrorCode.longTermCardValidation.rawValue, userInfo: [NSLocalizedDescriptionKey: "Responder LongTerm card validation failed."])
         }
         
         if let oneTimeCard = cardsSet.oneTimeCard {
             guard validator.validate(cardResponse: oneTimeCard.cardResponse) else {
-                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Responder OneTime card validation failed."])
+                throw NSError(domain: SecureSession.ErrorDomain, code: SecureChatErrorCode.oneTimeCardValidation.rawValue, userInfo: [NSLocalizedDescriptionKey: "Responder OneTime card validation failed."])
             }
         }
         
@@ -120,7 +120,7 @@ extension SecureChat {
             sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: recipientCard.identifier)
         }
         catch {
-            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error checking for existing session. Underlying error: \(error.localizedDescription)"]))
+            completion(nil, NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.checkingForExistingSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error checking for existing session. Underlying error: \(error.localizedDescription)"]))
             return
         }
         
@@ -128,7 +128,7 @@ extension SecureChat {
         if let sessionState = sessionState {
             // If session is not expired - return error
             guard self.isSessionStateExpired(now: Date(), sessionState: sessionState) else {
-                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Found active session for given recipient. Try to loadUpSession:, if that fails try to remove session."]))
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.foundActiveSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found active session for given recipient. Try to loadUpSession:, if that fails try to remove session."]))
                 return
             }
             
@@ -137,7 +137,7 @@ extension SecureChat {
                 try self.removeSession(withParticipantWithCardId: recipientCard.identifier)
             }
             catch {
-                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"]))
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.removingExpiredSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"]))
                 return
             }
         }
@@ -145,12 +145,12 @@ extension SecureChat {
         // Get recipient's credentials
         self.client.getRecipientCardsSet(forCardsIds: [recipientCard.identifier]) { cardsSets, error in
             guard error == nil else {
-                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set. Underlying error: \(error!.localizedDescription)"]))
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.obtainingRecipientCardsSet.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set. Underlying error: \(error!.localizedDescription)"]))
                 return
             }
             
             guard let cardsSets = cardsSets, cardsSets.count > 0 else {
-                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set. Empty set."]))
+                completion(nil, NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.recipientSetEmpty.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error obtaining recipient cards set. Empty set."]))
                 return
             }
             
@@ -173,7 +173,7 @@ extension SecureChat {
 extension SecureChat {
     public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
         guard let messageData = message.data(using: .utf8) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid message string."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.invalidMessageString.rawValue, userInfo: [NSLocalizedDescriptionKey: "Invalid message string."])
         }
         
         if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
@@ -199,7 +199,7 @@ extension SecureChat {
             
             guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
                 sessionState.sessionId == sessionId else {
-                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session not found."])
+                throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.sessionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Session not found."])
             }
             
             let session = try self.recoverSession(myIdentityCard: self.preferences.identityCard, sessionState: sessionState)
@@ -207,7 +207,7 @@ extension SecureChat {
             return session
         }
         else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown message structure."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.unknownMessageStructure.rawValue, userInfo: [NSLocalizedDescriptionKey: "Unknown message structure."])
         }
     }
 }
@@ -222,7 +222,7 @@ extension SecureChat {
             return try self.recoverResponderSession(myIdentityCard: myIdentityCard, responderSessionState: sessionState)
         }
         else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown session state."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.unknownSessionState.rawValue, userInfo: [NSLocalizedDescriptionKey: "Unknown session state."])
         }
     }
     
@@ -233,7 +233,7 @@ extension SecureChat {
             ephPrivateKey = try self.keyHelper.getEphPrivateKey(withKeyEntryName: ephKeyName)
         }
         catch {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error getting ephemeral key from storage. Underlying error: \(error.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.gettingEphemeralKeyFromStorage.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error getting ephemeral key from storage. Underlying error: \(error.localizedDescription)"])
         }
         
         let identityCardEntry = SecureSession.CardEntry(identifier: initiatorSessionState.recipientCardId, publicKeyData: initiatorSessionState.recipientPublicKey)
@@ -303,14 +303,14 @@ extension SecureChat {
         }
         
         if let ephErr = ephErr, let otErr = otErr {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing both eph and ot keys: \(ephErr.localizedDescription); \(otErr.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.removingEphAndOtKeys.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while removing both eph and ot keys: \(ephErr.localizedDescription); \(otErr.localizedDescription)"])
         }
         
         if let ephErr = ephErr {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing eph key: \(ephErr.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.removingEphKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while removing eph key: \(ephErr.localizedDescription)"])
         }
         if let otErr = otErr {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing ot key: \(otErr.localizedDescription)"])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.removingOtKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while removing ot key: \(otErr.localizedDescription)"])
         }
     }
     
@@ -322,7 +322,7 @@ extension SecureChat {
             return try self.removeSessionKeys(usingResponderSessionState: sessionState)
         }
         else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown session state."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.unknownSessionState.rawValue, userInfo: [NSLocalizedDescriptionKey: "Unknown session state."])
         }
     }
     
@@ -407,7 +407,7 @@ extension SecureChat {
             }
             
             guard let exhaustedCardsIds = exhaustedCardsIds else {
-                completion(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error validation OTC."]))
+                completion(NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.oneTimeCardValidation.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error validation OTC."]))
                 return
             }
             
@@ -444,7 +444,7 @@ extension SecureChat {
             
             if numberOfOperations == numberOfCompletedOperations {
                 guard let numberOfMissingCards = numberOfMissingCards else {
-                    errorCallback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "One or more initialization operations failed."]))
+                    errorCallback(NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.oneOrMoreInitializationOperationsFailed.rawValue, userInfo: [NSLocalizedDescriptionKey: "One or more initialization operations failed."]))
                     return
                 }
 
@@ -487,7 +487,7 @@ extension SecureChat {
             }
             
             guard let status = status else {
-                errorCallback(NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error obtaining cards status."]))
+                errorCallback(NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.obtainingCardsStatus.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error obtaining cards status."]))
                 return
             }
             

@@ -19,7 +19,7 @@ class SecureChatSessionHelper {
 extension SecureChatSessionHelper {
     func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
         guard let dict = userDefaults.value(forKey: self.getSessionName(forCardId: cardId)) else {
@@ -27,7 +27,7 @@ extension SecureChatSessionHelper {
         }
         
         guard let state: SessionState = InitiatorSessionState(dictionary: dict) ?? ResponderSessionState(dictionary: dict) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
         return state
@@ -37,7 +37,7 @@ extension SecureChatSessionHelper {
 extension SecureChatSessionHelper {
     func getAllSessionsStates() throws -> [String: SessionState] {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
         return try self.getAllSessionsStates(userDefaults: userDefaults)
@@ -53,7 +53,7 @@ extension SecureChatSessionHelper {
             }
             
             guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
-                throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
+                throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
             }
             res[val.key] = state
         }
@@ -65,7 +65,7 @@ extension SecureChatSessionHelper {
 extension SecureChatSessionHelper {
     func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String, synchronize: Bool = true) throws {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
         self.saveSessionState(sessionState, forRecipientCardId: cardId, userDefaults: userDefaults, synchronize: synchronize)
@@ -83,7 +83,7 @@ extension SecureChatSessionHelper {
 extension SecureChatSessionHelper {
     func removeSessionsStates(_ sessionsStates: [String]) throws {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
         for sessionState in sessionsStates {
