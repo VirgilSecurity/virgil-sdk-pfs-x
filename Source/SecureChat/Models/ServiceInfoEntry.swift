@@ -8,8 +8,8 @@
 
 import Foundation
 
-class ServiceInfoEntry: NSObject, NSCoding {
-    class KeyEntry: NSObject, NSCoding {
+@objc(VSPServiceInfoEntry) class ServiceInfoEntry: NSObject, NSCoding {
+    @objc(VSPServiceInfoEntryKeyEntry) class KeyEntry: NSObject, NSCoding {
         private enum Keys: String {
             case keyName = "key_name"
             case date = "date"
