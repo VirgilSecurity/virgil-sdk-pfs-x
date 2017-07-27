@@ -36,6 +36,7 @@
 		420D15261EF40B92002A9C22 /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
 		420D15271EF40B92002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D152A1EF40F24002A9C22 /* VSPTestUtils.m */; };
+		42235BC61F2A07710000BA88 /* SecureSessionErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */; };
 		425A02341EF93B3900D9BBEF /* SecureChatPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */; };
 		425A02361EF93B9100D9BBEF /* SecureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02351EF93B9100D9BBEF /* SecureSession.swift */; };
 		425A02381EF9416C00D9BBEF /* SecureChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02371EF9416C00D9BBEF /* SecureChat.swift */; };
@@ -109,6 +110,7 @@
 		420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestsConst.m; sourceTree = "<group>"; };
 		420D15291EF40F1B002A9C22 /* VSPTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPTestUtils.h; sourceTree = "<group>"; };
 		420D152A1EF40F24002A9C22 /* VSPTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestUtils.m; sourceTree = "<group>"; };
+		42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSessionErrorCode.swift; sourceTree = "<group>"; };
 		425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatPreferences.swift; sourceTree = "<group>"; };
 		425A02351EF93B9100D9BBEF /* SecureSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSession.swift; sourceTree = "<group>"; };
 		425A02371EF9416C00D9BBEF /* SecureChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChat.swift; sourceTree = "<group>"; };
@@ -340,6 +342,7 @@
 				425A02351EF93B9100D9BBEF /* SecureSession.swift */,
 				425A02511EFC13E100D9BBEF /* SecureSessionInitiator.swift */,
 				425A024F1EFC13C200D9BBEF /* SecureSessionResponder.swift */,
+				42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */,
 			);
 			path = SecureChat;
 			sourceTree = "<group>";
@@ -534,6 +537,7 @@
 				425A02501EFC13C200D9BBEF /* SecureSessionResponder.swift in Sources */,
 				420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */,
 				425A02341EF93B3900D9BBEF /* SecureChatPreferences.swift in Sources */,
+				42235BC61F2A07710000BA88 /* SecureSessionErrorCode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

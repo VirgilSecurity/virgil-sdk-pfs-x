@@ -43,6 +43,10 @@ import VirgilCrypto
         
         super.init()
     }
+    
+    class func makeError(withCode code: SecureSessionErrorCode, description: String) -> NSError {
+        return NSError(domain: SecureSession.ErrorDomain, code: code.rawValue, userInfo: [NSLocalizedDescriptionKey: description])
+    }
 }
 
 extension SecureSession {
@@ -58,15 +62,15 @@ extension SecureSession {
 extension SecureSession {
     func decrypt(encryptedMessage: Message) throws -> String {
         guard let message = VSCPfsEncryptedMessage(sessionIdentifier: encryptedMessage.sessionId, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
+            throw SecureSession.makeError(withCode: .convertingEncryptedMessageWhileDecrypting, description: "Error converting encrypted message while decrypting.")
         }
         
         guard let msgData = self.pfs.decryptMessage(message) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error decrypting message."])
+            throw SecureSession.makeError(withCode: .decryptingMessage, description: "Error decrypting message.")
         }
         
         guard let str = String(data: msgData, encoding: .utf8) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message to string."])
+            throw SecureSession.makeError(withCode: .convertingDecrypytedMessageToString, description: "Error converting decrypted message to string.")
         }
         
         return str
@@ -77,11 +81,11 @@ extension SecureSession {
 extension SecureSession {
     public func encrypt(_ message: String) throws -> String {
         guard let messageData = message.data(using: .utf8) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting decrypted message while encrypting."])
+            throw SecureSession.makeError(withCode: .convertingMessageToDataWhileEncrypting, description: "Error converting message to data while encrypting.")
         }
         
         guard let encryptedMessage = self.pfs.encryptData(messageData) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error encrypting message."])
+            throw SecureSession.makeError(withCode: .encryptingMessage, description: "Error encrypting message.")
         }
         
         let msg = Message(sessionId: encryptedMessage.sessionIdentifier, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
@@ -91,18 +95,18 @@ extension SecureSession {
             msgData = try JSONSerialization.data(withJSONObject: msg.serialize(), options: [])
         }
         catch {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message to json. Underlying error: \(error.localizedDescription)"])
+            throw SecureSession.makeError(withCode: .convertingEncryptedMessageToJson, description: "Error converting encrypted message to json. Underlying error: \(error.localizedDescription)")
         }
         
         guard let msgStr = String(data: msgData, encoding: .utf8) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting message to data using utf8."])
+            throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error converting encrypted message to data using utf8.")
         }
         
         return msgStr
     }
     
     public func decrypt(_ encryptedMessage: String) throws -> String {
-        throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Decrypt should be overrided in subclasses"])
+        throw SecureSession.makeError(withCode: .decryptShouldBeOverridden, description: "Decrypt should be overridden in subclasses")
     }
 }
 
@@ -111,7 +115,7 @@ extension SecureSession {
         let dict = try JSONSerialization.jsonObject(with: message, options: [])
         
         guard let msg = InitiationMessage(dictionary: dict) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting initiation message."])
+            throw SecureSession.makeError(withCode: .extractingInitiationMessage, description: "Error while extracting initiation message.")
         }
         
         return msg
@@ -121,7 +125,7 @@ extension SecureSession {
         let dict = try JSONSerialization.jsonObject(with: message, options: [])
         
         guard let msg = Message(dictionary: dict) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while extracting message."])
+            throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message.")
         }
         
         return msg

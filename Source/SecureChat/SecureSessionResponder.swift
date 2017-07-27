@@ -35,7 +35,7 @@ class SecureSessionResponder: SecureSession {
 extension SecureSessionResponder {
     override func encrypt(_ message: String) throws -> String {
         guard self.isInitialized else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
+            throw SecureSession.makeError(withCode: .sessionStillNotInitializedWhileEncryptingInResponderSession, description: "Session is still not initialized while encrypting in responder session.")
         }
         
         return try super.encrypt(message)
@@ -47,11 +47,11 @@ extension SecureSessionResponder {
         }
         
         guard self.isInitialized else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
+            throw SecureSession.makeError(withCode: .sessionStillNotInitializedWhileDecryptingInResponderSession, description: "Session is still not initialized while decrypting in responder session.")
         }
         
         guard let sessionId = self.pfs.session?.identifier else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session id is missing."])
+            throw SecureSession.makeError(withCode: .sessionIdIsMissing, description: "Session id is missing.")
         }
         
         let message = Message(sessionId: sessionId, salt: initiationMessage.salt, cipherText: initiationMessage.cipherText)
@@ -61,7 +61,7 @@ extension SecureSessionResponder {
     
     override func decrypt(_ encryptedMessage: String) throws -> String {
         guard let messageData = encryptedMessage.data(using: .utf8) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error converting encrypted message while decrypting."])
+            throw SecureSession.makeError(withCode: .convertingEncryptedMessageToDataWhileDecryptingInResponderSession, description: "Error converting encrypted message to data while decrypting in responder session.")
         }
         
         if let initiationMessage = try? SecureSessionResponder.extractInitiationMessage(messageData) {
@@ -69,13 +69,13 @@ extension SecureSessionResponder {
         }
         else if let msg = try? SecureSession.extractMessage(messageData) {
             guard self.isInitialized else {
-                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Session is still not initialized."])
+                throw SecureSession.makeError(withCode: .sessionStillNotInitializedWhileDecryptingInResponderSessionNotInitiationMessage, description: "Session is still not initialized while decrypting in responder session and got not initiation message.")
             }
             
             return try super.decrypt(encryptedMessage: msg)
         }
         else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Unknown message format."])
+            throw SecureSession.makeError(withCode: .unknownMessageFormatWhileDecryptingInResponderSession, description: "Unknown message format while decrypting in responder session.")
         }
     }
 }
@@ -84,18 +84,18 @@ extension SecureSessionResponder {
 extension SecureSessionResponder {
     fileprivate func initiateSession(withInitiationMessage initiationMessage: InitiationMessage) throws {
         guard let initiatorPublicKey = self.crypto.importPublicKey(from: self.initiatorIdCard.publicKeyData) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error importing initiator public key from identity card."])
+            throw SecureSession.makeError(withCode: .importingInitiatorPublicKeyFromIdentityCard, description: "Error importing initiator public key from identity card.")
         }
         
         do {
             try self.crypto.verify(initiationMessage.ephPublicKey, withSignature: initiationMessage.ephPublicKeySignature, using: initiatorPublicKey)
         }
         catch {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error validating initiator signature."])
+            throw SecureSession.makeError(withCode: .validatingInitiatorSignature, description: "Error validating initiator signature.")
         }
         
         guard initiationMessage.initiatorIcId == self.initiatorIdCard.identifier else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Initiator identity card id for this session and InitiationMessage doesn't match."])
+            throw SecureSession.makeError(withCode: .initiatorIdentityCardIdDoesntMatch, description: "Initiator identity card id for this session and InitiationMessage doesn't match.")
         }
         
         try self.initiateSession(ephPublicKeyData: initiationMessage.ephPublicKey, receiverLtcId: initiationMessage.responderLtcId, receiverOtcId: initiationMessage.responderOtcId)
@@ -111,26 +111,26 @@ extension SecureSessionResponder {
         let otPrivateKeyData = myOtPrivateKey != nil ? self.crypto.export(myOtPrivateKey!, withPassword: nil) : nil
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
             let ltPrivateKey = VSCPfsPrivateKey(key: ltPrivateKeyData, password: nil) else {
-                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
+                throw SecureSession.makeError(withCode: .convertingResponderKeysDuringResponderInitialization, description: "Error while converting responder crypto keys to pfs keys during responder initialization.")
         }
         
         let otPrivateKey = otPrivateKeyData != nil ? VSCPfsPrivateKey(key: otPrivateKeyData!, password: nil) : nil
         
         guard let responderPrivateInfo = VSCPfsResponderPrivateInfo(identityPrivateKey: privateKey, longTermPrivateKey: ltPrivateKey, oneTime: otPrivateKey) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating responderPrivateInfo."])
+            throw SecureSession.makeError(withCode: .instantiationResponderPrivateInfo, description: "Error instantiating responderPrivateInfo.")
         }
         
         guard let initiatorEphPublicKey = VSCPfsPublicKey(key: ephPublicKeyData),
             let initiatorIdPublicKey = VSCPfsPublicKey(key: self.initiatorIdCard.publicKeyData) else {
-                throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while convering crypto keys to pfs keys."])
+                throw SecureSession.makeError(withCode: .convertingInitiatorKeysDuringResponderInitialization, description: "Error while converting initiator crypto keys to pfs keys during responder initialization.")
         }
         
         guard let initiatorPublicInfo = VSCPfsInitiatorPublicInfo(identityPublicKey: initiatorIdPublicKey, ephemeralPublicKey: initiatorEphPublicKey) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error instantiating initiatorPublicInfo."])
+            throw SecureSession.makeError(withCode: .instantiatingInitiatorPublicInfo, description: "Error instantiating initiatorPublicInfo.")
         }
         
         guard let session = self.pfs.startResponderSession(with: responderPrivateInfo, initiatorPublicInfo: initiatorPublicInfo, additionalData: self.additionalData) else {
-            throw NSError(domain: SecureSession.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while initiating responder session."])
+            throw SecureSession.makeError(withCode: .initiatingResponderSession, description: "Error while initiating responder session.")
         }
         
         if !self.wasRecovered {
