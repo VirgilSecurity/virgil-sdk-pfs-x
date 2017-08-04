@@ -61,7 +61,7 @@
     XCTAssert([fingerprint isEqualToString:@"30040 86431 59747 52666 37436 94430 71043 18723 34794 81546 12838 92218"]);
 }
 
-- (void)test003_PerfomanceTest {
+- (void)test003_PerformanceTest {
     [self measureBlock:^{
         NSString * __unused fingerprint = [VSPFingerprint calculateFingerprintForCardsIds:@[@"b", @"c", @"a"] error:nil];
     }];

@@ -37,6 +37,25 @@
 		420D15271EF40B92002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D152A1EF40F24002A9C22 /* VSPTestUtils.m */; };
 		42235BC61F2A07710000BA88 /* SecureSessionErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */; };
+		424A02021F3463CE00D17D0C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02011F3463CE00D17D0C /* main.m */; };
+		424A02051F3463CE00D17D0C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02041F3463CE00D17D0C /* AppDelegate.m */; };
+		424A02081F3463CE00D17D0C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02071F3463CE00D17D0C /* ViewController.m */; };
+		424A020B1F3463CE00D17D0C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 424A02091F3463CE00D17D0C /* Main.storyboard */; };
+		424A020D1F3463CE00D17D0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 424A020C1F3463CE00D17D0C /* Assets.xcassets */; };
+		424A02101F3463CE00D17D0C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 424A020E1F3463CE00D17D0C /* LaunchScreen.storyboard */; };
+		424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A021B1F34642A00D17D0C /* VirgilSDKPFSAppTests.m */; };
+		424A02261F34643600D17D0C /* VSPTestsConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */; };
+		424A02271F34643600D17D0C /* VSPTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D152A1EF40F24002A9C22 /* VSPTestUtils.m */; };
+		424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */; };
+		424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */; };
+		424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
+		424A022C1F34654600D17D0C /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
+		424A022D1F34654600D17D0C /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
+		424A022E1F34658F00D17D0C /* VirgilCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */; };
+		424A022F1F34658F00D17D0C /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
+		424A02331F3465A500D17D0C /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
+		424A02391F34664600D17D0C /* VirgilSDKPFS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; };
+		424A023A1F34665B00D17D0C /* VirgilSDKPFS.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		425A02341EF93B3900D9BBEF /* SecureChatPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */; };
 		425A02361EF93B9100D9BBEF /* SecureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02351EF93B9100D9BBEF /* SecureSession.swift */; };
 		425A02381EF9416C00D9BBEF /* SecureChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425A02371EF9416C00D9BBEF /* SecureChat.swift */; };
@@ -76,7 +95,41 @@
 			remoteGlobalIDString = 420C52E91EEEC3B7005DD456;
 			remoteInfo = "VirgilSDKPFS iOS";
 		};
+		424A021F1F34642A00D17D0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 420C52E11EEEC3B7005DD456 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 420C52E91EEEC3B7005DD456;
+			remoteInfo = "VirgilSDKPFS iOS";
+		};
+		424A02241F34642E00D17D0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 420C52E11EEEC3B7005DD456 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 424A01FD1F3463CE00D17D0C;
+			remoteInfo = TestApp;
+		};
+		424A02371F34663F00D17D0C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 420C52E11EEEC3B7005DD456 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 420C52E91EEEC3B7005DD456;
+			remoteInfo = "VirgilSDKPFS iOS";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		424A02351F34662100D17D0C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				424A023A1F34665B00D17D0C /* VirgilSDKPFS.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirgilSDKPFS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +164,20 @@
 		420D15291EF40F1B002A9C22 /* VSPTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPTestUtils.h; sourceTree = "<group>"; };
 		420D152A1EF40F24002A9C22 /* VSPTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestUtils.m; sourceTree = "<group>"; };
 		42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSessionErrorCode.swift; sourceTree = "<group>"; };
+		424A01FE1F3463CE00D17D0C /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		424A02011F3463CE00D17D0C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		424A02031F3463CE00D17D0C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		424A02041F3463CE00D17D0C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		424A02061F3463CE00D17D0C /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		424A02071F3463CE00D17D0C /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		424A020A1F3463CE00D17D0C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		424A020C1F3463CE00D17D0C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		424A020F1F3463CE00D17D0C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		424A02111F3463CE00D17D0C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		424A02191F34642A00D17D0C /* VirgilSDKPFSAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirgilSDKPFSAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		424A021B1F34642A00D17D0C /* VirgilSDKPFSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VirgilSDKPFSAppTests.m; sourceTree = "<group>"; };
+		424A021D1F34642A00D17D0C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		424A02301F34658F00D17D0C /* VirgilSDKPFS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDKPFS.framework; path = Carthage/Build/iOS/VirgilSDKPFS.framework; sourceTree = "<group>"; };
 		425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatPreferences.swift; sourceTree = "<group>"; };
 		425A02351EF93B9100D9BBEF /* SecureSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSession.swift; sourceTree = "<group>"; };
 		425A02371EF9416C00D9BBEF /* SecureChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChat.swift; sourceTree = "<group>"; };
@@ -162,6 +229,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		424A01FB1F3463CE00D17D0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				424A02391F34664600D17D0C /* VirgilSDKPFS.framework in Frameworks */,
+				424A022E1F34658F00D17D0C /* VirgilCrypto.framework in Frameworks */,
+				424A022F1F34658F00D17D0C /* VirgilSDK.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		424A02161F34642A00D17D0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				424A02331F3465A500D17D0C /* VirgilSDKPFS.framework in Frameworks */,
+				424A022C1F34654600D17D0C /* VirgilCrypto.framework in Frameworks */,
+				424A022D1F34654600D17D0C /* VirgilSDK.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -171,6 +258,8 @@
 				420C52EC1EEEC3B7005DD456 /* VirgilSDKPFS */,
 				420D0B271EEEE4DC002A9C22 /* Source */,
 				420D0B141EEEC70C002A9C22 /* Tests */,
+				424A01FF1F3463CE00D17D0C /* TestApp */,
+				424A021A1F34642A00D17D0C /* VirgilSDKPFSAppTests */,
 				420C52EB1EEEC3B7005DD456 /* Products */,
 				420D0B171EEEC8F6002A9C22 /* Frameworks */,
 			);
@@ -181,6 +270,8 @@
 			children = (
 				420C52EA1EEEC3B7005DD456 /* VirgilSDKPFS.framework */,
 				420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */,
+				424A01FE1F3463CE00D17D0C /* TestApp.app */,
+				424A02191F34642A00D17D0C /* VirgilSDKPFSAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -210,6 +301,7 @@
 		420D0B171EEEC8F6002A9C22 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				424A02301F34658F00D17D0C /* VirgilSDKPFS.framework */,
 				420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */,
 				420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */,
 			);
@@ -328,6 +420,39 @@
 			path = Errors;
 			sourceTree = "<group>";
 		};
+		424A01FF1F3463CE00D17D0C /* TestApp */ = {
+			isa = PBXGroup;
+			children = (
+				424A02031F3463CE00D17D0C /* AppDelegate.h */,
+				424A02041F3463CE00D17D0C /* AppDelegate.m */,
+				424A02061F3463CE00D17D0C /* ViewController.h */,
+				424A02071F3463CE00D17D0C /* ViewController.m */,
+				424A02091F3463CE00D17D0C /* Main.storyboard */,
+				424A020C1F3463CE00D17D0C /* Assets.xcassets */,
+				424A020E1F3463CE00D17D0C /* LaunchScreen.storyboard */,
+				424A02111F3463CE00D17D0C /* Info.plist */,
+				424A02001F3463CE00D17D0C /* Supporting Files */,
+			);
+			path = TestApp;
+			sourceTree = "<group>";
+		};
+		424A02001F3463CE00D17D0C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				424A02011F3463CE00D17D0C /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		424A021A1F34642A00D17D0C /* VirgilSDKPFSAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				424A021B1F34642A00D17D0C /* VirgilSDKPFSAppTests.m */,
+				424A021D1F34642A00D17D0C /* Info.plist */,
+			);
+			path = VirgilSDKPFSAppTests;
+			sourceTree = "<group>";
+		};
 		425A02321EF93B2800D9BBEF /* SecureChat */ = {
 			isa = PBXGroup;
 			children = (
@@ -412,6 +537,45 @@
 			productReference = 420D15131EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		424A01FD1F3463CE00D17D0C /* TestApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 424A02141F3463CE00D17D0C /* Build configuration list for PBXNativeTarget "TestApp" */;
+			buildPhases = (
+				424A01FA1F3463CE00D17D0C /* Sources */,
+				424A01FB1F3463CE00D17D0C /* Frameworks */,
+				424A01FC1F3463CE00D17D0C /* Resources */,
+				424A02341F3465AD00D17D0C /* ShellScript */,
+				424A02351F34662100D17D0C /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				424A02381F34663F00D17D0C /* PBXTargetDependency */,
+			);
+			name = TestApp;
+			productName = TestApp;
+			productReference = 424A01FE1F3463CE00D17D0C /* TestApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		424A02181F34642A00D17D0C /* VirgilSDKPFSAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 424A02211F34642A00D17D0C /* Build configuration list for PBXNativeTarget "VirgilSDKPFSAppTests" */;
+			buildPhases = (
+				424A02151F34642A00D17D0C /* Sources */,
+				424A02161F34642A00D17D0C /* Frameworks */,
+				424A02171F34642A00D17D0C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				424A02201F34642A00D17D0C /* PBXTargetDependency */,
+				424A02251F34642E00D17D0C /* PBXTargetDependency */,
+			);
+			name = VirgilSDKPFSAppTests;
+			productName = VirgilSDKPFSAppTests;
+			productReference = 424A02191F34642A00D17D0C /* VirgilSDKPFSAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -431,6 +595,17 @@
 						CreatedOnToolsVersion = 8.3.3;
 						ProvisioningStyle = Automatic;
 					};
+					424A01FD1F3463CE00D17D0C = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = A59V7K656Y;
+						ProvisioningStyle = Automatic;
+					};
+					424A02181F34642A00D17D0C = {
+						CreatedOnToolsVersion = 8.3.3;
+						DevelopmentTeam = A59V7K656Y;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 424A01FD1F3463CE00D17D0C;
+					};
 				};
 			};
 			buildConfigurationList = 420C52E41EEEC3B7005DD456 /* Build configuration list for PBXProject "VirgilSDKPFS" */;
@@ -439,6 +614,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 420C52E01EEEC3B7005DD456;
 			productRefGroup = 420C52EB1EEEC3B7005DD456 /* Products */;
@@ -447,6 +623,8 @@
 			targets = (
 				420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */,
 				420D15121EF3FB10002A9C22 /* VirgilSDKPFS iOS Tests */,
+				424A01FD1F3463CE00D17D0C /* TestApp */,
+				424A02181F34642A00D17D0C /* VirgilSDKPFSAppTests */,
 			);
 		};
 /* End PBXProject section */
@@ -466,6 +644,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		424A01FC1F3463CE00D17D0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				424A02101F3463CE00D17D0C /* LaunchScreen.storyboard in Resources */,
+				424A020D1F3463CE00D17D0C /* Assets.xcassets in Resources */,
+				424A020B1F3463CE00D17D0C /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		424A02171F34642A00D17D0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -477,6 +672,21 @@
 			inputPaths = (
 				"$(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+		424A02341F3465AD00D17D0C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework",
 			);
 			outputPaths = (
 			);
@@ -553,6 +763,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		424A01FA1F3463CE00D17D0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				424A02081F3463CE00D17D0C /* ViewController.m in Sources */,
+				424A02051F3463CE00D17D0C /* AppDelegate.m in Sources */,
+				424A02021F3463CE00D17D0C /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		424A02151F34642A00D17D0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */,
+				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,
+				424A02261F34643600D17D0C /* VSPTestsConst.m in Sources */,
+				424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */,
+				424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */,
+				424A02271F34643600D17D0C /* VSPTestUtils.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -561,7 +794,41 @@
 			target = 420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */;
 			targetProxy = 420D15191EF3FB10002A9C22 /* PBXContainerItemProxy */;
 		};
+		424A02201F34642A00D17D0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */;
+			targetProxy = 424A021F1F34642A00D17D0C /* PBXContainerItemProxy */;
+		};
+		424A02251F34642E00D17D0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 424A01FD1F3463CE00D17D0C /* TestApp */;
+			targetProxy = 424A02241F34642E00D17D0C /* PBXContainerItemProxy */;
+		};
+		424A02381F34663F00D17D0C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 420C52E91EEEC3B7005DD456 /* VirgilSDKPFS iOS */;
+			targetProxy = 424A02371F34663F00D17D0C /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		424A02091F3463CE00D17D0C /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				424A020A1F3463CE00D17D0C /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		424A020E1F3463CE00D17D0C /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				424A020F1F3463CE00D17D0C /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		420C52FC1EEEC3B8005DD456 /* Debug */ = {
@@ -766,6 +1033,78 @@
 			};
 			name = Release;
 		};
+		424A02121F3463CE00D17D0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A59V7K656Y;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				INFOPLIST_FILE = TestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.TestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		424A02131F3463CE00D17D0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A59V7K656Y;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				INFOPLIST_FILE = TestApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.TestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		424A02221F34642A00D17D0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = A59V7K656Y;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				INFOPLIST_FILE = VirgilSDKPFSAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
+			};
+			name = Debug;
+		};
+		424A02231F34642A00D17D0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				DEVELOPMENT_TEAM = A59V7K656Y;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				INFOPLIST_FILE = VirgilSDKPFSAppTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -792,6 +1131,24 @@
 			buildConfigurations = (
 				420D151C1EF3FB10002A9C22 /* Debug */,
 				420D151D1EF3FB10002A9C22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		424A02141F3463CE00D17D0C /* Build configuration list for PBXNativeTarget "TestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				424A02121F3463CE00D17D0C /* Debug */,
+				424A02131F3463CE00D17D0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		424A02211F34642A00D17D0C /* Build configuration list for PBXNativeTarget "VirgilSDKPFSAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				424A02221F34642A00D17D0C /* Debug */,
+				424A02231F34642A00D17D0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
