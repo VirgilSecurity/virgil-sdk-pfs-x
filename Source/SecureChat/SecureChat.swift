@@ -331,7 +331,7 @@ extension SecureChat {
     }
     
     private func removeSessionKeys(usingInitiatorSessionState sessionState: InitiatorSessionState) throws {
-        try self.keyHelper.removePrivateKey(withKeyEntryName: sessionState.ephKeyName)
+        try self.keyHelper.removeEphPrivateKey(withKeyEntryName: sessionState.ephKeyName)
     }
     
     private func removeSessionKeys(usingResponderSessionState sessionState: ResponderSessionState) throws {

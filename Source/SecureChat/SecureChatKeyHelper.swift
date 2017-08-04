@@ -101,16 +101,45 @@ class SecureChatKeyHelper {
         for key in ltKeysToRemove.union(otKeysToRemove).union(ephKeysToRemove) {
             try self.removePrivateKey(withKeyEntryName: key)
         }
+        
+        let newLtcKeys = serviceInfoEntry.ltcKeys.filter({ !ltKeysToRemove.contains($0.keyName) })
+        let newOtcKeys = serviceInfoEntry.otcKeysNames.filter({ !otKeysToRemove.contains($0) })
+        let newEphKeys = serviceInfoEntry.ephKeysNames.filter({ !ephKeysToRemove.contains($0) })
+        
+        let newServiceInfo = ServiceInfoEntry(ltcKeys: newLtcKeys, otcKeysNames: newOtcKeys, ephKeysNames: newEphKeys)
+        
+        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
     
     func removeEphPrivateKey(withName name: String) throws {
         let keyEntryName = self.getPrivateKeyEntryName(self.getEphPrivateKeyName(name))
+        
+        try self.removeEphPrivateKey(withKeyEntryName: keyEntryName)
+    }
+    
+    func removeEphPrivateKey(withKeyEntryName keyEntryName: String) throws {
+        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
+        }
+        
         try self.removePrivateKey(withKeyEntryName: keyEntryName)
+        
+        let newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfoEntry.ltcKeys, otcKeysNames: serviceInfoEntry.otcKeysNames, ephKeysNames: serviceInfoEntry.ephKeysNames.filter({ $0 != keyEntryName }))
+        
+        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
     
     func removeOneTimePrivateKey(withName name: String) throws {
+        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
+        }
+        
         let keyEntryName = self.getPrivateKeyEntryName(self.getOtPrivateKeyName(name))
         try self.removePrivateKey(withKeyEntryName: keyEntryName)
+        
+        let newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfoEntry.ltcKeys, otcKeysNames: serviceInfoEntry.otcKeysNames.filter({ $0 != keyEntryName }), ephKeysNames: serviceInfoEntry.ephKeysNames)
+        
+        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
     
     func hasRelevantLtKey() -> Bool {
@@ -220,7 +249,7 @@ extension SecureChatKeyHelper {
         return privateKey
     }
     
-    func removePrivateKey(withKeyEntryName keyEntryName: String) throws {
+    fileprivate func removePrivateKey(withKeyEntryName keyEntryName: String) throws {
         try self.keyStorage.deleteKeyEntry(withName: keyEntryName)
     }
     
