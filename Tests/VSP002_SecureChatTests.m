@@ -67,7 +67,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     self.message3 = @"message3";
     self.message4 = @"message4";
     
-    self.numberOfCards = 100;
+    self.numberOfCards = 5;
 }
 
 - (void)tearDown {
@@ -472,9 +472,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:initiatorKeyPair.privateKey identityCard:initiatorCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:nil];
+            VSPSecureChatPreferences *initiatorPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:initiatorKeyPair.privateKey identityCard:initiatorCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:[[NSNumber alloc] initWithDouble:5]];
             
-            VSPSecureChatPreferences *responderPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:responderKeyPair.privateKey identityCard:responderCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:nil];
+            VSPSecureChatPreferences *responderPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:responderKeyPair.privateKey identityCard:responderCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:[[NSNumber alloc] initWithDouble:5]];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
@@ -488,12 +488,18 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                         
                         NSString __unused *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
                         
-                        self.initiatorSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+                        // Wait for expiration
+                        sleep(10);
                         
-                        [self.initiatorSecureChat2 rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                        [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
                             XCTAssert(error == nil);
                             
-                            [ex fulfill];
+                            // Double rotate helps to check that we removed keys correctly
+                            [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                                XCTAssert(error == nil);
+                                
+                                [ex fulfill];
+                            }];
                         }];
                     }];
                 }];
@@ -523,9 +529,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
             sleep(5);
             
-            VSPSecureChatPreferences *initiatorPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:initiatorKeyPair.privateKey identityCard:initiatorCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:nil];
+            VSPSecureChatPreferences *initiatorPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:initiatorKeyPair.privateKey identityCard:initiatorCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:[[NSNumber alloc] initWithDouble:5]];
             
-            VSPSecureChatPreferences *responderPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:responderKeyPair.privateKey identityCard:responderCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:nil];
+            VSPSecureChatPreferences *responderPreferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:responderKeyPair.privateKey identityCard:responderCard keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:[[NSNumber alloc] initWithDouble:5]];
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
             self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
@@ -539,12 +545,18 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                         
                         NSString __unused *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
                         
-                        self.responderSecureChat2 = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
-                        
-                        [self.responderSecureChat2 rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                        // Wait for expiration
+                        sleep(10);
+
+                        [self.responderSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
                             XCTAssert(error == nil);
-                            
-                            [ex fulfill];
+                        
+                            // Double rotate helps to check that we removed keys correctly
+                            [self.responderSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                                XCTAssert(error == nil);
+                                
+                                [ex fulfill];
+                            }];
                         }];
                     }];
                 }];
