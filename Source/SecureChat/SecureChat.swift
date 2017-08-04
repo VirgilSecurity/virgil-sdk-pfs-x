@@ -429,7 +429,7 @@ extension SecureChat {
         }
     }
     
-    public func initialize(completion: CompletionHandler? = nil) {
+    public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
         var errorHandled = false
         let errorCallback = { (error: Error?) in
             guard errorHandled else {
@@ -496,7 +496,7 @@ extension SecureChat {
             }
             
             // Not enough cards, add more
-            numberOfMissingCards = max(self.preferences.numberOfActiveOneTimeCards - status.active, 0)
+            numberOfMissingCards = max(desiredNumberOfCards - status.active, 0)
             operationCompletedCallback()
         }
     }
