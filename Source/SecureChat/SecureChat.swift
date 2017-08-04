@@ -268,6 +268,22 @@ extension SecureChat {
 
 // MARK: Session removal
 extension SecureChat {
+    public func gentleReset() throws {
+        let sessionStates = try self.sessionHelper.getAllSessionsStates()
+        
+        for sessionState in sessionStates {
+            if let cardId = self.sessionHelper.getCardId(fromSessionName: sessionState.key) {
+                try? self.removeSession(withParticipantWithCardId: cardId)
+            }
+        }
+    
+        self.removeAllKeys()
+    }
+    
+    private func removeAllKeys() {
+        self.keyHelper.gentleReset()
+    }
+    
     public func removeSession(withParticipantWithCardId cardId: String) throws {
         if let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) {
             var err: Error?
@@ -277,7 +293,7 @@ extension SecureChat {
             catch {
                 err = error
             }
-            try self.sessionHelper.removeSessionsStates([cardId])
+            try self.sessionHelper.removeSessionsStates(withCardsIds: [cardId])
             if let err = err {
                 throw err
             }
@@ -377,7 +393,7 @@ extension SecureChat {
             }
         }
         
-        try self.sessionHelper.removeSessionsStates(expiredSessionsStates)
+        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates)
         
         return (relevantEphKeys, relevantLtCards, relevantOtCards)
     }

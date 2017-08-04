@@ -81,20 +81,24 @@ extension SecureChatSessionHelper {
 }
 
 extension SecureChatSessionHelper {
-    func removeSessionsStates(_ sessionsStates: [String]) throws {
+    func removeSessionsStates(withNames names: [String]) throws {
         guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
         }
         
-        for sessionState in sessionsStates {
-            self.removeSessionState(forRecipientCardId: sessionState, userDefaults: userDefaults, synchronize: false)
+        for name in names {
+            self.removeSessionState(withName: name, userDefaults: userDefaults, synchronize: false)
         }
         
         userDefaults.synchronize()
     }
-        
-    private func removeSessionState(forRecipientCardId cardId: String, userDefaults: UserDefaults, synchronize: Bool) {
-        userDefaults.removeObject(forKey: self.getSessionName(forCardId: cardId))
+    
+    func removeSessionsStates(withCardsIds cardsIds: [String]) throws {
+        try self.removeSessionsStates(withNames: cardsIds.map({ self.getSessionName(forCardId: $0) }))
+    }
+    
+    private func removeSessionState(withName name: String, userDefaults: UserDefaults, synchronize: Bool) {
+        userDefaults.removeObject(forKey: name)
         
         if synchronize {
             userDefaults.synchronize()
@@ -106,6 +110,17 @@ extension SecureChatSessionHelper {
     static private let DefaultsSuiteName = "VIRGIL.DEFAULTS.%@"
     static private let DefaultsSessionName = "VIRGIL.SESSION.%@"
     static private let DefaultsSessionNameSearchPattern = "VIRGIL.SESSION."
+    
+    func getCardId(fromSessionName name: String) -> String? {
+        guard let prefixRange = name.range(of: SecureChatSessionHelper.DefaultsSessionNameSearchPattern) else {
+            return nil
+        }
+        
+        var cardId = name
+        cardId.removeSubrange(prefixRange)
+        
+        return cardId
+    }
     
     fileprivate func isSessionName(name: String) -> Bool {
         return name.range(of: SecureChatSessionHelper.DefaultsSessionNameSearchPattern) != nil

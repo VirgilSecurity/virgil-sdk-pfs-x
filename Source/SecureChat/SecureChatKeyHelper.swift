@@ -173,6 +173,18 @@ class SecureChatKeyHelper {
         
         return serviceInfoEntry
     }
+    
+    func gentleReset() {
+        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+            return
+        }
+        
+        for keyEntryName in serviceInfoEntry.ltcKeys.map({ $0.keyName }) + serviceInfoEntry.otcKeysNames + serviceInfoEntry.ephKeysNames {
+            try? self.removePrivateKey(withKeyEntryName: keyEntryName)
+        }
+        
+        try? self.keyStorage.deleteKeyEntry(withName: self.getServiceInfoName())
+    }
 }
 
 // Service Info
