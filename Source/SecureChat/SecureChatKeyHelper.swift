@@ -207,6 +207,11 @@ class SecureChatKeyHelper {
     }
     
     func gentleReset() {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         guard case let serviceInfoEntry?? = try? self.getServiceInfoEntry() else {
             return
         }
