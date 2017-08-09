@@ -19,6 +19,8 @@ import VirgilSDK
     fileprivate let cardsHelper: SecureChatCardsHelper
     fileprivate let sessionHelper: SecureChatSessionHelper
     
+    fileprivate var rotateKeysMutex = Mutex()
+    
     public init(preferences: SecureChatPreferences) {
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
@@ -446,11 +448,21 @@ extension SecureChat {
     }
     
     public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
+        guard self.rotateKeysMutex.trylock() else {
+            completion?(SecureChat.makeError(withCode: .anotherRotateKeysInProgress, description: "Another rotateKeys call is in progress."))
+            return
+        }
+        
+        let completionWrapper: CompletionHandler = {
+            self.rotateKeysMutex.unlock()
+            completion?($0)
+        }
+        
         var errorHandled = false
         let errorCallback = { (error: Error?) in
             guard errorHandled else {
                 errorHandled = true
-                completion?(error)
+                completionWrapper(error)
                 return
             }
         }
@@ -477,7 +489,7 @@ extension SecureChat {
                                 return
                             }
                             
-                            completion?(nil)
+                            completionWrapper(nil)
                         }
                     }
                     catch {
@@ -485,7 +497,7 @@ extension SecureChat {
                     }
                 }
                 else {
-                    completion?(nil)
+                    completionWrapper(nil)
                 }
             }
         }

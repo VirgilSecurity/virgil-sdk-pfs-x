@@ -1375,4 +1375,38 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
+- (void)test022_CreateAndInitializeSecureChatConcurrent {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Concurrent rotateKeys should fail."];
+    
+    NSUInteger numberOfRequests = 3;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    
+    VSSKeyPair *keyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *identityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:keyPair];
+    
+    [self.virgilClient createCardWithRequest:identityRequest completion:^(VSSCard *card, NSError *error) {
+        sleep(5);
+        
+        VSPSecureChatPreferences *preferences = [VSPSecureChatPreferences secureChatPreferencesWithCrypto:self.crypto privateKey:keyPair.privateKey identityCard:card keyStorage:nil deviceManager:nil serviceConfig:self.client.serviceConfig longTermKeysTtl:nil sessionTtl:nil];
+        
+        self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];
+        
+        [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:5 completion:^(NSError *error) {
+            XCTAssert(error == nil);
+        }];
+        
+        [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:100 completion:^(NSError *error) {
+            XCTAssert(error != nil);
+            
+            [ex fulfill];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
 @end
