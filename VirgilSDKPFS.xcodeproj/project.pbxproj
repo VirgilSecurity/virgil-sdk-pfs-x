@@ -37,6 +37,7 @@
 		420D15271EF40B92002A9C22 /* VirgilSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */; };
 		420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 420D152A1EF40F24002A9C22 /* VSPTestUtils.m */; };
 		42235BC61F2A07710000BA88 /* SecureSessionErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */; };
+		422CBCB71F3B17D3003D6932 /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 422CBCB61F3B17D3003D6932 /* Mutex.swift */; };
 		424A02021F3463CE00D17D0C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02011F3463CE00D17D0C /* main.m */; };
 		424A02051F3463CE00D17D0C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02041F3463CE00D17D0C /* AppDelegate.m */; };
 		424A02081F3463CE00D17D0C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 424A02071F3463CE00D17D0C /* ViewController.m */; };
@@ -164,6 +165,7 @@
 		420D15291EF40F1B002A9C22 /* VSPTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPTestUtils.h; sourceTree = "<group>"; };
 		420D152A1EF40F24002A9C22 /* VSPTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPTestUtils.m; sourceTree = "<group>"; };
 		42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSessionErrorCode.swift; sourceTree = "<group>"; };
+		422CBCB61F3B17D3003D6932 /* Mutex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mutex.swift; sourceTree = "<group>"; };
 		424A01FE1F3463CE00D17D0C /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		424A02011F3463CE00D17D0C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		424A02031F3463CE00D17D0C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -314,6 +316,7 @@
 				420D0B511EEFE050002A9C22 /* VirgilSDKPFS.h */,
 				420D0B531EEFE0A8002A9C22 /* Client */,
 				425A02321EF93B2800D9BBEF /* SecureChat */,
+				422CBCB51F3B17CA003D6932 /* Utils */,
 				429623E71F13BD3600284665 /* Fingerprint.swift */,
 			);
 			path = Source;
@@ -418,6 +421,14 @@
 				420D0B851EF008E4002A9C22 /* PFSError.swift */,
 			);
 			path = Errors;
+			sourceTree = "<group>";
+		};
+		422CBCB51F3B17CA003D6932 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				422CBCB61F3B17D3003D6932 /* Mutex.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		424A01FF1F3463CE00D17D0C /* TestApp */ = {
@@ -742,6 +753,7 @@
 				425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */,
 				425A02431EFBC5A400D9BBEF /* InitiatorSessionState.swift in Sources */,
 				420D0B781EEFEEFF002A9C22 /* UploadOtcResponse.swift in Sources */,
+				422CBCB71F3B17D3003D6932 /* Mutex.swift in Sources */,
 				425A02361EF93B9100D9BBEF /* SecureSession.swift in Sources */,
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
 				425A02501EFC13C200D9BBEF /* SecureSessionResponder.swift in Sources */,

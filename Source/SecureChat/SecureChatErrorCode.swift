@@ -35,4 +35,5 @@ import Foundation
     case loadingPrivateKey
     case creatingUserDefaults
     case corruptedSavedSession
+    case anotherRotateKeysInProgress
 }

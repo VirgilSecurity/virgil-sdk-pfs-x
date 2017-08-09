@@ -21,6 +21,7 @@ class SecureChatKeyHelper {
     fileprivate let keyStorage: VSSKeyStorageProtocol
     fileprivate let identityCardId: String
     fileprivate let longTermKeyTtl: TimeInterval
+    private let mutex = Mutex()
     
     init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, identityCardId: String, longTermKeyTtl: TimeInterval) {
         self.crypto = crypto
@@ -30,6 +31,11 @@ class SecureChatKeyHelper {
     }
     
     func persistEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         let ephKeyEntryName = try self.saveEphPrivateKey(key, name: name)
         
         let newServiceInfo: ServiceInfoEntry
@@ -46,6 +52,11 @@ class SecureChatKeyHelper {
     }
     
     func persistKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         var keyEntryNames: [String] = []
         keyEntryNames.reserveCapacity(keys.count)
         
@@ -85,6 +96,11 @@ class SecureChatKeyHelper {
     }
     
     func removeOldKeys(relevantEphKeys: Set<String>, relevantLtCards: Set<String>, relevantOtCards: Set<String>) throws {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         guard let serviceInfoEntry = self.getServiceInfoEntry() else {
             if relevantEphKeys.count > 0 || relevantLtCards.count > 0 || relevantOtCards.count > 0 {
                 throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
@@ -118,6 +134,11 @@ class SecureChatKeyHelper {
     }
     
     func removeEphPrivateKey(withKeyEntryName keyEntryName: String) throws {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         guard let serviceInfoEntry = self.getServiceInfoEntry() else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
         }
@@ -130,6 +151,11 @@ class SecureChatKeyHelper {
     }
     
     func removeOneTimePrivateKey(withName name: String) throws {
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         guard let serviceInfoEntry = self.getServiceInfoEntry() else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
         }
