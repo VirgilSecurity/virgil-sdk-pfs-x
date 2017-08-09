@@ -36,4 +36,6 @@ import Foundation
     case creatingUserDefaults
     case corruptedSavedSession
     case anotherRotateKeysInProgress
+    case encodingServiceInfo
+    case decodingServiceInfo
 }

@@ -39,7 +39,7 @@ class SecureChatKeyHelper {
         let ephKeyEntryName = try self.saveEphPrivateKey(key, name: name)
         
         let newServiceInfo: ServiceInfoEntry
-        if let serviceInfo = self.getServiceInfoEntry() {
+        if let serviceInfo = try self.getServiceInfoEntry() {
             newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys, otcKeysNames: serviceInfo.otcKeysNames, ephKeysNames: serviceInfo.ephKeysNames + [ephKeyEntryName])
         }
         else {
@@ -73,7 +73,7 @@ class SecureChatKeyHelper {
         }
         
         let newServiceInfo: ServiceInfoEntry
-        if let serviceInfo = self.getServiceInfoEntry() {
+        if let serviceInfo = try self.getServiceInfoEntry() {
             let ltcEntryArray = ltcKeyEntryName == nil ? [] : [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName!, date: Date())]
             newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys + ltcEntryArray, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames, ephKeysNames: serviceInfo.ephKeysNames)
         }
@@ -88,7 +88,7 @@ class SecureChatKeyHelper {
     }
     
     func getAllOtCardsIds() throws -> [String] {
-        guard let serviceInfo = self.getServiceInfoEntry() else {
+        guard let serviceInfo = try self.getServiceInfoEntry() else {
             return []
         }
         
@@ -101,7 +101,7 @@ class SecureChatKeyHelper {
             self.mutex.unlock()
         }
         
-        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+        guard let serviceInfoEntry = try self.getServiceInfoEntry() else {
             if relevantEphKeys.count > 0 || relevantLtCards.count > 0 || relevantOtCards.count > 0 {
                 throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
             }
@@ -139,7 +139,7 @@ class SecureChatKeyHelper {
             self.mutex.unlock()
         }
         
-        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+        guard let serviceInfoEntry = try self.getServiceInfoEntry() else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
         }
         
@@ -156,7 +156,7 @@ class SecureChatKeyHelper {
             self.mutex.unlock()
         }
         
-        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+        guard let serviceInfoEntry = try self.getServiceInfoEntry() else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
         }
         
@@ -169,7 +169,7 @@ class SecureChatKeyHelper {
     }
     
     func hasRelevantLtKey() -> Bool {
-        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+        guard case let serviceInfoEntry?? = try? self.getServiceInfoEntry() else {
             return false
         }
         
@@ -182,26 +182,32 @@ class SecureChatKeyHelper {
         let entryName = self.getServiceInfoName()
         try? self.keyStorage.deleteKeyEntry(withName: entryName)
         
-        let data = NSKeyedArchiver.archivedData(withRootObject: newEntry)
+        let data: Data
+        do {
+            data = try newEntry.encode()
+        }
+        catch {
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.encodingServiceInfo.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while encoding ServiceInfo."])
+        }
         let keyEntry = VSSKeyEntry(name: entryName, value: data)
         
         try self.keyStorage.store(keyEntry)
     }
     
-    private func getServiceInfoEntry() -> ServiceInfoEntry? {
+    private func getServiceInfoEntry() throws -> ServiceInfoEntry? {
         guard let keyEntry = try? self.keyStorage.loadKeyEntry(withName: self.getServiceInfoName()) else {
             return nil
         }
         
-        guard let serviceInfoEntry = NSKeyedUnarchiver.unarchiveObject(with: keyEntry.value) as? ServiceInfoEntry else {
-            return nil
+        guard let serviceInfoEntry = ServiceInfoEntry(data: keyEntry.value) else {
+            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.decodingServiceInfo.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while decoding ServiceInfo."])
         }
         
         return serviceInfoEntry
     }
     
     func gentleReset() {
-        guard let serviceInfoEntry = self.getServiceInfoEntry() else {
+        guard case let serviceInfoEntry?? = try? self.getServiceInfoEntry() else {
             return
         }
         

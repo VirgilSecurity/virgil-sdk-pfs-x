@@ -8,8 +8,8 @@
 
 import Foundation
 
-@objc(VSPServiceInfoEntry) class ServiceInfoEntry: NSObject, NSCoding {
-    @objc(VSPServiceInfoEntryKeyEntry) class KeyEntry: NSObject, NSCoding {
+class ServiceInfoEntry: NSObject {
+    class KeyEntry: NSObject {
         private enum Keys: String {
             case keyName = "key_name"
             case date = "date"
@@ -25,18 +25,22 @@ import Foundation
             super.init()
         }
         
-        func encode(with aCoder: NSCoder) {
-            aCoder.encode(self.keyName, forKey: Keys.keyName.rawValue)
-            aCoder.encode(self.date, forKey: Keys.date.rawValue)
+        func encode() -> [String : Any] {
+            let json: [String : Any] = [
+                Keys.keyName.rawValue: self.keyName,
+                Keys.date.rawValue: self.date.timeIntervalSince1970
+            ]
+            
+            return json
         }
         
-        convenience required init?(coder aDecoder: NSCoder) {
-            guard let keyName = aDecoder.decodeObject(forKey: Keys.keyName.rawValue) as? String,
-                let date = aDecoder.decodeObject(forKey: Keys.date.rawValue) as? Date else {
+        convenience init?(json: [String : Any]) {
+            guard let keyName = json[Keys.keyName.rawValue] as? String,
+                let dateInterval = json[Keys.date.rawValue] as? TimeInterval else {
                     return nil
             }
             
-            self.init(keyName: keyName, date: date)
+            self.init(keyName: keyName, date: Date(timeIntervalSince1970: dateInterval))
         }
     }
     
@@ -58,19 +62,44 @@ import Foundation
         super.init()
     }
     
-    func encode(with aCoder: NSCoder) {
-        aCoder.encode(self.ltcKeys, forKey: Keys.ltcKeys.rawValue)
-        aCoder.encode(self.otcKeysNames, forKey: Keys.otcKeysNames.rawValue)
-        aCoder.encode(self.ephKeysNames, forKey: Keys.ephKeysNames.rawValue)
+    func encode() throws -> Data {
+        let json: [String : Any] = [
+            Keys.otcKeysNames.rawValue: self.otcKeysNames,
+            Keys.ephKeysNames.rawValue: self.ephKeysNames,
+            Keys.ltcKeys.rawValue: self.ltcKeys.map({ $0.encode() })
+        ]
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: json, options: [])
+        
+        return jsonData
     }
     
-    convenience required init?(coder aDecoder: NSCoder) {
-        guard let ltcKeys = aDecoder.decodeObject(forKey: Keys.ltcKeys.rawValue) as? [KeyEntry],
-            let otcKeysNames = aDecoder.decodeObject(forKey: Keys.otcKeysNames.rawValue) as? [String],
-            let ephKeysNames = aDecoder.decodeObject(forKey: Keys.ephKeysNames.rawValue) as? [String] else {
+    convenience init?(json: [String : Any]) {
+        guard let otcKeysNames = json[Keys.otcKeysNames.rawValue] as? [String],
+            let ephKeysNames = json[Keys.ephKeysNames.rawValue] as? [String],
+            let ltcs = json[Keys.ltcKeys.rawValue] as? [[String : Any]] else {
                 return nil
         }
         
+        var ltcKeys = [KeyEntry]()
+        ltcKeys.reserveCapacity(ltcs.count)
+        
+        for ltc in ltcs {
+            guard let ketEntry = KeyEntry(json: ltc) else {
+                return nil
+            }
+            
+            ltcKeys.append(ketEntry)
+        }
+        
         self.init(ltcKeys: ltcKeys, otcKeysNames: otcKeysNames, ephKeysNames: ephKeysNames)
+    }
+    
+    convenience init?(data: Data) {
+        guard case let json?? = try? JSONSerialization.jsonObject(with: data, options: []) as? [String : Any] else {
+            return nil
+        }
+        
+        self.init(json: json)
     }
 }
