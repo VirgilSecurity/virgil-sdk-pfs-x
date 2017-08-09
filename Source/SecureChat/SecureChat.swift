@@ -458,74 +458,130 @@ extension SecureChat {
             completion?($0)
         }
         
-        var errorHandled = false
-        let errorCallback = { (error: Error?) in
-            guard errorHandled else {
-                errorHandled = true
-                completionWrapper(error)
-                return
+        let addNewKeysOperation = AddNewCardsOperation(owner: self)
+        let cleanupOperation = CleanupOperation(owner: self)
+        let cardsStatusOperation = CardsStatusOperation(owner: self, desiredNumberOfCards: desiredNumberOfCards)
+        let completionOperation = CompletionOperation(completion: completionWrapper)
+        
+        addNewKeysOperation.addDependency(cardsStatusOperation)
+        addNewKeysOperation.addDependency(cleanupOperation)
+        completionOperation.addDependency(addNewKeysOperation)
+        
+        let queue = OperationQueue()
+        queue.addOperations([cardsStatusOperation, cleanupOperation, addNewKeysOperation, completionOperation], waitUntilFinished: false)
+    }
+    
+    class CompletionOperation: AsyncOperation {
+        private let completion: CompletionHandler
+        init(completion: @escaping CompletionHandler) {
+            self.completion = completion
+            
+            super.init()
+        }
+        
+        override func execute() {
+            super.execute()
+            
+            self.finish()
+        }
+        
+        override func finish() {
+            self.completion(self.error)
+            
+            super.finish()
+        }
+    }
+    
+    class AddNewCardsOperation: AsyncOperation {
+        private let owner: SecureChat
+        init(owner: SecureChat) {
+            self.owner = owner
+            
+            super.init()
+        }
+        
+        override func execute() {
+            super.execute()
+            
+            guard let cardsStatusOperation: CardsStatusOperation = self.findDependency(),
+                let numberOfMissingCards = cardsStatusOperation.numberOfMissingCards else {
+                    self.fail(withError: SecureChat.makeError(withCode: .oneOrMoreInitializationOperationsFailed, description: "One or more initialization operations failed."))
+                    return
             }
+            
+            if numberOfMissingCards > 0 {
+                let addLtCard = !self.owner.keyHelper.hasRelevantLtKey()
+                do {
+                    try self.owner.cardsHelper.addCards(forIdentityCard: self.owner.preferences.identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
+                        if let error = error {
+                            self.fail(withError: error)
+                            return
+                        }
+                        
+                        self.finish()
+                    }
+                }
+                catch {
+                    self.fail(withError: error)
+                }
+            }
+            else {
+                self.finish()
+            }
+        }
+    }
+    
+    class CardsStatusOperation: AsyncOperation {
+        private let owner: SecureChat
+        private let desiredNumberOfCards: Int
+        init(owner: SecureChat, desiredNumberOfCards: Int) {
+            self.owner = owner
+            self.desiredNumberOfCards = desiredNumberOfCards
+            
+            super.init()
         }
         
         var numberOfMissingCards: Int?
         
-        var numberOfCompletedOperations = 0
-        let numberOfOperations = 2
-        let operationCompletedCallback = {
-            numberOfCompletedOperations += 1
+        override func execute() {
+            super.execute()
             
-            if numberOfOperations == numberOfCompletedOperations {
-                guard let numberOfMissingCards = numberOfMissingCards else {
-                    errorCallback(SecureChat.makeError(withCode: .oneOrMoreInitializationOperationsFailed, description: "One or more initialization operations failed."))
+            self.owner.client.getCardsStatus(forUserWithCardId: self.owner.preferences.identityCard.identifier) { status, error in
+                if let error = error {
+                    self.fail(withError: error)
                     return
                 }
-
-                if numberOfMissingCards > 0 {
-                    let addLtCard = !self.keyHelper.hasRelevantLtKey()
-                    do {
-                        try self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
-                            guard error == nil else {
-                                errorCallback(error!)
-                                return
-                            }
-                            
-                            completionWrapper(nil)
-                        }
-                    }
-                    catch {
-                        errorCallback(error)
-                    }
+                    
+                if let status = status {
+                    self.numberOfMissingCards = max(self.desiredNumberOfCards - status.active, 0)
+                    self.finish()
                 }
                 else {
-                    completionWrapper(nil)
+                    self.fail(withError: SecureChat.makeError(withCode: .obtainingCardsStatus, description: "Error obtaining cards status."))
                 }
             }
         }
-        
-        self.cleanup() { error in
-            guard error == nil else {
-                errorCallback(error!)
-                return
-            }
+    }
+    
+    class CleanupOperation: AsyncOperation {
+        private let owner: SecureChat
+        init(owner: SecureChat) {
+            self.owner = owner
             
-            operationCompletedCallback()
+            super.init()
         }
         
-        // Check ephemeral cards status
-        self.client.getCardsStatus(forUserWithCardId: self.preferences.identityCard.identifier) { status, error in
-            guard error == nil else {
-                errorCallback(error)
-                return
-            }
+        override func execute() {
+            super.execute()
             
-            guard let status = status else {
-                errorCallback(SecureChat.makeError(withCode: .obtainingCardsStatus, description: "Error obtaining cards status."))
-                return
+            self.owner.cleanup() { error in
+                if let error = error {
+                    self.fail(withError: error)
+                    return
+                }
+                
+                self.finish()
             }
-            
-            // Not enough cards, add more
-            numberOfMissingCards = max(desiredNumberOfCards - status.active, 0)
-            operationCompletedCallback()
         }
     }
 }
