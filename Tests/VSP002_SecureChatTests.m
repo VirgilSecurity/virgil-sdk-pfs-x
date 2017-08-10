@@ -1090,7 +1090,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 - (void)test017_SecureChatDoubleInitialization {
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. SecurityChat should be initialized. SecurityChat should be reinitialized."];
     
-    NSUInteger numberOfRequests = 3;
+    NSUInteger numberOfRequests = 5;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
