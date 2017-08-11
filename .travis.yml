@@ -32,7 +32,7 @@ script:
 
   # Build with carthage
   - if [ $PUBLISH_CARTHAGE == "YES" ]; then
-      carthage build --no-skip-current;    
+      carthage build --no-skip-current --platform "$CARTHAGE_PLATFORM_NAME";    
     fi
 
 before_deploy:
