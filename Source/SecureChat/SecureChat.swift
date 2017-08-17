@@ -403,9 +403,9 @@ extension SecureChat {
             }
         }
         
-        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates, expiredOtCards)
+        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates)
         
-        return (relevantEphKeys, relevantLtCards, relevantOtCards)
+        return (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards)
     }
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
