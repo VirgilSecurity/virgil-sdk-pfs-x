@@ -367,7 +367,7 @@ extension SecureChat {
     // Workaround for Swift bug SR-2444
     public typealias CompletionHandler = (Error?) -> ()
     
-    private func removeExpiredSessionsStates() throws -> (Set<String>, Set<String>, Set<String>) {
+    private func removeExpiredSessionsStates() throws -> (Set<String>, Set<String>, Set<String>, Set<String>) {
         let sessionsStates = try self.sessionHelper.getAllSessionsStates()
         
         let date = Date()
@@ -375,12 +375,20 @@ extension SecureChat {
         var relevantEphKeys = Set<String>()
         var relevantLtCards = Set<String>()
         var relevantOtCards = Set<String>()
+        var expiredOtCards  = Set<String>()
         
         var expiredSessionsStates = [String]()
         
         for sessionState in sessionsStates {
             if self.isSessionStateExpired(now: date, sessionState: sessionState.value) {
                 expiredSessionsStates.append(sessionState.key)
+                
+                // collect expired one time cards
+                if let expiredResSession = sessionState.value as? ResponderSessionState {
+                    if let expiredOtCardId = expiredResSession.recipientOneTimeCardId {
+                        expiredOtCards.insert(expiredOtCardId)
+                    }
+                }
             }
             else {
                 if let initiatorSession = sessionState.value as? InitiatorSessionState {
@@ -397,7 +405,7 @@ extension SecureChat {
         
         try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates)
         
-        return (relevantEphKeys, relevantLtCards, relevantOtCards)
+        return (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards)
     }
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
@@ -405,8 +413,9 @@ extension SecureChat {
         let relevantEphKeys: Set<String>
         let relevantLtCards: Set<String>
         let relevantOtCards: Set<String>
+        let expiredOtCards: Set<String>
         do {
-            (relevantEphKeys, relevantLtCards, relevantOtCards) = try self.removeExpiredSessionsStates()
+            (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards) = try self.removeExpiredSessionsStates()
         }
         catch {
             completion(error)
@@ -422,29 +431,42 @@ extension SecureChat {
             return
         }
         
-        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
-            guard error == nil else {
-                completion(error)
-                return
-            }
-            
-            guard let exhaustedCardsIds = exhaustedCardsIds else {
-                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
-                return
-            }
-            
-            let relevantOtCards = Set<String>(otKeys).subtracting(Set<String>(exhaustedCardsIds)).union(relevantOtCards)
-            
-            do {
-                try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: relevantOtCards)
-            }
-            catch {
-                completion(error)
-                return
-            }
-            
-            completion(nil)
+        // select all active one time cards
+        let activeOtCards = Set<String>(otKeys).subtracting(Set<String>(expiredOtCards))
+        
+        do {
+            try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: activeOtCards)
         }
+        catch {
+            completion(error)
+            return
+        }
+                        
+        completion(nil)
+        
+//        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
+//            guard error == nil else {
+//                completion(error)
+//                return
+//            }
+//            
+//            guard let exhaustedCardsIds = exhaustedCardsIds else {
+//                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
+//                return
+//            }
+//            
+//            let relevantOtCards = Set<String>(otKeys).subtracting(Set<String>(exhaustedCardsIds)).union(relevantOtCards)
+//            
+//            do {
+//                try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: relevantOtCards)
+//            }
+//            catch {
+//                completion(error)
+//                return
+//            }
+//            
+//            completion(nil)
+//        }
     }
     
     public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
