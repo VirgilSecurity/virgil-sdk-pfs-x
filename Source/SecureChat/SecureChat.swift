@@ -432,7 +432,7 @@ extension SecureChat {
         }
         
         // select all active one time cards
-        try activeOtCards = Set<String>(otKeys).subtracting(Set<String>(expiredOtCards))
+        let activeOtCards = Set<String>(otKeys).subtracting(Set<String>(expiredOtCards))
         
         do {
             try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: activeOtCards)
