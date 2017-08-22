@@ -15,6 +15,24 @@ class SecureChatKeyHelper {
         let keyName: String
     }
     
+    struct SessionKeys {
+        let encryptionKey: Data
+        let decryptionKey: Data
+        
+        func convertToData() -> Data {
+            return self.encryptionKey + self.decryptionKey
+        }
+        
+        init(withData data: Data) {
+            self.init(encryptionKey: Data(data.prefix(upTo: data.count / 2)), decryptionKey: Data(data.suffix(from: data.count / 2)))
+        }
+        
+        init(encryptionKey: Data, decryptionKey: Data) {
+            self.encryptionKey = encryptionKey
+            self.decryptionKey = decryptionKey
+        }
+    }
+    
     static public let ErrorDomain = "VSPSecureChatKeyHelperErrorDomain"
     
     fileprivate let crypto: VSSCryptoProtocol
@@ -28,27 +46,6 @@ class SecureChatKeyHelper {
         self.keyStorage = keyStorage
         self.identityCardId = identityCardId
         self.longTermKeyTtl = longTermKeyTtl
-    }
-    
-    func persistEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
-        self.mutex.lock()
-        defer {
-            self.mutex.unlock()
-        }
-        
-        let ephKeyEntryName = try self.saveEphPrivateKey(key, name: name)
-        
-        let newServiceInfo: ServiceInfoEntry
-        if let serviceInfo = try self.getServiceInfoEntry() {
-            newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys, otcKeysNames: serviceInfo.otcKeysNames, ephKeysNames: serviceInfo.ephKeysNames + [ephKeyEntryName])
-        }
-        else {
-            newServiceInfo = ServiceInfoEntry(ltcKeys: [], otcKeysNames: [], ephKeysNames: [ephKeyEntryName])
-        }
-        
-        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
-        
-        return ephKeyEntryName
     }
     
     func persistKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
@@ -75,13 +72,13 @@ class SecureChatKeyHelper {
         let newServiceInfo: ServiceInfoEntry
         if let serviceInfo = try self.getServiceInfoEntry() {
             let ltcEntryArray = ltcKeyEntryName == nil ? [] : [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName!, date: Date())]
-            newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys + ltcEntryArray, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames, ephKeysNames: serviceInfo.ephKeysNames)
+            newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfo.ltcKeys + ltcEntryArray, otcKeysNames: serviceInfo.otcKeysNames + keyEntryNames)
         }
         else {
             guard let ltcKeyEntryName = ltcKeyEntryName else {
                 throw NSError(domain: SecureChatKeyHelper.ErrorDomain, code: SecureChatErrorCode.longTermKeyNotFoundAndNewKeyNowSpecified.rawValue, userInfo: [NSLocalizedDescriptionKey: "LT key not found and new key was not specified."])
             }
-            newServiceInfo = ServiceInfoEntry(ltcKeys: [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName, date: Date())], otcKeysNames: keyEntryNames, ephKeysNames: [])
+            newServiceInfo = ServiceInfoEntry(ltcKeys: [ServiceInfoEntry.KeyEntry(keyName: ltcKeyEntryName, date: Date())], otcKeysNames: keyEntryNames)
         }
         
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
@@ -112,40 +109,15 @@ class SecureChatKeyHelper {
         let outdatedLtKeysNames = Set<String>(serviceInfoEntry.ltcKeys.filter({ date > $0.date.addingTimeInterval(self.longTermKeyTtl)}).map({ $0.keyName }))
         let ltKeysToRemove = outdatedLtKeysNames.subtracting(Set<String>(relevantLtCards.map({ self.getPrivateKeyEntryName(self.getLtPrivateKeyName($0)) })))
         let otKeysToRemove = Set<String>(serviceInfoEntry.otcKeysNames).subtracting(Set<String>(relevantOtCards.map({ self.getPrivateKeyEntryName(self.getOtPrivateKeyName($0)) })))
-        let ephKeysToRemove = Set<String>(serviceInfoEntry.ephKeysNames).subtracting(relevantEphKeys)
         
-        for key in ltKeysToRemove.union(otKeysToRemove).union(ephKeysToRemove) {
+        for key in ltKeysToRemove.union(otKeysToRemove) {
             try self.removePrivateKey(withKeyEntryName: key)
         }
         
         let newLtcKeys = serviceInfoEntry.ltcKeys.filter({ !ltKeysToRemove.contains($0.keyName) })
         let newOtcKeys = serviceInfoEntry.otcKeysNames.filter({ !otKeysToRemove.contains($0) })
-        let newEphKeys = serviceInfoEntry.ephKeysNames.filter({ !ephKeysToRemove.contains($0) })
         
-        let newServiceInfo = ServiceInfoEntry(ltcKeys: newLtcKeys, otcKeysNames: newOtcKeys, ephKeysNames: newEphKeys)
-        
-        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
-    }
-    
-    func removeEphPrivateKey(withName name: String) throws {
-        let keyEntryName = self.getPrivateKeyEntryName(self.getEphPrivateKeyName(name))
-        
-        try self.removeEphPrivateKey(withKeyEntryName: keyEntryName)
-    }
-    
-    func removeEphPrivateKey(withKeyEntryName keyEntryName: String) throws {
-        self.mutex.lock()
-        defer {
-            self.mutex.unlock()
-        }
-        
-        guard let serviceInfoEntry = try self.getServiceInfoEntry() else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
-        }
-        
-        try self.removePrivateKey(withKeyEntryName: keyEntryName)
-        
-        let newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfoEntry.ltcKeys, otcKeysNames: serviceInfoEntry.otcKeysNames, ephKeysNames: serviceInfoEntry.ephKeysNames.filter({ $0 != keyEntryName }))
+        let newServiceInfo = ServiceInfoEntry(ltcKeys: newLtcKeys, otcKeysNames: newOtcKeys)
         
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
@@ -163,7 +135,7 @@ class SecureChatKeyHelper {
         let keyEntryName = self.getPrivateKeyEntryName(self.getOtPrivateKeyName(name))
         try self.removePrivateKey(withKeyEntryName: keyEntryName)
         
-        let newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfoEntry.ltcKeys, otcKeysNames: serviceInfoEntry.otcKeysNames.filter({ $0 != keyEntryName }), ephKeysNames: serviceInfoEntry.ephKeysNames)
+        let newServiceInfo = ServiceInfoEntry(ltcKeys: serviceInfoEntry.ltcKeys, otcKeysNames: serviceInfoEntry.otcKeysNames.filter({ $0 != keyEntryName }))
         
         try self.updateServiceInfoEntry(newEntry: newServiceInfo)
     }
@@ -216,7 +188,7 @@ class SecureChatKeyHelper {
             return
         }
         
-        for keyEntryName in serviceInfoEntry.ltcKeys.map({ $0.keyName }) + serviceInfoEntry.otcKeysNames + serviceInfoEntry.ephKeysNames {
+        for keyEntryName in serviceInfoEntry.ltcKeys.map({ $0.keyName }) + serviceInfoEntry.otcKeysNames {
             try? self.removePrivateKey(withKeyEntryName: keyEntryName)
         }
         
@@ -235,31 +207,45 @@ extension SecureChatKeyHelper {
 
 // MARK: Keys existence
 extension SecureChatKeyHelper {
-    func ephKeyExists(ephName: String) -> Bool {
-        let keyEntryName = self.getPrivateKeyEntryName(self.getEphPrivateKeyName(ephName))
-        return self.keyStorage.existsKeyEntry(withName: keyEntryName)
-    }
-    
     func otKeyExists(otName: String) -> Bool {
         let keyEntryName = self.getPrivateKeyEntryName(self.getOtPrivateKeyName(otName))
-        return self.keyStorage.existsKeyEntry(withName: keyEntryName)
+        
+        return self.keyEntryExists(keyEntryName: keyEntryName)
+    }
+    
+    func sessionKeysExist(forSessionWithId sessionId: Data) -> Bool {
+        let sessionIdStr = sessionId.base64EncodedString()
+        let keyEntryName = self.getSessionKeysEntryName(sessionIdStr)
+        
+        return self.keyEntryExists(keyEntryName: keyEntryName)
     }
 }
 
 // MARK: Keys base functions
 extension SecureChatKeyHelper {
-    func getEphPrivateKey(withName name: String) throws -> VSSPrivateKey {
-        let keyName = self.getEphPrivateKeyName(name)
-        return try self.getPrivateKey(withKeyName: keyName)
+    func getSessionKeys(forSessionWithId sessionId: Data) throws -> SessionKeys {
+        let sessionIdStr = sessionId.base64EncodedString()
+        let keyEntry = try self.getKeyEntry(withKeyEntryName: self.getSessionKeysEntryName(sessionIdStr))
+        
+        return SessionKeys(withData: keyEntry.value)
     }
     
-    func getEphPrivateKey(withKeyEntryName keyEntryName: String) throws -> VSSPrivateKey {
-        return try self.getPrivateKey(withKeyEntryName: keyEntryName)
+    func saveSessionKeys(_ sessionKeys: SessionKeys, forSessionWithId sessionId: Data) throws {
+        let sessionIdStr = sessionId.base64EncodedString()
+        let keyEntry = VSSKeyEntry(name: self.getSessionKeysEntryName(sessionIdStr), value: sessionKeys.convertToData())
+        
+        try self.saveKeyEntry(keyEntry)
     }
     
-    fileprivate func saveEphPrivateKey(_ key: VSSPrivateKey, name: String) throws -> String {
-        let keyName = self.getEphPrivateKeyName(name)
-        return try self.savePrivateKey(key, keyName: keyName)
+    func removeSessionKeys(forSessionWithId sessionId: Data) throws {
+        let sessionIdStr = sessionId.base64EncodedString()
+        let keyEntryName = self.getSessionKeysEntryName(sessionIdStr)
+        
+        try self.removePrivateKey(withKeyEntryName: keyEntryName)
+    }
+
+    fileprivate func getSessionKeysEntryName(_ name: String) -> String {
+        return self.getPrivateKeyEntryName(String(format: "SESSION_KEYS.%@", name))
     }
     
     func getLtPrivateKey(withName name: String) throws -> VSSPrivateKey {
@@ -288,8 +274,12 @@ extension SecureChatKeyHelper {
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
+    private func getKeyEntry(withKeyEntryName keyEntryName: String) throws -> VSSKeyEntry {
+        return try self.keyStorage.loadKeyEntry(withName: keyEntryName)
+    }
+    
     private func getPrivateKey(withKeyEntryName keyEntryName: String) throws -> VSSPrivateKey {
-        let keyEntry = try self.keyStorage.loadKeyEntry(withName: keyEntryName)
+        let keyEntry = try self.getKeyEntry(withKeyEntryName: keyEntryName)
         
         guard let privateKey = self.crypto.importPrivateKey(from: keyEntry.value) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.loadingPrivateKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error loading private key."])
@@ -308,9 +298,13 @@ extension SecureChatKeyHelper {
         let keyEntryName = self.getPrivateKeyEntryName(keyName)
         let keyEntry = VSSKeyEntry(name: keyEntryName, value: privateKeyData)
         
-        try self.keyStorage.store(keyEntry)
+        try self.saveKeyEntry(keyEntry)
         
         return keyEntryName
+    }
+    
+    private func saveKeyEntry(_ keyEntry: VSSKeyEntry) throws {
+        try self.keyStorage.store(keyEntry)
     }
     
     fileprivate func extractCardId(fromOTKeyEntryName OTkeyEntryName: String) -> String {
@@ -325,10 +319,6 @@ extension SecureChatKeyHelper {
         return String(format: "%@%@", self.getPrivateKeyEntryHeader(), name)
     }
     
-    fileprivate func getEphPrivateKeyName(_ name: String) -> String {
-        return String(format: "EPH_KEY.%@", name)
-    }
-    
     fileprivate func getLtPrivateKeyName(_ name: String) -> String {
         return String(format: "LT_KEY.%@", name)
     }
@@ -339,5 +329,9 @@ extension SecureChatKeyHelper {
     
     fileprivate func getOtPrivateKeyName(_ name: String) -> String {
         return String(format: "%@%@", self.getOtPrivateKeyNameHeader(), name)
+    }
+    
+    fileprivate func keyEntryExists(keyEntryName: String) -> Bool {
+        return self.keyStorage.existsKeyEntry(withName: keyEntryName)
     }
 }

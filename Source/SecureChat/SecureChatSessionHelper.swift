@@ -26,7 +26,7 @@ extension SecureChatSessionHelper {
             return nil
         }
         
-        guard let state: SessionState = InitiatorSessionState(dictionary: dict) ?? ResponderSessionState(dictionary: dict) else {
+        guard let state = SessionState(dictionary: dict) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
@@ -52,7 +52,7 @@ extension SecureChatSessionHelper {
                 continue
             }
             
-            guard let state: SessionState = InitiatorSessionState(dictionary: val.value) ?? ResponderSessionState(dictionary: val.value) else {
+            guard let state = SessionState(dictionary: val.value) else {
                 throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
             }
             res[val.key] = state

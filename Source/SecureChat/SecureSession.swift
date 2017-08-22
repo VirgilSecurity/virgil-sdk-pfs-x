@@ -16,15 +16,9 @@ import VirgilCrypto
         let publicKeyData: Data
     }
     
-    let crypto: VSSCryptoProtocol
-    let myPrivateKey: VSSPrivateKey
-    let wasRecovered: Bool
-    let additionalData: Data?
-    let sessionHelper: SecureChatSessionHelper
-    let creationDate: Date
-    let expirationDate: Date
-    
     static public let ErrorDomain = "VSPSecureSessionErrorDomain"
+    
+    let expirationDate: Date
     
     let pfs = VSCPfs()
     
@@ -32,13 +26,18 @@ import VirgilCrypto
         return self.pfs.session != nil
     }
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, wasRecovered: Bool, sessionHelper: SecureChatSessionHelper, additionalData: Data?, creationDate: Date, expirationDate: Date) {
-        self.crypto = crypto
-        self.myPrivateKey = myPrivateKey
-        self.wasRecovered = wasRecovered
-        self.sessionHelper = sessionHelper
-        self.additionalData = additionalData
-        self.creationDate = creationDate
+    init(expirationDate: Date) {
+        self.expirationDate = expirationDate
+        
+        super.init()
+    }
+    
+    init(sessionId: Data, encryptionKey: Data, decryptionKey: Data, additionalData: Data, expirationDate: Date) throws {
+        guard let session = VSCPfsSession(identifier: sessionId, encryptionSecretKey: encryptionKey, decryptionSecretKey: decryptionKey, additionalData: additionalData) else {
+            throw SecureSession.makeError(withCode: .recoveringInitiatedSession, description: "Error creating session using symmetric keys.")
+        }
+        
+        self.pfs.session = session
         self.expirationDate = expirationDate
         
         super.init()
@@ -59,6 +58,7 @@ extension SecureSession {
     }
 }
 
+// Decryption
 extension SecureSession {
     func decrypt(encryptedMessage: Message) throws -> String {
         guard let message = VSCPfsEncryptedMessage(sessionIdentifier: encryptedMessage.sessionId, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText) else {
@@ -74,6 +74,18 @@ extension SecureSession {
         }
         
         return str
+    }
+    
+    public func decrypt(_ encryptedMessage: String) throws -> String {
+        guard let messageData = encryptedMessage.data(using: .utf8) else {
+            throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error while converting message to data in SecureSession.")
+        }
+        
+        guard let message = try? SecureSession.extractMessage(messageData) else {
+            throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message in SecureSession.")
+        }
+        
+        return try self.decrypt(encryptedMessage: message)
     }
 }
 
@@ -103,10 +115,6 @@ extension SecureSession {
         }
         
         return msgStr
-    }
-    
-    public func decrypt(_ encryptedMessage: String) throws -> String {
-        throw SecureSession.makeError(withCode: .decryptShouldBeOverridden, description: "Decrypt should be overridden in subclasses")
     }
 }
 

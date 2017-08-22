@@ -10,27 +10,40 @@ import Foundation
 import VirgilCrypto
 import VirgilSDK
 
-class SecureSessionInitiator: SecureSession {
+class SecureSessionInitiator: SecureSessionBase {
     let myIdCard: VSSCard
     let ephPrivateKey: VSSPrivateKey
-    let ephPrivateKeyName: String
     let recipientIdCard: CardEntry
     let recipientLtCard: CardEntry
     let recipientOtCard: CardEntry?
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, ephPrivateKeyName: String, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry?, wasRecovered: Bool, creationDate: Date, expirationDate: Date) throws {
+    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, additionalData: Data?, myIdCard: VSSCard, ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry?, wasRecovered: Bool, creationDate: Date, expirationDate: Date) throws {
         self.myIdCard = myIdCard
         self.ephPrivateKey = ephPrivateKey
-        self.ephPrivateKeyName = ephPrivateKeyName
         self.recipientIdCard = recipientIdCard
         self.recipientLtCard = recipientLtCard
         self.recipientOtCard = recipientOtCard
         
-        super.init(crypto: crypto, myPrivateKey: myPrivateKey, wasRecovered: wasRecovered, sessionHelper: sessionHelper, additionalData: additionalData, creationDate: creationDate, expirationDate: expirationDate)
+        super.init(crypto: crypto, myPrivateKey: myPrivateKey, participantCardId: recipientIdCard.identifier, wasRecovered: wasRecovered, sessionHelper: sessionHelper, keyHelper: keyHelper, additionalData: additionalData, creationDate: creationDate, expirationDate: expirationDate)
         
         if self.wasRecovered {
             try self.initiateSession()
         }
+    }
+    
+    override func saveSession(_ session: VSCPfsSession) throws {
+        try super.saveSession(session)
+        
+        let sessionId = session.identifier
+        let encryptionKey = session.encryptionSecretKey
+        let decryptionKey = session.decryptionSecretKey
+        let sessionKeys = SecureChatKeyHelper.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
+        
+        try self.keyHelper.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
+        
+        let sessionState = SessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: session.identifier, additionalData: session.additionalData)
+        
+        try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.participantCardId)
     }
 }
 
@@ -127,10 +140,7 @@ extension SecureSessionInitiator {
         }
         
         if !self.wasRecovered {
-            let sessionId = session.identifier
-            let sessionState = InitiatorSessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: sessionId, additionalData: self.additionalData, ephKeyName: self.ephPrivateKeyName, recipientCardId: self.recipientIdCard.identifier, recipientPublicKey: self.recipientIdCard.publicKeyData, recipientLongTermCardId: self.recipientLtCard.identifier, recipientLongTermPublicKey: self.recipientLtCard.publicKeyData, recipientOneTimeCardId: self.recipientOtCard?.identifier, recipientOneTimePublicKey: self.recipientOtCard?.publicKeyData)
-            
-            try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.recipientIdCard.identifier)
+            try self.saveSession(session)
         }
     }
 }

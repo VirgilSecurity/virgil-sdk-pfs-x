@@ -46,4 +46,5 @@ import Foundation
     case convertingInitiatorKeysDuringResponderInitialization
     case instantiatingInitiatorPublicInfo
     case initiatingResponderSession
+    case recoveringInitiatedSession
 }

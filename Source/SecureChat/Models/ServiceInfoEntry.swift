@@ -47,17 +47,14 @@ class ServiceInfoEntry: NSObject {
     private enum Keys: String {
         case otcKeysNames = "otc_keys_names"
         case ltcKeys = "ltc_keys"
-        case ephKeysNames = "eph_keys_names"
     }
     
     let otcKeysNames: [String]
     let ltcKeys: [KeyEntry]
-    let ephKeysNames: [String]
     
-    init(ltcKeys: [KeyEntry], otcKeysNames: [String], ephKeysNames: [String]) {
+    init(ltcKeys: [KeyEntry], otcKeysNames: [String]) {
         self.otcKeysNames = otcKeysNames
         self.ltcKeys = ltcKeys
-        self.ephKeysNames = ephKeysNames
         
         super.init()
     }
@@ -65,7 +62,6 @@ class ServiceInfoEntry: NSObject {
     func encode() throws -> Data {
         let json: [String : Any] = [
             Keys.otcKeysNames.rawValue: self.otcKeysNames,
-            Keys.ephKeysNames.rawValue: self.ephKeysNames,
             Keys.ltcKeys.rawValue: self.ltcKeys.map({ $0.encode() })
         ]
         
@@ -76,7 +72,6 @@ class ServiceInfoEntry: NSObject {
     
     convenience init?(json: [String : Any]) {
         guard let otcKeysNames = json[Keys.otcKeysNames.rawValue] as? [String],
-            let ephKeysNames = json[Keys.ephKeysNames.rawValue] as? [String],
             let ltcs = json[Keys.ltcKeys.rawValue] as? [[String : Any]] else {
                 return nil
         }
@@ -92,7 +87,7 @@ class ServiceInfoEntry: NSObject {
             ltcKeys.append(ketEntry)
         }
         
-        self.init(ltcKeys: ltcKeys, otcKeysNames: otcKeysNames, ephKeysNames: ephKeysNames)
+        self.init(ltcKeys: ltcKeys, otcKeysNames: otcKeysNames)
     }
     
     convenience init?(data: Data) {
