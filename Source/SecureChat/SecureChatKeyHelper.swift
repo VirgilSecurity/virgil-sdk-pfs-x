@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 class SecureChatKeyHelper {
-    struct KeyEntry {
+    struct HelperKeyEntry {
         let privateKey: VSSPrivateKey
         let keyName: String
     }
@@ -36,19 +36,19 @@ class SecureChatKeyHelper {
     static public let ErrorDomain = "VSPSecureChatKeyHelperErrorDomain"
     
     fileprivate let crypto: VSSCryptoProtocol
-    fileprivate let keyStorage: VSSKeyStorageProtocol
+    fileprivate let keyStorage: KeyStorageProtocol
     fileprivate let identityCardId: String
     fileprivate let longTermKeyTtl: TimeInterval
     private let mutex = Mutex()
     
-    init(crypto: VSSCryptoProtocol, keyStorage: VSSKeyStorageProtocol, identityCardId: String, longTermKeyTtl: TimeInterval) {
+    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorageProtocol, identityCardId: String, longTermKeyTtl: TimeInterval) {
         self.crypto = crypto
         self.keyStorage = keyStorage
         self.identityCardId = identityCardId
         self.longTermKeyTtl = longTermKeyTtl
     }
     
-    func persistKeys(keys: [KeyEntry], ltKey: KeyEntry?) throws {
+    func persistKeys(keys: [HelperKeyEntry], ltKey: HelperKeyEntry?) throws {
         self.mutex.lock()
         defer {
             self.mutex.unlock()
@@ -131,7 +131,7 @@ class SecureChatKeyHelper {
         catch {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.encodingServiceInfo.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while encoding ServiceInfo."])
         }
-        let keyEntry = VSSKeyEntry(name: entryName, value: data)
+        let keyEntry = KeyEntry(name: entryName, value: data)
         
         try self.keyStorage.store(keyEntry)
     }
@@ -202,7 +202,7 @@ extension SecureChatKeyHelper {
     
     func saveSessionKeys(_ sessionKeys: SessionKeys, forSessionWithId sessionId: Data) throws {
         let sessionIdStr = sessionId.base64EncodedString()
-        let keyEntry = VSSKeyEntry(name: self.getSessionKeysEntryName(sessionIdStr), value: sessionKeys.convertToData())
+        let keyEntry = KeyEntry(name: self.getSessionKeysEntryName(sessionIdStr), value: sessionKeys.convertToData())
         
         try self.saveKeyEntry(keyEntry)
     }
@@ -244,7 +244,7 @@ extension SecureChatKeyHelper {
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
-    private func getKeyEntry(withKeyEntryName keyEntryName: String) throws -> VSSKeyEntry {
+    private func getKeyEntry(withKeyEntryName keyEntryName: String) throws -> KeyEntry {
         return try self.keyStorage.loadKeyEntry(withName: keyEntryName)
     }
     
@@ -266,14 +266,14 @@ extension SecureChatKeyHelper {
         let privateKeyData = self.crypto.export(key, withPassword: nil)
         
         let keyEntryName = self.getPrivateKeyEntryName(keyName)
-        let keyEntry = VSSKeyEntry(name: keyEntryName, value: privateKeyData)
+        let keyEntry = KeyEntry(name: keyEntryName, value: privateKeyData)
         
         try self.saveKeyEntry(keyEntry)
         
         return keyEntryName
     }
     
-    private func saveKeyEntry(_ keyEntry: VSSKeyEntry) throws {
+    private func saveKeyEntry(_ keyEntry: KeyEntry) throws {
         try self.keyStorage.store(keyEntry)
     }
     

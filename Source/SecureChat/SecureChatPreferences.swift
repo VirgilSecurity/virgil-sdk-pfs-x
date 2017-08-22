@@ -13,22 +13,22 @@ import VirgilSDK
     public let crypto: VSSCryptoProtocol
     public let privateKey: VSSPrivateKey
     public let identityCard: VSSCard
-    public let keyStorage: VSSKeyStorageProtocol
+    public let keyStorage: KeyStorage
     public let deviceManager: VSSDeviceManagerProtocol
     public let serviceConfig: ServiceConfig
     public let longTermKeysTtl: TimeInterval
     public let sessionTtl: TimeInterval
     public let onetimeCardExhaustLifetime: TimeInterval
     
-    public class func secureChatPreferences(withCrypto crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: NSNumber? = nil, sessionTtl: NSNumber? = nil, onetimeCardExhaustLifetime: NSNumber? = nil) -> SecureChatPreferences {
+    public class func secureChatPreferences(withCrypto crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: NSNumber? = nil, sessionTtl: NSNumber? = nil, onetimeCardExhaustLifetime: NSNumber? = nil) -> SecureChatPreferences {
         return SecureChatPreferences(crypto: crypto, privateKey: privateKey, identityCard: identityCard, keyStorage: keyStorage, deviceManager: deviceManager, serviceConfig: serviceConfig, longTermKeysTtl: longTermKeysTtl?.doubleValue, sessionTtl: sessionTtl?.doubleValue, onetimeCardExhaustLifetime: onetimeCardExhaustLifetime?.doubleValue)
     }
     
-    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, onetimeCardExhaustLifetime: TimeInterval? = nil) {
+    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, onetimeCardExhaustLifetime: TimeInterval? = nil) {
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
-        self.keyStorage = keyStorage ?? VSSKeyStorage()
+        self.keyStorage = keyStorage ?? KeyStorage(keychainKeyStorage: VSSKeyStorage())
         self.deviceManager = deviceManager ?? VSSDeviceManager()
         self.serviceConfig = serviceConfig
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7

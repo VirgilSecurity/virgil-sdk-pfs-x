@@ -41,7 +41,7 @@ class SecureChatCardsHelper {
     }
     
     func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        var otcKeys: [SecureChatKeyHelper.KeyEntry] = []
+        var otcKeys: [SecureChatKeyHelper.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
         
         var otcCardsRequests: [CreateEphemeralCardRequest] = []
@@ -52,18 +52,18 @@ class SecureChatCardsHelper {
             let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
-            let keyEntry = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            let keyEntry = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
             otcKeys.append(keyEntry)
         }
         
-        let ltcKey: SecureChatKeyHelper.KeyEntry?
+        let ltcKey: SecureChatKeyHelper.HelperKeyEntry?
         let ltcCardRequest: CreateEphemeralCardRequest?
         if includeLtcCard {
             let keyPair = self.crypto.generateKeyPair()
             let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: true)
             ltcCardRequest = request
             
-            ltcKey = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            ltcKey = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
         }
         else {
             ltcKey = nil
