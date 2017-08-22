@@ -87,6 +87,12 @@
 		429123991F4CA19800103BE0 /* KeyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123981F4CA19800103BE0 /* KeyEntry.swift */; };
 		4291239B1F4CA1E900103BE0 /* KeyStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */; };
 		4291239D1F4CA31E00103BE0 /* KeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239C1F4CA31E00103BE0 /* KeyStorage.swift */; };
+		4291239F1F4CA63B00103BE0 /* InsensitiveDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */; };
+		429123A11F4CA68B00103BE0 /* UserDefaultsDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */; };
+		429123A31F4CE0AE00103BE0 /* OtcExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */; };
+		429123A51F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A41F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift */; };
+		429123A71F4CE2F600103BE0 /* UserDefaultsDataStorageFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A61F4CE2F600103BE0 /* UserDefaultsDataStorageFactory.swift */; };
+		429123A91F4CE96000103BE0 /* Dictionary+Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -215,6 +221,12 @@
 		429123981F4CA19800103BE0 /* KeyEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyEntry.swift; sourceTree = "<group>"; };
 		4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorageProtocol.swift; sourceTree = "<group>"; };
 		4291239C1F4CA31E00103BE0 /* KeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorage.swift; sourceTree = "<group>"; };
+		4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorage.swift; sourceTree = "<group>"; };
+		429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDataStorage.swift; sourceTree = "<group>"; };
+		429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcExhaustInfo.swift; sourceTree = "<group>"; };
+		429123A41F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorageFactory.swift; sourceTree = "<group>"; };
+		429123A61F4CE2F600103BE0 /* UserDefaultsDataStorageFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDataStorageFactory.swift; sourceTree = "<group>"; };
+		429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Pairs.swift"; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -439,6 +451,7 @@
 			children = (
 				422CBCBA1F3B3547003D6932 /* AsyncOperation.swift */,
 				422CBCB61F3B17D3003D6932 /* Mutex.swift */,
+				429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -496,6 +509,10 @@
 				429123981F4CA19800103BE0 /* KeyEntry.swift */,
 				4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */,
 				4291239C1F4CA31E00103BE0 /* KeyStorage.swift */,
+				4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */,
+				429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */,
+				429123A41F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift */,
+				429123A61F4CE2F600103BE0 /* UserDefaultsDataStorageFactory.swift */,
 			);
 			path = SecureChat;
 			sourceTree = "<group>";
@@ -507,6 +524,7 @@
 				425A02401EFA8B0000D9BBEF /* ServiceInfoEntry.swift */,
 				425A02581EFD17A600D9BBEF /* SessionState.swift */,
 				425A024A1EFBF10F00D9BBEF /* Message.swift */,
+				429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -742,6 +760,7 @@
 				420D14EE1EF29D4E002A9C22 /* CredentialsHTTPRequest.swift in Sources */,
 				420D0B6E1EEFE4BB002A9C22 /* Serializable.swift in Sources */,
 				425E08301EF8248500A74C29 /* Client+Info.swift in Sources */,
+				429123A31F4CE0AE00103BE0 /* OtcExhaustInfo.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
 				425A025B1F0504BB00D9BBEF /* Client+Validation.swift in Sources */,
 				425A02451EFBDDE400D9BBEF /* SecureChatKeyHelper.swift in Sources */,
@@ -749,6 +768,7 @@
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				425A02521EFC13E100D9BBEF /* SecureSessionInitiator.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
+				429123A51F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift in Sources */,
 				429123971F4C8D8C00103BE0 /* SecureChatExhaustHelper.swift in Sources */,
 				425A025F1F05055D00D9BBEF /* ValidateOTCHTTPRequest.swift in Sources */,
 				420D14EA1EF29C87002A9C22 /* UploadOtcHTTPRequest.swift in Sources */,
@@ -757,6 +777,7 @@
 				425A02491EFBE98E00D9BBEF /* SecureChatSessionHelper.swift in Sources */,
 				425E082E1EF8231900A74C29 /* RecipientCardsSet.swift in Sources */,
 				425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */,
+				429123A91F4CE96000103BE0 /* Dictionary+Pairs.swift in Sources */,
 				425A02611F05057D00D9BBEF /* ValidateOTCResponse.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
@@ -765,6 +786,7 @@
 				429123991F4CA19800103BE0 /* KeyEntry.swift in Sources */,
 				425A025D1F05053600D9BBEF /* ValidateOTCRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
+				4291239F1F4CA63B00103BE0 /* InsensitiveDataStorage.swift in Sources */,
 				42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */,
 				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				425A02471EFBE86500D9BBEF /* SecureChatCardsHelper.swift in Sources */,
@@ -773,6 +795,8 @@
 				42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
+				429123A11F4CA68B00103BE0 /* UserDefaultsDataStorage.swift in Sources */,
+				429123A71F4CE2F600103BE0 /* UserDefaultsDataStorageFactory.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
 				425A024B1EFBF10F00D9BBEF /* Message.swift in Sources */,

@@ -14,6 +14,7 @@ import VirgilSDK
     public let privateKey: VSSPrivateKey
     public let identityCard: VSSCard
     public let keyStorage: KeyStorage
+    public let storageFactory: InsensitiveDataStorageFactory
     public let deviceManager: VSSDeviceManagerProtocol
     public let serviceConfig: ServiceConfig
     public let longTermKeysTtl: TimeInterval
@@ -24,11 +25,12 @@ import VirgilSDK
         return SecureChatPreferences(crypto: crypto, privateKey: privateKey, identityCard: identityCard, keyStorage: keyStorage, deviceManager: deviceManager, serviceConfig: serviceConfig, longTermKeysTtl: longTermKeysTtl?.doubleValue, sessionTtl: sessionTtl?.doubleValue, onetimeCardExhaustLifetime: onetimeCardExhaustLifetime?.doubleValue)
     }
     
-    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, onetimeCardExhaustLifetime: TimeInterval? = nil) {
+    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, storageFactory: InsensitiveDataStorageFactory? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, onetimeCardExhaustLifetime: TimeInterval? = nil) {
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
         self.keyStorage = keyStorage ?? KeyStorage(keychainKeyStorage: VSSKeyStorage())
+        self.storageFactory = storageFactory ?? UserDefaultsDataStorageFactory()
         self.deviceManager = deviceManager ?? VSSDeviceManager()
         self.serviceConfig = serviceConfig
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7

@@ -22,14 +22,22 @@ import VirgilSDK
     
     fileprivate var rotateKeysMutex = Mutex()
     
-    public init(preferences: SecureChatPreferences) {
+    public init?(preferences: SecureChatPreferences) {
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
         
         self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.identityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
-        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier)
-        self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier)
+        
+        guard let sessionStorage = try? self.preferences.storageFactory.makeStorage(forIdentifier: "SESSION.OWNER=\(self.preferences.identityCard.identifier)") else {
+            return nil
+        }
+        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier, storage: sessionStorage)
+        
+        guard let exhaustStorage = try? self.preferences.storageFactory.makeStorage(forIdentifier: "EXHAUST.OWNER=\(self.preferences.identityCard.identifier)") else {
+            return nil
+        }
+        self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier, storage: exhaustStorage)
         
         super.init()
     }
@@ -226,9 +234,7 @@ extension SecureChat {
         let sessionStates = try self.sessionHelper.getAllSessionsStates()
         
         for sessionState in sessionStates {
-            if let cardId = self.sessionHelper.getCardId(fromSessionName: sessionState.key) {
-                try? self.removeSession(withParticipantWithCardId: cardId)
-            }
+            try? self.removeSession(withParticipantWithCardId: sessionState.key)
         }
     
         self.removeAllKeys()
@@ -247,7 +253,7 @@ extension SecureChat {
             catch {
                 err = error
             }
-            try self.sessionHelper.removeSessionsStates(withCardsIds: [cardId])
+            try self.sessionHelper.removeSessionsStates(withNames: [cardId])
             if let err = err {
                 throw err
             }
@@ -319,7 +325,7 @@ extension SecureChat {
             return
         }
         
-        let exhaustedInfo: [SecureChatExhaustHelper.OtcExhaustInfo]
+        let exhaustedInfo: [OtcExhaustInfo]
         do {
             exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
         }
@@ -363,7 +369,7 @@ extension SecureChat {
             }
             
             var newExhaustInfo = exhaustedInfo.filter({ !otcToRemove.contains($0.cardId) })
-            newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ SecureChatExhaustHelper.OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
+            newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
             
             do {
                 try self.exhaustHelper.saveKeysExhaustInfo(newExhaustInfo)

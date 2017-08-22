@@ -1367,7 +1367,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Concurrent rotateKeys should fail."];
     
     NSUInteger numberOfRequests = 3;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 200;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     

@@ -10,66 +10,27 @@ import Foundation
 
 class SecureChatExhaustHelper {
     fileprivate let cardId: String
+    fileprivate let storage: InsensitiveDataStorage
     
-    init(cardId: String) {
+    init(cardId: String, storage: InsensitiveDataStorage) {
         self.cardId = cardId
-    }
-}
-
-extension SecureChatExhaustHelper {
-    struct OtcExhaustInfo {
-        let cardId: String
-        let exhaustDate: Date
-    }
-}
-
-extension SecureChatExhaustHelper.OtcExhaustInfo {
-    private enum Keys: String {
-        case cardId = "card_id"
-        case exhaustDate = "exhaust_date"
-    }
-    
-    fileprivate func encode() -> [String : Any] {
-        let dict: [String : Any] = [
-            Keys.cardId.rawValue: self.cardId,
-            Keys.exhaustDate.rawValue: self.exhaustDate.timeIntervalSince1970
-        ]
-        
-        return dict
-    }
-    
-    fileprivate init?(dict: [String : Any]) {
-        guard let cardId = dict[Keys.cardId.rawValue] as? String,
-            let exhaustDateInterval = dict[Keys.exhaustDate.rawValue] as? TimeInterval else {
-                return nil
-        }
-        
-        self.init(cardId: cardId, exhaustDate: Date(timeIntervalSince1970: exhaustDateInterval))
+        self.storage = storage
     }
 }
 
 extension SecureChatExhaustHelper {
     func getKeysExhaustInfo() throws -> [OtcExhaustInfo] {
-        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw SecureChat.makeError(withCode: .creatingUserDefaults, description: "Error while creating UserDefaults.")
-        }
-        
-        return try self.getKeysExhaustInfo(userDefaults: userDefaults)
-    }
-    
-    private func getKeysExhaustInfo(userDefaults: UserDefaults) throws -> [OtcExhaustInfo] {
-        guard let entries = userDefaults.value(forKey: self.getExhaustEntryKey()) as? [[String : Any]] else {
+        guard let entries = self.storage.loadValue(forKey: self.getExhaustEntryKey()) as? [[String : Any]] else {
             return []
         }
         
-        var exhaustInfos = Array<OtcExhaustInfo>()
-        for entry in entries {
-            guard let exhaustInfo = OtcExhaustInfo(dict: entry) else {
+        let exhaustInfos = Array<OtcExhaustInfo>(try entries.map({
+            guard let info = OtcExhaustInfo(dict: $0) else {
                 throw SecureChat.makeError(withCode: .corruptedExhaustInfo, description: "Corrupted exhaust info.")
             }
             
-            exhaustInfos.append(exhaustInfo)
-        }
+            return info
+        }))
         
         return exhaustInfos
     }
@@ -77,27 +38,14 @@ extension SecureChatExhaustHelper {
 
 extension SecureChatExhaustHelper {
     func saveKeysExhaustInfo(_ keysExhaustInfo: [OtcExhaustInfo]) throws {
-        guard let userDefaults = UserDefaults(suiteName: self.getSuiteName()) else {
-            throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.creatingUserDefaults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error while creating UserDefaults."])
-        }
-        
-        self.saveKeysExhaustInfo(keysExhaustInfo, userDefaults: userDefaults)
-    }
-    
-    private func saveKeysExhaustInfo(_ keysExhaustInfo: [OtcExhaustInfo], userDefaults: UserDefaults) {
-        userDefaults.set(keysExhaustInfo.map({ $0.encode() }), forKey: self.getExhaustEntryKey())
+        try self.storage.storeValue(keysExhaustInfo.map({ $0.encode() }), forKey: self.getExhaustEntryKey())
     }
 }
 
 extension SecureChatExhaustHelper {
-    static private let DefaultsSuiteName = "VIRGIL.EXHAUST.%@"
     static private let ExhaustEntryKey = "VIRGIL.EXHAUSTINFO"
     
     fileprivate func getExhaustEntryKey() -> String {
         return SecureChatExhaustHelper.ExhaustEntryKey
-    }
-    
-    fileprivate func getSuiteName() -> String {
-        return String(format: SecureChatExhaustHelper.DefaultsSuiteName, self.cardId)
     }
 }
