@@ -1,0 +1,44 @@
+//
+//  KeychainKeyStorage.swift
+//  VirgilSDKPFS
+//
+//  Created by Oleksandr Deundiak on 8/22/17.
+//  Copyright © 2017 VirgilSecurity. All rights reserved.
+//
+
+import Foundation
+
+@objc(VSPKeychainKeyStorage) public class KeychainKeyStorage: NSObject, KeyStorage {
+    private let virgilKeyStorage: VSSKeyStorage
+    
+    init(virgilKeyStorage: VSSKeyStorage) {
+        self.virgilKeyStorage = virgilKeyStorage
+        
+        super.init()
+    }
+    
+    public func store(_ keyEntry: KeyEntry) throws {
+        try self.virgilKeyStorage.store(VSSKeyEntry(name: keyEntry.name, value: keyEntry.value))
+    }
+    
+    public func update(_ keyEntry: KeyEntry) throws {
+        try self.virgilKeyStorage.update(VSSKeyEntry(name: keyEntry.name, value: keyEntry.value))
+    }
+    
+    public func loadKeyEntry(withName name: String) throws -> KeyEntry {
+        let keychainEntry = try self.virgilKeyStorage.loadKeyEntry(withName: name)
+        return KeyEntry(name: keychainEntry.name, value: keychainEntry.value)
+    }
+    
+    public func existsKeyEntry(withName name: String) -> Bool {
+        return self.virgilKeyStorage.existsKeyEntry(withName: name)
+    }
+    
+    public func deleteKeyEntry(withName name: String) throws {
+        try self.virgilKeyStorage.deleteKeyEntry(withName: name)
+    }
+    
+    public func getAllKeysTags() throws -> [Data] {
+        return try self.virgilKeyStorage.getAllKeysTags()
+    }
+}

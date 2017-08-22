@@ -29,7 +29,7 @@ import VirgilSDK
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
-        self.keyStorage = keyStorage ?? KeyStorage(keychainKeyStorage: VSSKeyStorage())
+        self.keyStorage = keyStorage ?? KeychainKeyStorage(virgilKeyStorage: VSSKeyStorage())
         self.storageFactory = storageFactory ?? UserDefaultsDataStorageFactory()
         self.deviceManager = deviceManager ?? VSSDeviceManager()
         self.serviceConfig = serviceConfig

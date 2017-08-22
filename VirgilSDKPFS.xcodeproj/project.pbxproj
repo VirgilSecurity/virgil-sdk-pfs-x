@@ -85,8 +85,8 @@
 		429123951F4C71D100103BE0 /* SecureSessionBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123941F4C71D100103BE0 /* SecureSessionBase.swift */; };
 		429123971F4C8D8C00103BE0 /* SecureChatExhaustHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123961F4C8D8C00103BE0 /* SecureChatExhaustHelper.swift */; };
 		429123991F4CA19800103BE0 /* KeyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123981F4CA19800103BE0 /* KeyEntry.swift */; };
-		4291239B1F4CA1E900103BE0 /* KeyStorageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */; };
-		4291239D1F4CA31E00103BE0 /* KeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239C1F4CA31E00103BE0 /* KeyStorage.swift */; };
+		4291239B1F4CA1E900103BE0 /* KeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239A1F4CA1E900103BE0 /* KeyStorage.swift */; };
+		4291239D1F4CA31E00103BE0 /* KeychainKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239C1F4CA31E00103BE0 /* KeychainKeyStorage.swift */; };
 		4291239F1F4CA63B00103BE0 /* InsensitiveDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */; };
 		429123A11F4CA68B00103BE0 /* UserDefaultsDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */; };
 		429123A31F4CE0AE00103BE0 /* OtcExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */; };
@@ -219,8 +219,8 @@
 		429123941F4C71D100103BE0 /* SecureSessionBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSessionBase.swift; sourceTree = "<group>"; };
 		429123961F4C8D8C00103BE0 /* SecureChatExhaustHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatExhaustHelper.swift; sourceTree = "<group>"; };
 		429123981F4CA19800103BE0 /* KeyEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyEntry.swift; sourceTree = "<group>"; };
-		4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorageProtocol.swift; sourceTree = "<group>"; };
-		4291239C1F4CA31E00103BE0 /* KeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorage.swift; sourceTree = "<group>"; };
+		4291239A1F4CA1E900103BE0 /* KeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorage.swift; sourceTree = "<group>"; };
+		4291239C1F4CA31E00103BE0 /* KeychainKeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainKeyStorage.swift; sourceTree = "<group>"; };
 		4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorage.swift; sourceTree = "<group>"; };
 		429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDataStorage.swift; sourceTree = "<group>"; };
 		429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcExhaustInfo.swift; sourceTree = "<group>"; };
@@ -507,8 +507,8 @@
 				425A024F1EFC13C200D9BBEF /* SecureSessionResponder.swift */,
 				42235BC51F2A07710000BA88 /* SecureSessionErrorCode.swift */,
 				429123981F4CA19800103BE0 /* KeyEntry.swift */,
-				4291239A1F4CA1E900103BE0 /* KeyStorageProtocol.swift */,
-				4291239C1F4CA31E00103BE0 /* KeyStorage.swift */,
+				4291239A1F4CA1E900103BE0 /* KeyStorage.swift */,
+				4291239C1F4CA31E00103BE0 /* KeychainKeyStorage.swift */,
 				4291239E1F4CA63B00103BE0 /* InsensitiveDataStorage.swift */,
 				429123A01F4CA68B00103BE0 /* UserDefaultsDataStorage.swift */,
 				429123A41F4CE29A00103BE0 /* InsensitiveDataStorageFactory.swift */,
@@ -791,7 +791,7 @@
 				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				425A02471EFBE86500D9BBEF /* SecureChatCardsHelper.swift in Sources */,
 				425A02411EFA8B0000D9BBEF /* ServiceInfoEntry.swift in Sources */,
-				4291239D1F4CA31E00103BE0 /* KeyStorage.swift in Sources */,
+				4291239D1F4CA31E00103BE0 /* KeychainKeyStorage.swift in Sources */,
 				42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
@@ -809,7 +809,7 @@
 				420D0B6C1EEFE3F5002A9C22 /* Deserializable.swift in Sources */,
 				425A02501EFC13C200D9BBEF /* SecureSessionResponder.swift in Sources */,
 				420D0B7A1EEFEF77002A9C22 /* OtcCountResponse.swift in Sources */,
-				4291239B1F4CA1E900103BE0 /* KeyStorageProtocol.swift in Sources */,
+				4291239B1F4CA1E900103BE0 /* KeyStorage.swift in Sources */,
 				425A02341EF93B3900D9BBEF /* SecureChatPreferences.swift in Sources */,
 				42235BC61F2A07710000BA88 /* SecureSessionErrorCode.swift in Sources */,
 			);

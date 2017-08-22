@@ -36,12 +36,12 @@ class SecureChatKeyHelper {
     static public let ErrorDomain = "VSPSecureChatKeyHelperErrorDomain"
     
     fileprivate let crypto: VSSCryptoProtocol
-    fileprivate let keyStorage: KeyStorageProtocol
+    fileprivate let keyStorage: KeyStorage
     fileprivate let identityCardId: String
     fileprivate let longTermKeyTtl: TimeInterval
     private let mutex = Mutex()
     
-    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorageProtocol, identityCardId: String, longTermKeyTtl: TimeInterval) {
+    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String, longTermKeyTtl: TimeInterval) {
         self.crypto = crypto
         self.keyStorage = keyStorage
         self.identityCardId = identityCardId
