@@ -10,6 +10,11 @@ import Foundation
 
 extension Client {
     public func validateOneTimeCards(forRecipientWithId recipientId: String, cardsIds: [String], completion: @escaping (([String]?, Error?)->())) {
+        guard cardsIds.count > 0 else {
+            completion([], nil)
+            return
+        }
+        
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let request = ValidateOTCRequest(cardsIds: cardsIds)
         let httpRequest = ValidateOTCHTTPRequest(context: context, recipientId: recipientId, validateRequest: request)

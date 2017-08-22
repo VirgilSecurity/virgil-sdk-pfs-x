@@ -18,12 +18,13 @@ import VirgilSDK
     public let serviceConfig: ServiceConfig
     public let longTermKeysTtl: TimeInterval
     public let sessionTtl: TimeInterval
+    public let onetimeCardExhaustLifetime: TimeInterval
     
-    public class func secureChatPreferences(withCrypto crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: NSNumber? = nil, sessionTtl: NSNumber? = nil) -> SecureChatPreferences {
-        return SecureChatPreferences(crypto: crypto, privateKey: privateKey, identityCard: identityCard, keyStorage: keyStorage, deviceManager: deviceManager, serviceConfig: serviceConfig, longTermKeysTtl: longTermKeysTtl?.doubleValue, sessionTtl: sessionTtl?.doubleValue)
+    public class func secureChatPreferences(withCrypto crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: NSNumber? = nil, sessionTtl: NSNumber? = nil, onetimeCardExhaustLifetime: NSNumber? = nil) -> SecureChatPreferences {
+        return SecureChatPreferences(crypto: crypto, privateKey: privateKey, identityCard: identityCard, keyStorage: keyStorage, deviceManager: deviceManager, serviceConfig: serviceConfig, longTermKeysTtl: longTermKeysTtl?.doubleValue, sessionTtl: sessionTtl?.doubleValue, onetimeCardExhaustLifetime: onetimeCardExhaustLifetime?.doubleValue)
     }
     
-    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil) {
+    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: VSSKeyStorageProtocol? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, onetimeCardExhaustLifetime: TimeInterval? = nil) {
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
@@ -32,6 +33,7 @@ import VirgilSDK
         self.serviceConfig = serviceConfig
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7
         self.sessionTtl = sessionTtl ?? 60*60*24*3
+        self.onetimeCardExhaustLifetime = onetimeCardExhaustLifetime ?? 60*60*24
     }
     
     convenience public init(crypto: VSSCryptoProtocol, identityCard: VSSCard, privateKey: VSSPrivateKey, accessToken: String) {

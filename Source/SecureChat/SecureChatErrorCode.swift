@@ -38,4 +38,5 @@ import Foundation
     case anotherRotateKeysInProgress
     case encodingServiceInfo
     case decodingServiceInfo
+    case corruptedExhaustInfo
 }

@@ -18,6 +18,7 @@ import VirgilSDK
     fileprivate let keyHelper: SecureChatKeyHelper
     fileprivate let cardsHelper: SecureChatCardsHelper
     fileprivate let sessionHelper: SecureChatSessionHelper
+    fileprivate let exhaustHelper: SecureChatExhaustHelper
     
     fileprivate var rotateKeysMutex = Mutex()
     
@@ -28,6 +29,7 @@ import VirgilSDK
         self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.identityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
         self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier)
+        self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier)
         
         super.init()
     }
@@ -284,56 +286,24 @@ extension SecureChat {
     // Workaround for Swift bug SR-2444
     public typealias CompletionHandler = (Error?) -> ()
     
-    private func removeExpiredSessionsStates() throws -> (Set<String>, Set<String>, Set<String>, Set<String>) {
+    private func removeExpiredSessions() throws {
         let sessionsStates = try self.sessionHelper.getAllSessionsStates()
         
         let date = Date()
         
-        var relevantEphKeys = Set<String>()
-        var relevantLtCards = Set<String>()
-        var relevantOtCards = Set<String>()
-        var expiredOtCards  = Set<String>()
+        let expiredSessionsStates = sessionsStates.filter({ self.isSessionStateExpired(now: date, sessionState: $0.value) })
         
-        var expiredSessionsStates = [String]()
-
-        // FIXME: Implement
-//        for sessionState in sessionsStates {
-//            if self.isSessionStateExpired(now: date, sessionState: sessionState.value) {
-//                expiredSessionsStates.append(sessionState.key)
-//                
-//                // collect expired one time cards
-//                if let expiredResSession = sessionState.value as? ResponderSessionState {
-//                    if let expiredOtCardId = expiredResSession.recipientOneTimeCardId {
-//                        expiredOtCards.insert(expiredOtCardId)
-//                    }
-//                }
-//            }
-//            else {
-//                if let initiatorSession = sessionState.value as? InitiatorSessionState {
-//                    relevantEphKeys.insert(initiatorSession.ephKeyName)
-//                }
-//                else if let responderSession = sessionState.value as? ResponderSessionState {
-//                    relevantLtCards.insert(responderSession.recipientLongTermCardId)
-//                    if let recOtId = responderSession.recipientOneTimeCardId {
-//                        relevantOtCards.insert(recOtId)
-//                    }
-//                }
-//            }
-//        }
+        for sessionState in expiredSessionsStates {
+            try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.value.sessionId)
+        }
         
-        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates)
-        
-        return (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards)
+        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates.map({ $0.key }))
     }
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
     private func cleanup(completion: @escaping (Error?)->()) {
-        let relevantEphKeys: Set<String>
-        let relevantLtCards: Set<String>
-        let relevantOtCards: Set<String>
-        let expiredOtCards: Set<String>
         do {
-            (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards) = try self.removeExpiredSessionsStates()
+            try self.removeExpiredSessions()
         }
         catch {
             completion(error)
@@ -349,42 +319,62 @@ extension SecureChat {
             return
         }
         
-        // select all active one time cards
-        let activeOtCards = Set<String>(otKeys).subtracting(Set<String>(expiredOtCards))
-        
+        let exhaustedInfo: [SecureChatExhaustHelper.OtcExhaustInfo]
         do {
-            try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: activeOtCards)
+            exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
         }
         catch {
             completion(error)
             return
         }
-                        
-        completion(nil)
         
-//        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
-//            guard error == nil else {
-//                completion(error)
-//                return
-//            }
-//            
-//            guard let exhaustedCardsIds = exhaustedCardsIds else {
-//                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
-//                return
-//            }
-//            
-//            let relevantOtCards = Set<String>(otKeys).subtracting(Set<String>(exhaustedCardsIds)).union(relevantOtCards)
-//            
-//            do {
-//                try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: relevantOtCards)
-//            }
-//            catch {
-//                completion(error)
-//                return
-//            }
-//            
-//            completion(nil)
-//        }
+        let otcTtl = self.preferences.onetimeCardExhaustLifetime
+        let now = Date()
+        
+        let otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
+        
+        for otcId in otcToRemove {
+            if self.keyHelper.otKeyExists(otName: otcId) {
+                do {
+                    try self.keyHelper.removeOneTimePrivateKey(withName: otcId)
+                }
+                catch {
+                    completion(error)
+                    return
+                }
+            }
+            else {
+                NSLog("WARNING: Trying to remove otc key but it doesn't exist.")
+            }
+        }
+        
+        let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
+        let otCardsToCheck = Array<String>(Set<String>(otKeys).subtracting(exhaustedCards))
+        
+        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
+            guard error == nil else {
+                completion(error)
+                return
+            }
+            
+            guard let exhaustedCardsIds = exhaustedCardsIds else {
+                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
+                return
+            }
+            
+            var newExhaustInfo = exhaustedInfo.filter({ !otcToRemove.contains($0.cardId) })
+            newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ SecureChatExhaustHelper.OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
+            
+            do {
+                try self.exhaustHelper.saveKeysExhaustInfo(newExhaustInfo)
+            }
+            catch {
+                completion(error)
+                return
+            }
+            
+            completion(nil)
+        }
     }
     
     public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
@@ -398,9 +388,9 @@ extension SecureChat {
             completion?($0)
         }
         
-        let addNewKeysOperation = AddNewCardsOperation(owner: self)
         let cleanupOperation = CleanupOperation(owner: self)
         let cardsStatusOperation = CardsStatusOperation(owner: self, desiredNumberOfCards: desiredNumberOfCards)
+        let addNewKeysOperation = AddNewCardsOperation(owner: self)
         let completionOperation = CompletionOperation(completion: completionWrapper)
         
         addNewKeysOperation.addDependency(cardsStatusOperation)

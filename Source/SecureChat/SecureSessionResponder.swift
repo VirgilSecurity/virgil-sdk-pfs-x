@@ -20,10 +20,6 @@ class SecureSessionResponder: SecureSessionBase {
         
         super.init(crypto: crypto, myPrivateKey: myPrivateKey, participantCardId: initiatorCardEntry.identifier, wasRecovered: false, sessionHelper: sessionHelper, keyHelper: secureChatKeyHelper, additionalData: additionalData, creationDate: creationDate, expirationDate: expirationDate)
     }
-    
-    override func saveSession(_ session: VSCPfsSession) throws {
-        try super.saveSession(session)
-    }
 }
 
 // Encryption

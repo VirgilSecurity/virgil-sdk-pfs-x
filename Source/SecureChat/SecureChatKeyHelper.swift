@@ -92,36 +92,6 @@ class SecureChatKeyHelper {
         return serviceInfo.otcKeysNames.map({ self.extractCardId(fromOTKeyEntryName: $0) })
     }
     
-    func removeOldKeys(relevantEphKeys: Set<String>, relevantLtCards: Set<String>, relevantOtCards: Set<String>) throws {
-        self.mutex.lock()
-        defer {
-            self.mutex.unlock()
-        }
-        
-        guard let serviceInfoEntry = try self.getServiceInfoEntry() else {
-            if relevantEphKeys.count > 0 || relevantLtCards.count > 0 || relevantOtCards.count > 0 {
-                throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.tryingToRemoveKeysWithoutServiceEntry.rawValue, userInfo: [NSLocalizedDescriptionKey: "Trying to remove keys, but no service entry was found."])
-            }
-            return
-        }
-        
-        let date = Date()
-        let outdatedLtKeysNames = Set<String>(serviceInfoEntry.ltcKeys.filter({ date > $0.date.addingTimeInterval(self.longTermKeyTtl)}).map({ $0.keyName }))
-        let ltKeysToRemove = outdatedLtKeysNames.subtracting(Set<String>(relevantLtCards.map({ self.getPrivateKeyEntryName(self.getLtPrivateKeyName($0)) })))
-        let otKeysToRemove = Set<String>(serviceInfoEntry.otcKeysNames).subtracting(Set<String>(relevantOtCards.map({ self.getPrivateKeyEntryName(self.getOtPrivateKeyName($0)) })))
-        
-        for key in ltKeysToRemove.union(otKeysToRemove) {
-            try self.removePrivateKey(withKeyEntryName: key)
-        }
-        
-        let newLtcKeys = serviceInfoEntry.ltcKeys.filter({ !ltKeysToRemove.contains($0.keyName) })
-        let newOtcKeys = serviceInfoEntry.otcKeysNames.filter({ !otKeysToRemove.contains($0) })
-        
-        let newServiceInfo = ServiceInfoEntry(ltcKeys: newLtcKeys, otcKeysNames: newOtcKeys)
-        
-        try self.updateServiceInfoEntry(newEntry: newServiceInfo)
-    }
-    
     func removeOneTimePrivateKey(withName name: String) throws {
         self.mutex.lock()
         defer {

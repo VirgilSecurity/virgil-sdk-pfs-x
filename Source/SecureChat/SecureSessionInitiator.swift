@@ -30,21 +30,6 @@ class SecureSessionInitiator: SecureSessionBase {
             try self.initiateSession()
         }
     }
-    
-    override func saveSession(_ session: VSCPfsSession) throws {
-        try super.saveSession(session)
-        
-        let sessionId = session.identifier
-        let encryptionKey = session.encryptionSecretKey
-        let decryptionKey = session.decryptionSecretKey
-        let sessionKeys = SecureChatKeyHelper.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
-        
-        try self.keyHelper.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
-        
-        let sessionState = SessionState(creationDate: self.creationDate, expirationDate: self.expirationDate, sessionId: session.identifier, additionalData: session.additionalData)
-        
-        try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: self.participantCardId)
-    }
 }
 
 // Encryption
