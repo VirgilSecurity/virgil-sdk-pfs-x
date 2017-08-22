@@ -17,11 +17,15 @@ import Foundation
         super.init()
     }
     
-    public func store(_ keyEntry: KeyEntry) throws {
+    public func storeKeyEntry(_ keyEntry: KeyEntry) throws {
         try self.virgilKeyStorage.store(VSSKeyEntry(name: keyEntry.name, value: keyEntry.value))
     }
     
-    public func update(_ keyEntry: KeyEntry) throws {
+    public func storeKeyEntries(_ keyEntries: [KeyEntry]) throws {
+        try self.virgilKeyStorage.storeKeyEntries(keyEntries.map({ VSSKeyEntry(name: $0.name, value: $0.value) }))
+    }
+    
+    public func updateKeyEntry(_ keyEntry: KeyEntry) throws {
         try self.virgilKeyStorage.update(VSSKeyEntry(name: keyEntry.name, value: keyEntry.value))
     }
     
@@ -36,6 +40,10 @@ import Foundation
     
     public func deleteKeyEntry(withName name: String) throws {
         try self.virgilKeyStorage.deleteKeyEntry(withName: name)
+    }
+    
+    public func deleteKeyEntries(withNames names: [String]) throws {
+        try self.virgilKeyStorage.deleteKeyEntries(withNames: names)
     }
     
     public func getAllKeysTags() throws -> [Data] {

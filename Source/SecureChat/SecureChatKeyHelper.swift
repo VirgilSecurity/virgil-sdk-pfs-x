@@ -133,7 +133,7 @@ class SecureChatKeyHelper {
         }
         let keyEntry = KeyEntry(name: entryName, value: data)
         
-        try self.keyStorage.store(keyEntry)
+        try self.keyStorage.storeKeyEntry(keyEntry)
     }
     
     private func getServiceInfoEntry() throws -> ServiceInfoEntry? {
@@ -274,7 +274,7 @@ extension SecureChatKeyHelper {
     }
     
     private func saveKeyEntry(_ keyEntry: KeyEntry) throws {
-        try self.keyStorage.store(keyEntry)
+        try self.keyStorage.storeKeyEntry(keyEntry)
     }
     
     fileprivate func extractCardId(fromOTKeyEntryName OTkeyEntryName: String) -> String {

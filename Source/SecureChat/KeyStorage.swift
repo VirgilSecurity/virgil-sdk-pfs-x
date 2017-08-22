@@ -8,16 +8,20 @@
 
 import Foundation
 
-@objc(VSPKeyStorage) public protocol KeyStorage: NSObjectProtocol {
-    func store(_ keyEntry: KeyEntry) throws
+@objc(VSPKeyStorage) public protocol KeyStorage {
+    func storeKeyEntry(_ keyEntry: KeyEntry) throws
     
-    func update(_ keyEntry: KeyEntry) throws
+    func storeKeyEntries(_ keyEntries: [KeyEntry]) throws
+    
+    func updateKeyEntry(_ keyEntry: KeyEntry) throws
     
     func loadKeyEntry(withName name: String) throws -> KeyEntry
     
     func existsKeyEntry(withName name: String) -> Bool
     
     func deleteKeyEntry(withName name: String) throws
+    
+    func deleteKeyEntries(withNames names: [String]) throws
     
     func getAllKeysTags() throws -> [Data]
 }
