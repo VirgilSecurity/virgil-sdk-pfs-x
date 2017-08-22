@@ -22,4 +22,6 @@
 @property (nonatomic, readonly) NSURL * __nonnull registrationAuthorityURL;
 @property (nonatomic, readonly) NSURL * __nonnull pfsServiceURL;
 
+@property (nonatomic, readonly) NSDictionary * __nullable config;
+
 @end

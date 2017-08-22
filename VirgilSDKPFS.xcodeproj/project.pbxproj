@@ -83,6 +83,7 @@
 		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
 		425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsStatus.swift */; };
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
+		429123911F4C6A9900103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -207,6 +208,7 @@
 		425E082F1EF8248500A74C29 /* Client+Info.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+Info.swift"; sourceTree = "<group>"; };
 		425E08311EF824E300A74C29 /* CardsStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsStatus.swift; sourceTree = "<group>"; };
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
+		4291238D1F4C6A9900103BE0 /* TestConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestConfig.plist; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -291,6 +293,7 @@
 		420D0B141EEEC70C002A9C22 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				4291238A1F4C6A9900103BE0 /* Data */,
 				420D151F1EF3FBD9002A9C22 /* VSPTestsConst.h */,
 				420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */,
 				420D15291EF40F1B002A9C22 /* VSPTestUtils.h */,
@@ -499,6 +502,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		4291238A1F4C6A9900103BE0 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				4291238D1F4C6A9900103BE0 /* TestConfig.plist */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -648,6 +659,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429123911F4C6A9900103BE0 /* TestConfig.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
