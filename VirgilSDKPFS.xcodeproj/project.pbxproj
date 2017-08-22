@@ -83,7 +83,7 @@
 		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
 		425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsStatus.swift */; };
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
-		429123911F4C6A9900103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
+		429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -659,7 +659,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				429123911F4C6A9900103BE0 /* TestConfig.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,6 +666,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
