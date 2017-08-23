@@ -46,47 +46,31 @@ class KeysRotator {
     private func cleanup(completion: @escaping (Error?)->()) {
         Log.debug("Cleanup started.")
         
-        do {
-            try self.removeExpiredSessions()
-        }
-        catch {
-            completion(error)
-            return
-        }
-        
-        let otKeys: [String]
-        do {
-            otKeys = try self.keyHelper.getAllOtCardsIds()
-        }
-        catch {
-            completion(error)
-            return
-        }
-        
         let exhaustedInfo: [OtcExhaustInfo]
-        do {
-            exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
-        }
-        catch {
-            completion(error)
-            return
-        }
-        
-        let otcTtl = self.preferences.onetimeCardExhaustLifetime
+        let otcToRemove: Array<String>
+        let otCardsToCheck: Array<String>
         let now = Date()
         
-        let otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
-        
         do {
+            try self.removeExpiredSessions()
+        
+            let otKeys = try self.keyHelper.getAllOtCardsIds()
+
+            exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
+            
+            let otcTtl = self.preferences.onetimeCardExhaustLifetime
+            
+            otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
+            
             try self.keyHelper.removeOtPrivateKeys(withNames: otcToRemove)
+            
+            let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
+            otCardsToCheck = Array<String>(Set<String>(otKeys).subtracting(exhaustedCards))
         }
         catch {
             completion(error)
             return
         }
-        
-        let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
-        let otCardsToCheck = Array<String>(Set<String>(otKeys).subtracting(exhaustedCards))
         
         self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
             guard error == nil else {
