@@ -264,26 +264,16 @@ extension SecureChat {
     }
     
     private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
-        var otErr: Error?
-        
-        if self.keyHelper.otKeyExists(otName: cardId) {
-            do {
-                try self.keyHelper.removeOneTimePrivateKey(withName: cardId)
-            }
-            catch {
-                otErr = error
-            }
+        do {
+            try self.keyHelper.removeOtPrivateKey(withName: cardId)
         }
-        
-        if let otErr = otErr {
-            throw SecureChat.makeError(withCode: .removingOtKey, description: "Error while removing ot key: \(otErr.localizedDescription)")
+        catch {
+            throw SecureChat.makeError(withCode: .removingOtKey, description: "Error while removing ot key: \(error.localizedDescription)")
         }
     }
     
     private func removeSessionKeys(usingSessionState sessionState: SessionState) throws {
-        if self.keyHelper.sessionKeysExist(forSessionWithId: sessionState.sessionId) {
-            try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.sessionId)
-        }
+        try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.sessionId)
     }
 }
 
@@ -340,17 +330,12 @@ extension SecureChat {
         let otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
         
         for otcId in otcToRemove {
-            if self.keyHelper.otKeyExists(otName: otcId) {
-                do {
-                    try self.keyHelper.removeOneTimePrivateKey(withName: otcId)
-                }
-                catch {
-                    completion(error)
-                    return
-                }
+            do {
+                try self.keyHelper.removeOtPrivateKey(withName: otcId)
             }
-            else {
-                NSLog("WARNING: Trying to remove otc key but it doesn't exist.")
+            catch {
+                completion(error)
+                return
             }
         }
         

@@ -20,6 +20,8 @@ class SecureChatSessionHelper {
 
 extension SecureChatSessionHelper {
     func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
+        Log.debug("Getting session state for: \(cardId)")
+        
         guard let dict = self.storage.loadValue(forKey: cardId) else {
             return nil
         }
@@ -34,6 +36,7 @@ extension SecureChatSessionHelper {
 
 extension SecureChatSessionHelper {
     func getAllSessionsStates() throws -> [String : SessionState] {
+        Log.debug("Getting all sessions' states")
         let dict = self.storage.getAllValues() ?? [:]
         
         return try dict.mapPairs({ (key: String, val: Any) -> (String, SessionState) in
@@ -48,12 +51,15 @@ extension SecureChatSessionHelper {
 
 extension SecureChatSessionHelper {
     func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
+        Log.debug("Saving session state for: \(cardId)")
+        
         try self.storage.storeValue(sessionState.serialize(), forKey: cardId)
     }
 }
 
 extension SecureChatSessionHelper {
     func removeSessionsStates(withNames names: [String]) throws {
+        Log.debug("Removing sessions' states: \(names)")
         //FIXME: Test names
         try self.storage.removeValues(forKeys: names)
     }

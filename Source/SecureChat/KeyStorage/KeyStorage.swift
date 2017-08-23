@@ -23,5 +23,5 @@ import Foundation
     
     func deleteKeyEntries(withNames names: [String]) throws
     
-    func getAllKeysTags() throws -> [Data]
+    func getAllKeysAttrs() throws -> [KeyAttrs]
 }

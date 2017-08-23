@@ -41,6 +41,8 @@ class SecureChatCardsHelper {
     }
     
     func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
+        Log.debug("Adding cards \(numberOfOtcCards) for: \(identityCard.identifier), include lt: \(includeLtcCard)")
+        
         var otcKeys: [SecureChatKeyHelper.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
         
@@ -73,6 +75,13 @@ class SecureChatCardsHelper {
         try self.keyHelper.persistKeys(keys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
+            if let error = error {
+                Log.debug("Error adding \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard). Error: \(error.localizedDescription)")
+            }
+            else {
+                Log.debug("Successfully added \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard)")
+            }
+            
             completion(error)
         }
         

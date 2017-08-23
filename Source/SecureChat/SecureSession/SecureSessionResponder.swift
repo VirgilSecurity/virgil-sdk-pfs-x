@@ -128,7 +128,7 @@ extension SecureSessionResponder {
             try self.saveSession(session)
             
             if let otcId = receiverOtcId {
-                try self.keyHelper.removeOneTimePrivateKey(withName: otcId)
+                try self.keyHelper.removeOtPrivateKey(withName: otcId)
             }
         }
     }

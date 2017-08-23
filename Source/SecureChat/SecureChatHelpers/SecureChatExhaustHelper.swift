@@ -20,6 +20,8 @@ class SecureChatExhaustHelper {
 
 extension SecureChatExhaustHelper {
     func getKeysExhaustInfo() throws -> [OtcExhaustInfo] {
+        Log.debug("Getting exhaust info")
+        
         guard let entries = self.storage.loadValue(forKey: self.getExhaustEntryKey()) as? [[String : Any]] else {
             return []
         }
@@ -38,6 +40,8 @@ extension SecureChatExhaustHelper {
 
 extension SecureChatExhaustHelper {
     func saveKeysExhaustInfo(_ keysExhaustInfo: [OtcExhaustInfo]) throws {
+        Log.debug("Saving exhaust info")
+        
         try self.storage.storeValue(keysExhaustInfo.map({ $0.encode() }), forKey: self.getExhaustEntryKey())
     }
 }

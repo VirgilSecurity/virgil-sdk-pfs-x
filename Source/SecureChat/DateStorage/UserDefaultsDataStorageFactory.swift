@@ -10,6 +10,7 @@ import Foundation
 
 @objc(VSPUserDefaultsDataStorageFactory) public class UserDefaultsDataStorageFactory: NSObject, InsensitiveDataStorageFactory {
     static let SuiteNameFormat = "VIRGIL.DEFAULTS.%@"
+    public static let ErrorDomain = "VSPUserDefaultsDataStorageFactoryErrorDomain"
     
     private func getSuiteName(forIdentifier identifier: String) -> String {
         return String(format: UserDefaultsDataStorageFactory.SuiteNameFormat, identifier)
@@ -19,8 +20,7 @@ import Foundation
         let suiteName = self.getSuiteName(forIdentifier: identifier)
         
         guard let storage = UserDefaultsDataStorage(suiteName: suiteName) else {
-            // FIXME
-            throw NSError()
+            throw NSError(domain: UserDefaultsDataStorageFactory.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while instantiating storage."])
         }
         
         return storage
