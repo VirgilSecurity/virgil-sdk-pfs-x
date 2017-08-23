@@ -1038,7 +1038,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                 
                 NSError *err;
                 BOOL res = [self.initiatorSecureChat removeSessionWithParticipantWithCardId:card.identifier error:&err];
-                XCTAssert(res && err == nil);
+                XCTAssert(!res && err != nil);
                 
                 [self.initiatorSecureChat  startNewSessionWithRecipientWithCard:card additionalData:nil completion:^(VSPSecureSession *session, NSError *error) {
                     XCTAssert(error == nil);
