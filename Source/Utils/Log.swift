@@ -9,16 +9,16 @@
 class Log {
     class func debug(_ closure: @autoclosure () -> String, functionName: String = #function, file: String = #file, line: UInt = #line) {
         #if DEBUG
-            self.log("<DEBUG>: " + closure(), functionName: functionName, file: file, line: line)
+            self.log("<DEBUG>: \(closure())", functionName: functionName, file: file, line: line)
         #endif
     }
     
     class func error( _ closure: @autoclosure () -> String, functionName: String = #function, file: String = #file, line: UInt = #line) {
-        self.log("<ERROR>: " + closure(), functionName: functionName, file: file, line: line)
+        self.log("<ERROR>: \(closure())", functionName: functionName, file: file, line: line)
     }
     
     private class func log(_ closure: @autoclosure () -> String, functionName: String = #function, file: String = #file, line: UInt = #line) {
-        let str = functionName + " : " + closure()
+        let str = "PFS_LOG: \(functionName) : \(closure())"
         Log.writeInLog(str)
     }
     

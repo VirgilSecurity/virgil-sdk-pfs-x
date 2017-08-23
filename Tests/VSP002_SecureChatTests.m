@@ -1363,8 +1363,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
-- (void)test023_ExpireOtcCard {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Concurrent rotateKeys should fail."];
+- (void)test023_ExpireOtCard {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Ot card should expire."];
     
     NSUInteger numberOfRequests = 3;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
