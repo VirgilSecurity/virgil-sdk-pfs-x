@@ -50,7 +50,7 @@ import VirgilSDK
 // MARK: Active session
 extension SecureChat {
     public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
-        Log.debug("Searching for active session for: \(cardId)")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Searching for active session for: \(cardId)")
         
         guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: cardId) else {
             return nil
@@ -61,7 +61,7 @@ extension SecureChat {
                 try self.removeSession(withParticipantWithCardId: cardId)
             }
             catch {
-                Log.error("WARNING: Error occured while removing expired session in activeSession")
+                Log.error("SecureChat:\(self.preferences.identityCard.identifier). WARNING: Error occured while removing expired session in activeSession")
             }
             return nil
         }
@@ -75,7 +75,7 @@ extension SecureChat {
 // MARK: Session initiation
 extension SecureChat {
     private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
-        Log.debug("Starting new session with cards set with: \(recipientCard.identifier)")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Starting new session with cards set with: \(recipientCard.identifier)")
         
         let identityCardId = recipientCard.identifier
         let identityPublicKeyData = recipientCard.publicKeyData
@@ -122,7 +122,7 @@ extension SecureChat {
     }
     
     public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
-        Log.debug("Starting new session with: \(recipientCard.identifier)")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Starting new session with: \(recipientCard.identifier)")
         
         // Check for existing session state
         let sessionState: SessionState?
@@ -182,7 +182,7 @@ extension SecureChat {
 // MARK: Session responding
 extension SecureChat {
     public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
-        Log.debug("Loading session with: \(card.identifier)")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Loading session with: \(card.identifier)")
         
         guard let messageData = message.data(using: .utf8) else {
             throw SecureChat.makeError(withCode: .invalidMessageString, description: "Invalid message string.")
@@ -192,7 +192,7 @@ extension SecureChat {
             // Added new one time card
             try? self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
                 guard error == nil else {
-                    Log.error("WARNING: Error occured while adding new otc in loadUpSession")
+                    Log.error("SecureChat:\(self.preferences.identityCard.identifier). WARNING: Error occured while adding new otc in loadUpSession")
                     return
                 }
             }
@@ -227,7 +227,7 @@ extension SecureChat {
 // MARK: Session recovering
 extension SecureChat {
     fileprivate func recoverSession(myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureSession {
-        Log.debug("Recovering session: \(sessionState.sessionId.base64EncodedString())")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Recovering session: \(sessionState.sessionId.base64EncodedString())")
         
         let sessionKeys = try self.keyHelper.getSessionKeys(forSessionWithId: sessionState.sessionId)
         return try SecureSession(sessionId: sessionState.sessionId, encryptionKey: sessionKeys.encryptionKey, decryptionKey: sessionKeys.decryptionKey, additionalData: sessionState.additionalData, expirationDate: sessionState.expirationDate)
@@ -237,7 +237,7 @@ extension SecureChat {
 // MARK: Session removal
 extension SecureChat {
     public func gentleReset() throws {
-        Log.debug("Gentle reset started")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Gentle reset started")
         
         let sessionStates = try self.sessionHelper.getAllSessionsStates()
         
@@ -249,13 +249,13 @@ extension SecureChat {
     }
     
     private func removeAllKeys() {
-        Log.debug("Removing all keys.")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing all keys.")
         
         self.keyHelper.gentleReset()
     }
     
     public func removeSession(withParticipantWithCardId cardId: String) throws {
-        Log.debug("Removing session with: \(cardId)")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session with: \(cardId)")
         
         if let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) {
             var err: Error?
@@ -276,7 +276,7 @@ extension SecureChat {
     }
     
     private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
-        Log.debug("Removing session keys for: \(cardId).")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session keys for: \(cardId).")
         
         do {
             try self.keyHelper.removeOtPrivateKey(withName: cardId)
@@ -287,7 +287,7 @@ extension SecureChat {
     }
     
     private func removeSessionKeys(usingSessionState sessionState: SessionState) throws {
-        Log.debug("Removing session keys for: \(sessionState.sessionId.base64EncodedString()).")
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session keys for: \(sessionState.sessionId.base64EncodedString()).")
         
         try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.sessionId)
     }
