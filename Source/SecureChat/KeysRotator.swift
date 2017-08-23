@@ -36,9 +36,8 @@ class KeysRotator {
         
         let expiredSessionsStates = sessionsStates.filter({ $0.value.isExpired(now: date) })
         
-        for sessionState in expiredSessionsStates {
-            try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.value.sessionId)
-        }
+        let expiredSessionIds = sessionsStates.map({ $0.value.sessionId })
+        try self.keyHelper.removeSessionKeys(forSessionsWithId: expiredSessionIds)
         
         try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates.map({ $0.key }))
     }
@@ -78,14 +77,12 @@ class KeysRotator {
         
         let otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
         
-        for otcId in otcToRemove {
-            do {
-                try self.keyHelper.removeOtPrivateKey(withName: otcId)
-            }
-            catch {
-                completion(error)
-                return
-            }
+        do {
+            try self.keyHelper.removeOtPrivateKeys(withNames: otcToRemove)
+        }
+        catch {
+            completion(error)
+            return
         }
         
         let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))

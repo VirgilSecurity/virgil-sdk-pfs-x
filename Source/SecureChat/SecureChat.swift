@@ -189,7 +189,7 @@ extension SecureChat {
         }
         
         if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
-            // Added new one time card
+            // Add new one time card
             try? self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
                 guard error == nil else {
                     Log.error("SecureChat:\(self.preferences.identityCard.identifier). WARNING: Error occured while adding new otc in loadUpSession")

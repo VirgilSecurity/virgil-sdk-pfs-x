@@ -91,6 +91,14 @@ extension SecureChatKeyHelper {
         try self.removeKeyEntry(withKeyEntryName: keyEntryName)
     }
     
+    func removeSessionKeys(forSessionsWithId sessionIds: [Data]) throws {
+        let keyEntryNames = sessionIds
+            .map({ $0.base64EncodedString() })
+            .map({ self.namesHelper.getSessionKeysKeyEntryName($0) })
+        
+        try self.removeKeyEntries(withKeyEntryNames: keyEntryNames)
+    }
+    
     // Lt keys
     func getLtPrivateKey(withName name: String) throws -> VSSPrivateKey {
         let keyEntryName = self.namesHelper.getLtPrivateKeyEntryName(name)
@@ -113,9 +121,19 @@ extension SecureChatKeyHelper {
         try self.savePrivateKey(key, keyEntryName: keyEntryName)
     }
     
+    func saveOtPrivateKeys(_ keys: [VSSPrivateKey], names: [String]) throws {
+        let keyEntryNames = names.map({ self.namesHelper.getOtPrivateKeyEntryName($0) })
+        try self.savePrivateKeys(keys, keyEntryNames: keyEntryNames)
+    }
+    
     func removeOtPrivateKey(withName name: String) throws {
         let keyEntryName = self.namesHelper.getOtPrivateKeyEntryName(name)
         try self.removeKeyEntry(withKeyEntryName: keyEntryName)
+    }
+    
+    func removeOtPrivateKeys(withNames names: [String]) throws {
+        let keyEntryNames = names.map({ self.namesHelper.getOtPrivateKeyEntryName($0) })
+        try self.removeKeyEntries(withKeyEntryNames: keyEntryNames)
     }
 }
 
@@ -127,9 +145,22 @@ fileprivate extension SecureChatKeyHelper {
 
         try self.saveKeyEntry(keyEntry)
     }
+    
+    func savePrivateKeys(_ keys: [VSSPrivateKey], keyEntryNames: [String]) throws {
+        let keyEntries = zip(keys, keyEntryNames).map({ (key: VSSPrivateKey, keyEntryName: String) -> KeyEntry in
+            let privateKeyData = self.crypto.export(key, withPassword: nil)
+            return KeyEntry(name: keyEntryName, value: privateKeyData)
+        })
+        
+        try self.saveKeyEntries(keyEntries)
+    }
 
     func saveKeyEntry(_ keyEntry: KeyEntry) throws {
         try self.keyStorage.storeKeyEntry(keyEntry)
+    }
+    
+    func saveKeyEntries(_ keyEntries: [KeyEntry]) throws {
+        try self.keyStorage.storeKeyEntries(keyEntries)
     }
 }
 
@@ -152,6 +183,10 @@ fileprivate extension SecureChatKeyHelper {
 fileprivate extension SecureChatKeyHelper {
     func removeKeyEntry(withKeyEntryName keyEntryName: String) throws {
         try self.keyStorage.deleteKeyEntry(withName: keyEntryName)
+    }
+    
+    func removeKeyEntries(withKeyEntryNames keyEntryNames: [String]) throws {
+        try self.keyStorage.deleteKeyEntries(withNames: keyEntryNames)
     }
 }
 
