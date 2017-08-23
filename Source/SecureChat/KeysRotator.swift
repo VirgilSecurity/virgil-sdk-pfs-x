@@ -27,19 +27,28 @@ class KeysRotator {
         self.mutex = mutex
     }
     
-    private func removeExpiredSessions() throws {
+    private func removeExpiredSessionsAndReturnActualSessionIds() throws -> [Data] {
         Log.debug("Removing expired sessions.")
         
         let sessionsStates = try self.sessionHelper.getAllSessionsStates()
         
         let date = Date()
         
-        let expiredSessionsStates = sessionsStates.filter({ $0.value.isExpired(now: date) })
+        let (expiredSessionsStates, actualSessionsStates) = sessionsStates
+            .splitIntoTwoArrays({
+                let expired = $0.value.isExpired(now: date)
+                
+                return (expired, !expired)
+            })
         
-        let expiredSessionIds = sessionsStates.map({ $0.value.sessionId })
-        try self.keyHelper.removeSessionKeys(forSessionsWithId: expiredSessionIds)
+        let expiredSessionIds = expiredSessionsStates.map({ $0.value.sessionId })
         
+        Log.debug("Found expired sessions: \(expiredSessionIds.map({ $0.base64EncodedString() }))")
+        
+        try self.keyHelper.removeSessionKeys(forSessionsWithIds: expiredSessionIds)
         try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates.map({ $0.key }))
+        
+        return actualSessionsStates.map({ $0.value.sessionId })
     }
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
@@ -47,25 +56,35 @@ class KeysRotator {
         Log.debug("Cleanup started.")
         
         let exhaustedInfo: [OtcExhaustInfo]
-        let otcToRemove: Array<String>
+        let orphanedOtcIds: Array<String>
         let otCardsToCheck: Array<String>
         let now = Date()
         
         do {
-            try self.removeExpiredSessions()
+            let actualSessionIds = Set<Data>(try self.removeExpiredSessionsAndReturnActualSessionIds())
         
-            let otKeys = try self.keyHelper.getAllOtCardsIds()
+            let (otKeysIds, sessionKeysIds) = try self.keyHelper.getAllOtCardsAndSessionKeysIds()
+            
+            let orphanedSessionKeysIds = sessionKeysIds.filter({ !actualSessionIds.contains($0) })
+            
+            if orphanedSessionKeysIds.count > 0 {
+                Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
+                try self.keyHelper.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
+            }
 
             exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
             
             let otcTtl = self.preferences.onetimeCardExhaustLifetime
             
-            otcToRemove = Array<String>(exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId }))
+            orphanedOtcIds = exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId })
             
-            try self.keyHelper.removeOtPrivateKeys(withNames: otcToRemove)
+            if orphanedOtcIds.count > 0 {
+                Log.error("WARNING: orphaned otcs found: \(orphanedOtcIds)")
+                try self.keyHelper.removeOtPrivateKeys(withNames: orphanedOtcIds)
+            }
             
             let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
-            otCardsToCheck = Array<String>(Set<String>(otKeys).subtracting(exhaustedCards))
+            otCardsToCheck = Array<String>(Set<String>(otKeysIds).subtracting(exhaustedCards))
         }
         catch {
             completion(error)
@@ -83,7 +102,7 @@ class KeysRotator {
                 return
             }
             
-            var newExhaustInfo = exhaustedInfo.filter({ !otcToRemove.contains($0.cardId) })
+            var newExhaustInfo = exhaustedInfo.filter({ !orphanedOtcIds.contains($0.cardId) })
             newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
             
             do {

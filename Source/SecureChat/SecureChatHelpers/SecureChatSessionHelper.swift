@@ -60,7 +60,7 @@ extension SecureChatSessionHelper {
 extension SecureChatSessionHelper {
     func removeSessionsStates(withNames names: [String]) throws {
         Log.debug("Removing sessions' states: \(names)")
-        //FIXME: Test names
+
         try self.storage.removeValues(forKeys: names)
     }
 }

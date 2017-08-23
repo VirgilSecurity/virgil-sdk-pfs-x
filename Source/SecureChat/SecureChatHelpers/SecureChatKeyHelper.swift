@@ -35,12 +35,20 @@ class SecureChatKeyHelper {
         }
     }
     
-    func getAllOtCardsIds() throws -> [String] {
+    func getAllOtCardsAndSessionKeysIds() throws -> ([String], [Data]) {
         let keysAttrs = try self.keyStorage.getAllKeysAttrs()
         
-        return keysAttrs
-            .filter({ self.namesHelper.isOtKeyEntryName($0.name) })
-            .map({ self.namesHelper.extractCardId(fromOtKeyEntryName: $0.name) })
+        let (otKeysAttrs, sessKeysAttrs) = keysAttrs
+            .splitIntoTwoArrays({
+                return (self.namesHelper.isOtKeyEntryName($0.name), self.namesHelper.isSessionKeysKeyEntryName($0.name))
+            })
+        
+        let otKeysIds = otKeysAttrs.map({ self.namesHelper.extractCardId(fromOtKeyEntryName: $0.name) })
+        let sessionsIds = sessKeysAttrs
+            .map({ self.namesHelper.extractSessionId(fromSessKeyEntryName: $0.name) })
+            .flatMap({ $0 })
+        
+        return (otKeysIds, sessionsIds)
     }
     
     func hasRelevantLtKey() -> Bool {
@@ -91,7 +99,7 @@ extension SecureChatKeyHelper {
         try self.removeKeyEntry(withKeyEntryName: keyEntryName)
     }
     
-    func removeSessionKeys(forSessionsWithId sessionIds: [Data]) throws {
+    func removeSessionKeys(forSessionsWithIds sessionIds: [Data]) throws {
         let keyEntryNames = sessionIds
             .map({ $0.base64EncodedString() })
             .map({ self.namesHelper.getSessionKeysKeyEntryName($0) })
@@ -198,9 +206,15 @@ fileprivate extension SecureChatKeyHelper {
             self.identityCardId = identityCardId
         }
         
-        func extractCardId(fromOtKeyEntryName OtkeyEntryName: String) -> String {
+        func extractCardId(fromOtKeyEntryName keyEntryName: String) -> String {
             let prefix = "\(self.getPrivateKeyEntryHeader()).\(KeyNamesHelper.OtPrefix)."
-            return OtkeyEntryName.replacingOccurrences(of: prefix, with: "")
+            return keyEntryName.replacingOccurrences(of: prefix, with: "")
+        }
+        
+        func extractSessionId(fromSessKeyEntryName keyEntryName: String) -> Data? {
+            let prefix = "\(self.getPrivateKeyEntryHeader()).\(KeyNamesHelper.SessPrefix)."
+            let name = keyEntryName.replacingOccurrences(of: prefix, with: "")
+            return Data(base64Encoded: name)
         }
         
         func isPfsKeyEntryName(_ keyEntryName: String) -> Bool {
