@@ -16,6 +16,12 @@ struct SessionState {
     let additionalData: Data
 }
 
+extension SessionState {
+    func isExpired(now: Date) -> Bool {
+        return (now > self.expirationDate)
+    }
+}
+
 extension SessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSMutableDictionary = [

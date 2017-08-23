@@ -94,6 +94,7 @@
 		429123D91F4D7C2C00103BE0 /* SecureSessionResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123C91F4D7C2C00103BE0 /* SecureSessionResponder.swift */; };
 		429123DB1F4D7C3E00103BE0 /* KeyAttrs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123DA1F4D7C3E00103BE0 /* KeyAttrs.swift */; };
 		429123DF1F4DAA7F00103BE0 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123DE1F4DAA7F00103BE0 /* Log.swift */; };
+		429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E01F4DAB6B00103BE0 /* KeysRotator.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -229,6 +230,7 @@
 		429123C91F4D7C2C00103BE0 /* SecureSessionResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureSessionResponder.swift; sourceTree = "<group>"; };
 		429123DA1F4D7C3E00103BE0 /* KeyAttrs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyAttrs.swift; sourceTree = "<group>"; };
 		429123DE1F4DAA7F00103BE0 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
+		429123E01F4DAB6B00103BE0 /* KeysRotator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeysRotator.swift; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -504,6 +506,7 @@
 				425A02371EF9416C00D9BBEF /* SecureChat.swift */,
 				42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */,
 				42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */,
+				429123E01F4DAB6B00103BE0 /* KeysRotator.swift */,
 			);
 			path = SecureChat;
 			sourceTree = "<group>";
@@ -831,6 +834,7 @@
 				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				429123DB1F4D7C3E00103BE0 /* KeyAttrs.swift in Sources */,
 				42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */,
+				429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,

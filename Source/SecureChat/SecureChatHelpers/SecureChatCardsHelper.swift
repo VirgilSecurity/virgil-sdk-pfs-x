@@ -41,7 +41,7 @@ class SecureChatCardsHelper {
     }
     
     func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        Log.debug("Adding cards \(numberOfOtcCards) for: \(identityCard.identifier), include lt: \(includeLtcCard)")
+        Log.debug("Adding \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard)")
         
         var otcKeys: [SecureChatKeyHelper.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
