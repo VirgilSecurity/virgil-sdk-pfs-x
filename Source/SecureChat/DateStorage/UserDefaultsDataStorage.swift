@@ -61,7 +61,9 @@ import Foundation
     public func removeValue(forKey key: String) throws {
         var dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any] ?? [:]
         
-        dict.removeValue(forKey: key)
+        guard dict.removeValue(forKey: key) != nil else {
+            throw NSError(domain: UserDefaultsDataStorage.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing value for key. Value doesn't exist."])
+        }
         
         self.userDefaults.set(dict, forKey: UserDefaultsDataStorage.RootKey)
         self.userDefaults.synchronize()
@@ -71,7 +73,9 @@ import Foundation
         var dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any]  ?? [:]
         
         for key in keys {
-            dict.removeValue(forKey: key)
+            guard dict.removeValue(forKey: key) != nil else {
+                throw NSError(domain: UserDefaultsDataStorage.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing value for key. Value doesn't exist."])
+            }
         }
         
         self.userDefaults.set(dict, forKey: UserDefaultsDataStorage.RootKey)
