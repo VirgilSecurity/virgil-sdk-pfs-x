@@ -14,18 +14,16 @@ class SessionInitializer {
     private let crypto: VSSCryptoProtocol
     private let identityPrivateKey: VSSPrivateKey
     private let identityCard: VSSCard
-    private let sessionHelper: SecureChatSessionHelper
     private let keyHelper: SecureChatKeyHelper
     
-    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, keyHelper: SecureChatKeyHelper) {
         self.crypto = crypto
         self.identityPrivateKey = identityPrivateKey
         self.identityCard = identityCard
-        self.sessionHelper = sessionHelper
         self.keyHelper = keyHelper
     }
     
-    func initializeInitiatorSession(ephPrivateKey: VSSPrivateKey, recipientIdCard: SecureSession.CardEntry, recipientLtCard: SecureSession.CardEntry, recipientOtCard: SecureSession.CardEntry?, additionalData: Data?, creationDate: Date, expirationDate: Date) throws -> SecureSession {
+    func initializeInitiatorSession(ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry?, additionalData: Data?, expirationDate: Date) throws -> SecureSession {
         let privateKeyData = self.crypto.export(self.identityPrivateKey, withPassword: nil)
         let ephPrivateKeyData = self.crypto.export(ephPrivateKey, withPassword: nil)
         guard let pfsPrivateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
@@ -68,12 +66,10 @@ class SessionInitializer {
         
         let secureSession = SecureSession(pfsSession: session, expirationDate: expirationDate, firstMsgGenerator: firstMessageGenerator)
         
-        try self.saveSession(session, participantCardId: recipientIdCard.identifier, creationDate: creationDate, expirationDate: expirationDate)
-        
         return secureSession
     }
     
-    func initializeResponderSession(initiatorCardEntry: SecureSession.CardEntry, initiationMessage: InitiationMessage, additionalData: Data?, creationDate: Date, expirationDate: Date) throws -> SecureSession {
+    func initializeResponderSession(initiatorCardEntry: CardEntry, initiationMessage: InitiationMessage, additionalData: Data?, expirationDate: Date) throws -> SecureSession {
         guard let initiatorPublicKey = self.crypto.importPublicKey(from: initiatorCardEntry.publicKeyData) else {
             throw SecureSession.makeError(withCode: .importingInitiatorPublicKeyFromIdentityCard, description: "Error importing initiator public key from identity card.")
         }
@@ -128,23 +124,7 @@ class SessionInitializer {
             throw SecureSession.makeError(withCode: .initiatingResponderSession, description: "Error while initiating responder session.")
         }
         
-        try self.saveSession(session, participantCardId: initiatorCardEntry.identifier, creationDate: creationDate, expirationDate: expirationDate)
-        
         return SecureSession(pfsSession: session, expirationDate: expirationDate, firstMsgGenerator: nil)
-    }
-    
-    // FIXME: Move this somewhere
-    func saveSession(_ session: VSCPfsSession, participantCardId: String, creationDate: Date, expirationDate: Date) throws {
-        let sessionId = session.identifier
-        let encryptionKey = session.encryptionSecretKey
-        let decryptionKey = session.decryptionSecretKey
-        let sessionKeys = SecureChatKeyHelper.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
-
-        try self.keyHelper.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
-
-        let sessionState = SessionState(creationDate: creationDate, expirationDate: expirationDate, sessionId: session.identifier, additionalData: session.additionalData)
-
-        try self.sessionHelper.addSessionState(sessionState, forRecipientCardId: participantCardId)
     }
     
     func initializeSavedSession(sessionId: Data, encryptionKey: Data, decryptionKey: Data, additionalData: Data, expirationDate: Date) throws -> SecureSession {

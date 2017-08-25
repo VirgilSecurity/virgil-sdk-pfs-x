@@ -11,22 +11,24 @@ import VirgilSDK
 
 class SecureChatCardsHelper {
     private let crypto: VSSCryptoProtocol
-    private let myPrivateKey: VSSPrivateKey
+    private let identityPrivateKey: VSSPrivateKey
+    private let identityCardId: String
     private let client: Client
     private let deviceManager: VSSDeviceManagerProtocol
     private let keyHelper: SecureChatKeyHelper
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, client: Client, deviceManager: VSSDeviceManagerProtocol, keyHelper: SecureChatKeyHelper) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, deviceManager: VSSDeviceManagerProtocol, keyHelper: SecureChatKeyHelper) {
         self.crypto = crypto
-        self.myPrivateKey = myPrivateKey
+        self.identityPrivateKey = identityPrivateKey
+        self.identityCardId = identityCardId
         self.client = client
         self.deviceManager = deviceManager
         self.keyHelper = keyHelper
     }
     
-    private func generateRequest(forIdentityCard identityCard: VSSCard, keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
-        let identity = identityCard.identity
-        let identityType = identityCard.identityType
+    private func generateRequest(withKeyPair keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
+        let identity = self.identityCardId
+        let identityType = "identity_card_id"
         let device = self.deviceManager.getDeviceModel()
         let deviceName = self.deviceManager.getDeviceName()
         
@@ -35,13 +37,13 @@ class SecureChatCardsHelper {
         
         let requestSigner = VSSRequestSigner(crypto: self.crypto)
         let cardId = requestSigner.getCardId(forRequest: request)
-        try requestSigner.authoritySign(request, forAppId: identityCard.identifier, with: self.myPrivateKey)
+        try requestSigner.authoritySign(request, forAppId: self.identityCardId, with: self.identityPrivateKey)
         
         return (request, cardId)
     }
     
-    func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        Log.debug("Adding \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard)")
+    func addCards(includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
+        Log.debug("Adding \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard)")
         
         var otcKeys: [SecureChatKeyHelper.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
@@ -51,7 +53,7 @@ class SecureChatCardsHelper {
         for _ in 0..<numberOfOtcCards {
             let keyPair = self.crypto.generateKeyPair()
             
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: false)
+            let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
             let keyEntry = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
@@ -62,7 +64,7 @@ class SecureChatCardsHelper {
         let ltcCardRequest: CreateEphemeralCardRequest?
         if includeLtcCard {
             let keyPair = self.crypto.generateKeyPair()
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: true)
+            let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: true)
             ltcCardRequest = request
             
             ltcKey = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
@@ -76,17 +78,17 @@ class SecureChatCardsHelper {
         
         let callback = { (error: Error?) in
             if let error = error {
-                Log.debug("Error adding \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard). Error: \(error.localizedDescription)")
+                Log.debug("Error adding \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard). Error: \(error.localizedDescription)")
             }
             else {
-                Log.debug("Successfully added \(numberOfOtcCards) cards for: \(identityCard.identifier), include lt: \(includeLtcCard)")
+                Log.debug("Successfully added \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard)")
             }
             
             completion(error)
         }
         
         if let ltcCardRequest = ltcCardRequest {
-            self.client.bootstrapCardsSet(forUserWithCardId: identityCard.identifier, longTermCardRequest: ltcCardRequest, oneTimeCardsRequests: otcCardsRequests) { ltcCard, otcCards, error in
+            self.client.bootstrapCardsSet(forUserWithCardId: self.identityCardId, longTermCardRequest: ltcCardRequest, oneTimeCardsRequests: otcCardsRequests) { ltcCard, otcCards, error in
                 guard error == nil else {
                     callback(error!)
                     return
@@ -101,7 +103,7 @@ class SecureChatCardsHelper {
             }
         }
         else if otcCardsRequests.count > 0 {
-            self.client.createOneTimeCards(forUserWithCardId: identityCard.identifier, oneTimeCardsRequests: otcCardsRequests) { otcCards, error in
+            self.client.createOneTimeCards(forUserWithCardId: self.identityCardId, oneTimeCardsRequests: otcCardsRequests) { otcCards, error in
                 guard error == nil else {
                     callback(error!)
                     return

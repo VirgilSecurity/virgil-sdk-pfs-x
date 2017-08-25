@@ -11,11 +11,6 @@ import VirgilSDK
 import VirgilCrypto
 
 @objc(VSPSecureSession) public class SecureSession: NSObject {
-    struct CardEntry {
-        let identifier: String
-        let publicKeyData: Data
-    }
-    
     static public let ErrorDomain = "VSPSecureSessionErrorDomain"
     
     let expirationDate: Date
@@ -23,8 +18,15 @@ import VirgilCrypto
     fileprivate var firstMsgGenerator: ((SecureSession, String) throws -> String)?
     
     fileprivate let pfs = VSCPfs()
+    private let pfsSession: VSCPfsSession
+    
+    var sessionId: Data { return self.pfsSession.identifier }
+    var encryptionKey: Data { return self.pfsSession.encryptionSecretKey }
+    var decryptionKey: Data { return self.pfsSession.decryptionSecretKey }
+    var additionalData: Data { return self.pfsSession.additionalData }
     
     init(pfsSession: VSCPfsSession, expirationDate: Date, firstMsgGenerator: ((SecureSession, String) throws -> String)?) {
+        self.pfsSession = pfsSession
         self.pfs.session = pfsSession
         self.expirationDate = expirationDate
         self.firstMsgGenerator = firstMsgGenerator

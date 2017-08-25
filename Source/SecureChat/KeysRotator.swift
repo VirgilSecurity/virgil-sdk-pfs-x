@@ -7,22 +7,25 @@
 //
 
 import Foundation
+import VirgilSDK
 
 class KeysRotator {
+    private let identityCard: VSSCard
+    private let oneTimeCardExhaustTtl: TimeInterval
     private let cardsHelper: SecureChatCardsHelper
     private let sessionHelper: SecureChatSessionHelper
     private let keyHelper: SecureChatKeyHelper
     private let exhaustHelper: SecureChatExhaustHelper
-    private let preferences: SecureChatPreferences
     private let client: Client
     private let mutex = Mutex()
     
-    init(cardsHelper: SecureChatCardsHelper, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, exhaustHelper: SecureChatExhaustHelper, preferences: SecureChatPreferences, client: Client) {
+    init(identityCard: VSSCard, oneTimeCardExhaustTtl: TimeInterval, cardsHelper: SecureChatCardsHelper, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, exhaustHelper: SecureChatExhaustHelper, client: Client) {
+        self.identityCard = identityCard
+        self.oneTimeCardExhaustTtl = oneTimeCardExhaustTtl
         self.cardsHelper = cardsHelper
         self.sessionHelper = sessionHelper
         self.keyHelper = keyHelper
         self.exhaustHelper = exhaustHelper
-        self.preferences = preferences
         self.client = client
     }
     
@@ -87,7 +90,7 @@ class KeysRotator {
 
             exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
             
-            let otcTtl = self.preferences.onetimeCardExhaustLifetime
+            let otcTtl = self.oneTimeCardExhaustTtl
             
             orphanedOtcIds = exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId })
             
@@ -104,7 +107,7 @@ class KeysRotator {
             return
         }
         
-        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
+        self.client.validateOneTimeCards(forRecipientWithId: self.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
             guard error == nil else {
                 completion(error)
                 return
@@ -202,7 +205,7 @@ class KeysRotator {
             if numberOfMissingCards > 0 {
                 let addLtCard = !self.owner.keyHelper.hasRelevantLtKey()
                 do {
-                    try self.owner.cardsHelper.addCards(forIdentityCard: self.owner.preferences.identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
+                    try self.owner.cardsHelper.addCards(includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                         if let error = error {
                             self.fail(withError: error)
                             return
@@ -237,7 +240,7 @@ class KeysRotator {
             super.execute()
             
             Log.debug("CardsStatusOperation started.")
-            self.owner.client.getCardsStatus(forUserWithCardId: self.owner.preferences.identityCard.identifier) { status, error in
+            self.owner.client.getCardsStatus(forUserWithCardId: self.owner.identityCard.identifier) { status, error in
                 if let error = error {
                     self.fail(withError: error)
                     return

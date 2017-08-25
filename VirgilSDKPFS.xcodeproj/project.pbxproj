@@ -93,6 +93,8 @@
 		429123E31F4DD3EE00103BE0 /* Sequence+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */; };
 		429123E51F4F9BE800103BE0 /* SessionInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E41F4F9BE800103BE0 /* SessionInitializer.swift */; };
 		429123E81F5068C500103BE0 /* VSP004_SessionHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */; };
+		429123EA1F50776E00103BE0 /* SesssionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E91F50776E00103BE0 /* SesssionManager.swift */; };
+		429123EC1F507DF500103BE0 /* CardEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123EB1F507DF500103BE0 /* CardEntry.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -227,6 +229,8 @@
 		429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Split.swift"; sourceTree = "<group>"; };
 		429123E41F4F9BE800103BE0 /* SessionInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionInitializer.swift; sourceTree = "<group>"; };
 		429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP004_SessionHelperTests.swift; sourceTree = "<group>"; };
+		429123E91F50776E00103BE0 /* SesssionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SesssionManager.swift; sourceTree = "<group>"; };
+		429123EB1F507DF500103BE0 /* CardEntry.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardEntry.swift; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -516,6 +520,7 @@
 				425A02581EFD17A600D9BBEF /* SessionState.swift */,
 				425A024A1EFBF10F00D9BBEF /* Message.swift */,
 				429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */,
+				429123EB1F507DF500103BE0 /* CardEntry.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -565,6 +570,7 @@
 				429123C51F4D7C2C00103BE0 /* SecureSession.swift */,
 				429123C71F4D7C2C00103BE0 /* SecureSessionErrorCode.swift */,
 				429123E41F4F9BE800103BE0 /* SessionInitializer.swift */,
+				429123E91F50776E00103BE0 /* SesssionManager.swift */,
 			);
 			path = SecureSession;
 			sourceTree = "<group>";
@@ -830,7 +836,9 @@
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
+				429123EA1F50776E00103BE0 /* SesssionManager.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
+				429123EC1F507DF500103BE0 /* CardEntry.swift in Sources */,
 				429123D31F4D7C2C00103BE0 /* SecureChatKeyHelper.swift in Sources */,
 				425A024B1EFBF10F00D9BBEF /* Message.swift in Sources */,
 				420D14F71EF2CF6A002A9C22 /* EphemeralCardValidator.swift in Sources */,
