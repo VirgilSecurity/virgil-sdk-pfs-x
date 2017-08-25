@@ -75,6 +75,10 @@ extension SecureChat {
     private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
         Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Starting new session with cards set with: \(recipientCard.identifier)")
         
+        if cardsSet.oneTimeCard == nil {
+            Log.error("WARNING: Creating weak session with \(recipientCard.identifier).")
+        }
+        
         let identityCardId = recipientCard.identifier
         let identityPublicKeyData = recipientCard.publicKeyData
         let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
