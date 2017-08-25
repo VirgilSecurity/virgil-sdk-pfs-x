@@ -144,7 +144,7 @@ class SessionInitializer {
 
         let sessionState = SessionState(creationDate: creationDate, expirationDate: expirationDate, sessionId: session.identifier, additionalData: session.additionalData)
 
-        try self.sessionHelper.saveSessionState(sessionState, forRecipientCardId: participantCardId)
+        try self.sessionHelper.addSessionState(sessionState, forRecipientCardId: participantCardId)
     }
     
     func initializeSavedSession(sessionId: Data, encryptionKey: Data, decryptionKey: Data, additionalData: Data, expirationDate: Date) throws -> SecureSession {

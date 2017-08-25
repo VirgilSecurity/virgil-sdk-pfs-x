@@ -20,27 +20,22 @@ import VirgilSDK
     fileprivate let sessionHelper: SecureChatSessionHelper
     fileprivate let exhaustHelper: SecureChatExhaustHelper
     fileprivate let sessionInitializer: SessionInitializer
+    fileprivate let rotator: KeysRotator
     
-    fileprivate var rotateKeysMutex = Mutex()
-    
-    public init?(preferences: SecureChatPreferences) {
+    public init(preferences: SecureChatPreferences) {
         self.preferences = preferences
         self.client = Client(serviceConfig: self.preferences.serviceConfig)
         
         self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.identityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
         self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
         
-        guard let sessionStorage = try? self.preferences.storageFactory.makeStorage(forIdentifier: "SESSION.OWNER=\(self.preferences.identityCard.identifier)") else {
-            return nil
-        }
-        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier, storage: sessionStorage)
+        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier, storage: self.preferences.insensitiveDataStorage)
         
-        guard let exhaustStorage = try? self.preferences.storageFactory.makeStorage(forIdentifier: "EXHAUST.OWNER=\(self.preferences.identityCard.identifier)") else {
-            return nil
-        }
-        self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier, storage: exhaustStorage)
+        self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier, storage: self.preferences.insensitiveDataStorage)
         
         self.sessionInitializer = SessionInitializer(crypto: self.preferences.crypto, identityPrivateKey: self.preferences.privateKey, identityCard: self.preferences.identityCard, sessionHelper: self.sessionHelper, keyHelper: self.keyHelper)
+        
+        self.rotator = KeysRotator(cardsHelper: self.cardsHelper, sessionHelper: self.sessionHelper, keyHelper: self.keyHelper, exhaustHelper: self.exhaustHelper, preferences: self.preferences, client: self.client)
         
         super.init()
     }
@@ -55,13 +50,13 @@ extension SecureChat {
     public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
         Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Searching for active session for: \(cardId)")
         
-        guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: cardId) else {
+        guard case let sessionState?? = try? self.sessionHelper.getNewestSessionState(forRecipientCardId: cardId) else {
             return nil
         }
         
         guard !sessionState.isExpired(now: Date()) else {
             do {
-                try self.removeSession(withParticipantWithCardId: cardId)
+                try self.removeSession(withParticipantWithCardId: cardId, sessionId: sessionState.sessionId)
             }
             catch {
                 Log.error("SecureChat:\(self.preferences.identityCard.identifier). WARNING: Error occured while removing expired session in activeSession")
@@ -130,7 +125,7 @@ extension SecureChat {
         // Check for existing session state
         let sessionState: SessionState?
         do {
-            sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: recipientCard.identifier)
+            sessionState = try self.sessionHelper.getNewestSessionState(forRecipientCardId: recipientCard.identifier)
         }
         catch {
             completion(nil, SecureChat.makeError(withCode: .checkingForExistingSession, description: "Error checking for existing session. Underlying error: \(error.localizedDescription)"))
@@ -147,7 +142,7 @@ extension SecureChat {
             
             // If session is expired, just remove old session and create new one
             do {
-                try self.removeSession(withParticipantWithCardId: recipientCard.identifier)
+                try self.removeSession(withParticipantWithCardId: recipientCard.identifier, sessionId: sessionState.sessionId)
             }
             catch {
                 completion(nil, SecureChat.makeError(withCode: .removingExpiredSession, description: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"))
@@ -210,7 +205,7 @@ extension SecureChat {
         else if let message = try? SecureSession.extractMessage(messageData) {
             let sessionId = message.sessionId
             
-            guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
+            guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier, sessionId: sessionId),
                 sessionState.sessionId == sessionId else {
                 throw SecureChat.makeError(withCode: .sessionNotFound, description: "Session not found.")
             }
@@ -244,7 +239,7 @@ extension SecureChat {
         let sessionStates = try self.sessionHelper.getAllSessionsStates()
         
         for sessionState in sessionStates {
-            try? self.removeSession(withParticipantWithCardId: sessionState.key)
+            try? self.removeSessions(withParticipantWithCardId: sessionState.key)
         }
     
         self.removeAllKeys()
@@ -256,25 +251,31 @@ extension SecureChat {
         self.keyHelper.gentleReset()
     }
     
-    public func removeSession(withParticipantWithCardId cardId: String) throws {
-        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session with: \(cardId)")
+    public func removeSessions(withParticipantWithCardId cardId: String) throws {
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing sessions with: \(cardId)")
         
-        if let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) {
+        let sessionStates = try self.sessionHelper.getSessionStates(forRecipientCardId: cardId)
+        for sessionState in sessionStates {
             var err: Error?
             do {
-                try self.removeSessionKeys(usingSessionState: sessionState)
+                try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionState.sessionId)
             }
             catch {
                 err = error
             }
-            try self.sessionHelper.removeSessionsStates(withNames: [cardId])
+            
+            try self.removeSessionKeys(forSessionId: sessionState.sessionId)
             if let err = err {
                 throw err
             }
         }
-        else {
-            try self.removeSessionKeys(forUnknownSessionWithParticipantWithCardId: cardId)
-        }
+    }
+    
+    func removeSession(withParticipantWithCardId cardId: String, sessionId: Data) throws {
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session with: \(cardId), sessionId: \(sessionId.base64EncodedString())")
+        
+        try self.removeSessionKeys(forSessionId: sessionId)
+        try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionId)
     }
     
     private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
@@ -288,10 +289,10 @@ extension SecureChat {
         }
     }
     
-    private func removeSessionKeys(usingSessionState sessionState: SessionState) throws {
-        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session keys for: \(sessionState.sessionId.base64EncodedString()).")
+    private func removeSessionKeys(forSessionId sessionId: Data) throws {
+        Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing session keys for: \(sessionId.base64EncodedString()).")
         
-        try self.keyHelper.removeSessionKeys(forSessionWithId: sessionState.sessionId)
+        try self.keyHelper.removeSessionKeys(forSessionWithId: sessionId)
     }
 }
 
@@ -301,8 +302,6 @@ extension SecureChat {
     public typealias CompletionHandler = (Error?) -> ()
     
     public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
-        let rotator = KeysRotator(cardsHelper: self.cardsHelper, sessionHelper: self.sessionHelper, keyHelper: self.keyHelper, exhaustHelper: self.exhaustHelper, preferences: self.preferences, client: self.client, mutex: self.rotateKeysMutex)
-        
-        rotator.rotateKeys(desiredNumberOfCards: desiredNumberOfCards, completion: completion)
+        self.rotator.rotateKeys(desiredNumberOfCards: desiredNumberOfCards, completion: completion)
     }
 }

@@ -15,16 +15,15 @@ class KeysRotator {
     private let exhaustHelper: SecureChatExhaustHelper
     private let preferences: SecureChatPreferences
     private let client: Client
-    private let mutex: Mutex
+    private let mutex = Mutex()
     
-    init(cardsHelper: SecureChatCardsHelper, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, exhaustHelper: SecureChatExhaustHelper, preferences: SecureChatPreferences, client: Client, mutex: Mutex) {
+    init(cardsHelper: SecureChatCardsHelper, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, exhaustHelper: SecureChatExhaustHelper, preferences: SecureChatPreferences, client: Client) {
         self.cardsHelper = cardsHelper
         self.sessionHelper = sessionHelper
         self.keyHelper = keyHelper
         self.exhaustHelper = exhaustHelper
         self.preferences = preferences
         self.client = client
-        self.mutex = mutex
     }
     
     private func removeExpiredSessionsAndReturnActualSessionIds() throws -> [Data] {
@@ -34,21 +33,35 @@ class KeysRotator {
         
         let date = Date()
         
-        let (expiredSessionsStates, actualSessionsStates) = sessionsStates
-            .splitIntoTwoArrays({
-                let expired = $0.value.isExpired(now: date)
-                
-                return (expired, !expired)
-            })
+        var expiredSessionsStates = [String : [Data : SessionState]]()
+        var actualSessionsStatesIds = [Data]()
+        for sessionState in sessionsStates {
+            var expiredSessionsStatesDict = [Data : SessionState]()
+            
+            for sessionStateDict in sessionState.value {
+                if sessionStateDict.value.isExpired(now: date) {
+                    expiredSessionsStatesDict[sessionStateDict.key] = sessionStateDict.value
+                }
+                else {
+                    actualSessionsStatesIds.append(sessionStateDict.key)
+                }
+            }
+            
+            expiredSessionsStates[sessionState.key] = expiredSessionsStatesDict
+        }
         
-        let expiredSessionIds = expiredSessionsStates.map({ $0.value.sessionId })
+        let expiredSessionsDict = [String : [Data]](expiredSessionsStates.map({ ($0.key, [Data]($0.value.keys)) }))
         
-        Log.debug("Found expired sessions: \(expiredSessionIds.map({ $0.base64EncodedString() }))")
+        if !expiredSessionsDict.isEmpty {
+            Log.debug("Found expired sessions.")
+        }
         
-        try self.keyHelper.removeSessionKeys(forSessionsWithIds: expiredSessionIds)
-        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates.map({ $0.key }))
+        let expiredSessionsIds = expiredSessionsDict.reduce([]) { $0 + $1.value }
         
-        return actualSessionsStates.map({ $0.value.sessionId })
+        try self.keyHelper.removeSessionKeys(forSessionsWithIds: expiredSessionsIds)
+        try self.sessionHelper.removeSessionsStates(dict: expiredSessionsDict)
+        
+        return actualSessionsStatesIds
     }
     
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60

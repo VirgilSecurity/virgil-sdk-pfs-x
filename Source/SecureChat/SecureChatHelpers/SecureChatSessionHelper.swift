@@ -19,48 +19,164 @@ class SecureChatSessionHelper {
 }
 
 extension SecureChatSessionHelper {
-    func getSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
-        Log.debug("Getting session state for: \(cardId)")
+    func getNewestSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
+        Log.debug("Getting newest session state for: \(cardId)")
         
-        guard let dict = self.storage.loadValue(forKey: cardId) else {
-            return nil
+        guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any],
+            let sessionsDict = entry[cardId] as? [String : Any] else {
+                return nil
         }
         
-        guard let state = SessionState(dictionary: dict) else {
+        return try sessionsDict
+            .map({ (sessionIdStr: String, dict: Any) throws -> SessionState in
+                guard let state = SessionState(dictionary: dict) else {
+                    throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
+                }
+                
+                return state
+            })
+            .max(by: {
+                return $0.0.creationDate < $0.1.creationDate
+            })
+    }
+    
+    func getSessionState(forRecipientCardId cardId: String, sessionId: Data) throws -> SessionState? {
+        Log.debug("Getting session state for: \(cardId), sessionId: \(sessionId.base64EncodedString())")
+        
+        guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any],
+            let sessionsDict = entry[cardId] as? [String : Any],
+            let sessionDict = sessionsDict[sessionId.base64EncodedString()] else {
+                return nil
+        }
+        
+        guard let state = SessionState(dictionary: sessionDict) else {
             throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
         }
         
         return state
     }
+    
+    func getSessionStates(forRecipientCardId cardId: String) throws -> [SessionState] {
+        Log.debug("Getting session states for: \(cardId)")
+        
+        guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any],
+            let sessionsDict = entry[cardId] as? [String : Any] else {
+                return []
+        }
+        
+        return try sessionsDict
+            .map({ (sessionIdStr: String, dict: Any) throws -> SessionState in
+                guard let state = SessionState(dictionary: dict) else {
+                    throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
+                }
+                
+                return state
+            })
+    }
 }
 
 extension SecureChatSessionHelper {
-    func getAllSessionsStates() throws -> [String : SessionState] {
+    func getAllSessionsStates() throws -> [String : [Data : SessionState]] {
         Log.debug("Getting all sessions' states")
-        let dict = self.storage.getAllValues() ?? [:]
         
-        return try dict.mapPairs({ (key: String, val: Any) -> (String, SessionState) in
-            guard let state = SessionState(dictionary: val) else {
+        guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
+            return [:]
+        }
+        
+        return try entry.mapPairs({ (key: String, val: Any) -> (String, [Data : SessionState]) in
+            guard let dict = val as? [String : Any] else {
                 throw SecureChat.makeError(withCode: .corruptedSavedSession, description: "Corrupted saved session.")
             }
             
-            return (key, state)
+            var sessions = [Data : SessionState]()
+            for session in dict {
+                guard let sessionId = Data(base64Encoded: session.key),
+                    let state = SessionState(dictionary: session.value) else {
+                        throw SecureChat.makeError(withCode: .corruptedSavedSession, description: "Corrupted saved session.")
+                }
+                
+                sessions[sessionId] = state
+            }
+            
+            
+            return (key, sessions)
         })
     }
 }
 
 extension SecureChatSessionHelper {
-    func saveSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
-        Log.debug("Saving session state for: \(cardId)")
+    func addSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
+        Log.debug("Adding session state for: \(cardId). \(sessionState.sessionId)")
         
-        try self.storage.storeValue(sessionState.serialize(), forKey: cardId)
+        var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] ?? [:]
+        
+        var recipientEntry = entry[cardId] as? [String : Any] ?? [:]
+        
+        recipientEntry[sessionState.sessionId.base64EncodedString()] = sessionState.serialize()
+
+        entry[cardId] = recipientEntry
+        
+        try self.storage.storeValue(entry, forKey: self.getSessionsEntryKey())
     }
 }
 
 extension SecureChatSessionHelper {
-    func removeSessionsStates(withNames names: [String]) throws {
-        Log.debug("Removing sessions' states: \(names)")
+    func removeSessionsStates(dict: [String: [Data]?]) throws {
+        Log.debug("Removing sessions' states: \(dict)")
+        
+        guard !dict.isEmpty else {
+            return
+        }
+        
+        guard var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
+            throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions found.")
+        }
+        
+        for d in dict {
+            guard var sessions = entry[d.key] as? [String : Any] else {
+                throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions for \(d.key) found.")
+            }
+            
+            if let sessionIds = d.value {
+                for sessionId in sessionIds {
+                    guard sessions.removeValue(forKey: sessionId.base64EncodedString()) != nil else {
+                        throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no session for \(sessionId.base64EncodedString()) for this \(cardId) found.")
+                    }
+                }
+                
+                entry[d.key] = sessions
+            }
+            else {
+                entry.removeValue(forKey: d.key)
+            }
+        }
+        
+        try self.storage.storeValue(entry, forKey: self.getSessionsEntryKey())
+    }
+    
+    func removeSessionState(forCardId cardId: String, sessionId: Data) throws {
+        Log.debug("Removing session state: \(cardId) \(sessionId.base64EncodedString())")
+        
+        guard var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
+            throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions found.")
+        }
+        
+        guard var sessions = entry[cardId] as? [String : Any] else {
+            throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions for \(cardId) found.")
+        }
+        
+        guard sessions.removeValue(forKey: sessionId.base64EncodedString()) != nil else {
+            throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no session for \(sessionId.base64EncodedString()) for \(cardId) found.")
+        }
+        
+        entry[cardId] = sessions
+        
+        try self.storage.storeValue(entry, forKey: self.getSessionsEntryKey())
+    }
+}
 
-        try self.storage.removeValues(forKeys: names)
+extension SecureChatSessionHelper {
+    fileprivate func getSessionsEntryKey() -> String {
+        return "VIRGIL.SESSIONS.OWNER=\(self.cardId)"
     }
 }

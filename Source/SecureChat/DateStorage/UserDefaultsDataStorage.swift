@@ -15,6 +15,22 @@ import Foundation
     
     private static let RootKey = "ROOT_KEY"
     
+    private static let SuiteNameFormat = "VIRGIL.DEFAULTS.%@"
+    
+    private class func getSuiteName(forIdentifier identifier: String) -> String {
+        return String(format: UserDefaultsDataStorage.SuiteNameFormat, identifier)
+    }
+    
+    public class func makeStorage(forIdentifier identifier: String) throws -> InsensitiveDataStorage {
+        let suiteName = self.getSuiteName(forIdentifier: identifier)
+        
+        guard let storage = UserDefaultsDataStorage(suiteName: suiteName) else {
+            throw NSError(domain: UserDefaultsDataStorage.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while instantiating storage."])
+        }
+        
+        return storage
+    }
+    
     init?(suiteName: String) {
         guard let userDefaults = UserDefaults(suiteName: suiteName) else {
             return nil

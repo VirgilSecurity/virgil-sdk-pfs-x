@@ -14,8 +14,4 @@ import Foundation
     func storeValue(_ value: Any?, forKey defaultName: String) throws
     
     func removeValue(forKey key: String) throws
-    
-    func removeValues(forKeys keys: [String]) throws
-    
-    func getAllValues() -> [String : Any]?
 }

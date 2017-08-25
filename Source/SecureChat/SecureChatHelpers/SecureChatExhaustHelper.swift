@@ -47,9 +47,7 @@ extension SecureChatExhaustHelper {
 }
 
 extension SecureChatExhaustHelper {
-    static private let ExhaustEntryKey = "VIRGIL.EXHAUSTINFO"
-    
     fileprivate func getExhaustEntryKey() -> String {
-        return SecureChatExhaustHelper.ExhaustEntryKey
+        return "VIRGIL.EXHAUSTINFO.OWNER=\(self.cardId)"
     }
 }

@@ -22,9 +22,10 @@ extension Client {
             }
             
             let request = request as! CredentialsHTTPRequest
-            guard let response = request.credentialsResponse else {
-                completion(nil, nil)
-                return
+            guard let response = request.credentialsResponse,
+                response.credentials.count > 0 else {
+                    completion(nil, nil)
+                    return
             }
             
             var credentials: [RecipientCardsSet] = []
