@@ -12,27 +12,27 @@ import VirgilSDK
 class KeysRotator {
     private let identityCard: VSSCard
     private let oneTimeCardExhaustTtl: TimeInterval
-    private let cardsHelper: SecureChatCardsHelper
-    private let sessionHelper: SecureChatSessionHelper
-    private let keyHelper: SecureChatKeyHelper
-    private let exhaustHelper: SecureChatExhaustHelper
+    private let ephemeralCardsReplenisher: EphemeralCardsReplenisher
+    private let sessionStorageManager: SessionStorageManager
+    private let keyStorageManager: KeyStorageManager
+    private let exhaustInfoManager: ExhaustInfoManager
     private let client: Client
     private let mutex = Mutex()
     
-    init(identityCard: VSSCard, oneTimeCardExhaustTtl: TimeInterval, cardsHelper: SecureChatCardsHelper, sessionHelper: SecureChatSessionHelper, keyHelper: SecureChatKeyHelper, exhaustHelper: SecureChatExhaustHelper, client: Client) {
+    init(identityCard: VSSCard, oneTimeCardExhaustTtl: TimeInterval, ephemeralCardsReplenisher: EphemeralCardsReplenisher, sessionStorageManager: SessionStorageManager, keyStorageManager: KeyStorageManager, exhaustInfoManager: ExhaustInfoManager, client: Client) {
         self.identityCard = identityCard
         self.oneTimeCardExhaustTtl = oneTimeCardExhaustTtl
-        self.cardsHelper = cardsHelper
-        self.sessionHelper = sessionHelper
-        self.keyHelper = keyHelper
-        self.exhaustHelper = exhaustHelper
+        self.ephemeralCardsReplenisher = ephemeralCardsReplenisher
+        self.sessionStorageManager = sessionStorageManager
+        self.keyStorageManager = keyStorageManager
+        self.exhaustInfoManager = exhaustInfoManager
         self.client = client
     }
     
     private func removeExpiredSessionsAndReturnActualSessionIds() throws -> [Data] {
         Log.debug("Removing expired sessions.")
         
-        let sessionsStates = try self.sessionHelper.getAllSessionsStates()
+        let sessionsStates = try self.sessionStorageManager.getAllSessionsStates()
         
         let date = Date()
         
@@ -61,8 +61,8 @@ class KeysRotator {
         
         let expiredSessionsIds = expiredSessionsDict.reduce([]) { $0 + $1.value }
         
-        try self.keyHelper.removeSessionKeys(forSessionsWithIds: expiredSessionsIds)
-        try self.sessionHelper.removeSessionsStates(dict: expiredSessionsDict)
+        try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: expiredSessionsIds)
+        try self.sessionStorageManager.removeSessionsStates(dict: expiredSessionsDict)
         
         return actualSessionsStatesIds
     }
@@ -79,16 +79,16 @@ class KeysRotator {
         do {
             let actualSessionIds = Set<Data>(try self.removeExpiredSessionsAndReturnActualSessionIds())
         
-            let (otKeysIds, sessionKeysIds) = try self.keyHelper.getAllOtCardsAndSessionKeysIds()
+            let (otKeysIds, sessionKeysIds) = try self.keyStorageManager.getAllOtCardsAndSessionKeysIds()
             
             let orphanedSessionKeysIds = sessionKeysIds.filter({ !actualSessionIds.contains($0) })
             
             if orphanedSessionKeysIds.count > 0 {
                 Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
-                try self.keyHelper.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
+                try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
             }
 
-            exhaustedInfo = try self.exhaustHelper.getKeysExhaustInfo()
+            exhaustedInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
             
             let otcTtl = self.oneTimeCardExhaustTtl
             
@@ -96,7 +96,7 @@ class KeysRotator {
             
             if orphanedOtcIds.count > 0 {
                 Log.error("WARNING: orphaned otcs found: \(orphanedOtcIds)")
-                try self.keyHelper.removeOtPrivateKeys(withNames: orphanedOtcIds)
+                try self.keyStorageManager.removeOtPrivateKeys(withNames: orphanedOtcIds)
             }
             
             let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
@@ -122,7 +122,7 @@ class KeysRotator {
             newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
             
             do {
-                try self.exhaustHelper.saveKeysExhaustInfo(newExhaustInfo)
+                try self.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo)
             }
             catch {
                 completion(error)
@@ -203,9 +203,9 @@ class KeysRotator {
             }
             
             if numberOfMissingCards > 0 {
-                let addLtCard = !self.owner.keyHelper.hasRelevantLtKey()
+                let addLtCard = !self.owner.keyStorageManager.hasRelevantLtKey()
                 do {
-                    try self.owner.cardsHelper.addCards(includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
+                    try self.owner.ephemeralCardsReplenisher.addCards(includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                         if let error = error {
                             self.fail(withError: error)
                             return

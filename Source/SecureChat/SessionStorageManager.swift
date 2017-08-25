@@ -1,5 +1,5 @@
 //
-//  SecureChatSessionHelper.swift
+//  SessionStorageManager.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/22/17.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class SecureChatSessionHelper {
+class SessionStorageManager {
     fileprivate let cardId: String
     fileprivate let storage: InsensitiveDataStorage
     
@@ -18,7 +18,7 @@ class SecureChatSessionHelper {
     }
 }
 
-extension SecureChatSessionHelper {
+extension SessionStorageManager {
     func getNewestSessionState(forRecipientCardId cardId: String) throws -> SessionState? {
         Log.debug("Getting newest session state for: \(cardId)")
         
@@ -76,7 +76,7 @@ extension SecureChatSessionHelper {
     }
 }
 
-extension SecureChatSessionHelper {
+extension SessionStorageManager {
     func getAllSessionsStates() throws -> [String : [Data : SessionState]] {
         Log.debug("Getting all sessions' states")
         
@@ -105,7 +105,7 @@ extension SecureChatSessionHelper {
     }
 }
 
-extension SecureChatSessionHelper {
+extension SessionStorageManager {
     func addSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
         Log.debug("Adding session state for: \(cardId). \(sessionState.sessionId)")
         
@@ -121,7 +121,7 @@ extension SecureChatSessionHelper {
     }
 }
 
-extension SecureChatSessionHelper {
+extension SessionStorageManager {
     func removeSessionsStates(dict: [String: [Data]?]) throws {
         Log.debug("Removing sessions' states: \(dict)")
         
@@ -176,7 +176,7 @@ extension SecureChatSessionHelper {
     }
 }
 
-extension SecureChatSessionHelper {
+extension SessionStorageManager {
     fileprivate func getSessionsEntryKey() -> String {
         return "VIRGIL.SESSIONS.OWNER=\(self.cardId)"
     }

@@ -1,5 +1,5 @@
 //
-//  SecureChatExhaustHelper.swift
+//  ExhaustInfoManager.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 8/22/17.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-class SecureChatExhaustHelper {
+class ExhaustInfoManager {
     fileprivate let cardId: String
     fileprivate let storage: InsensitiveDataStorage
     
@@ -18,7 +18,7 @@ class SecureChatExhaustHelper {
     }
 }
 
-extension SecureChatExhaustHelper {
+extension ExhaustInfoManager {
     func getKeysExhaustInfo() throws -> [OtcExhaustInfo] {
         Log.debug("Getting exhaust info")
         
@@ -38,7 +38,7 @@ extension SecureChatExhaustHelper {
     }
 }
 
-extension SecureChatExhaustHelper {
+extension ExhaustInfoManager {
     func saveKeysExhaustInfo(_ keysExhaustInfo: [OtcExhaustInfo]) throws {
         Log.debug("Saving exhaust info")
         
@@ -46,7 +46,7 @@ extension SecureChatExhaustHelper {
     }
 }
 
-extension SecureChatExhaustHelper {
+extension ExhaustInfoManager {
     fileprivate func getExhaustEntryKey() -> String {
         return "VIRGIL.EXHAUSTINFO.OWNER=\(self.cardId)"
     }

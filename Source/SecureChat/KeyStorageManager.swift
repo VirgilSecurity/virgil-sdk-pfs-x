@@ -1,5 +1,5 @@
 //
-//  SecureChatKeyHelper.swift
+//  KeyStorageManager.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/22/17.
@@ -9,14 +9,13 @@
 import Foundation
 import VirgilSDK
 
-class SecureChatKeyHelper {
-    static public let ErrorDomain = "VSPSecureChatKeyHelperErrorDomain"
+class KeyStorageManager {
+    static public let ErrorDomain = "VSPKeyStorageManagerErrorDomain"
     
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let keyStorage: KeyStorage
     fileprivate let longTermKeyTtl: TimeInterval
     fileprivate let namesHelper: KeyNamesHelper
-    private let mutex = Mutex()
     
     init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String, longTermKeyTtl: TimeInterval) {
         self.crypto = crypto
@@ -72,7 +71,7 @@ class SecureChatKeyHelper {
 }
 
 // MARK: Keys base functions
-extension SecureChatKeyHelper {
+extension KeyStorageManager {
     // Session keys
     func getSessionKeys(forSessionWithId sessionId: Data) throws -> SessionKeys {
         let sessionIdStr = sessionId.base64EncodedString()
@@ -145,7 +144,7 @@ extension SecureChatKeyHelper {
     }
 }
 
-fileprivate extension SecureChatKeyHelper {
+fileprivate extension KeyStorageManager {
     func savePrivateKey(_ key: VSSPrivateKey, keyEntryName: String) throws {
         let privateKeyData = self.crypto.export(key, withPassword: nil)
 
@@ -172,7 +171,7 @@ fileprivate extension SecureChatKeyHelper {
     }
 }
 
-fileprivate extension SecureChatKeyHelper {
+fileprivate extension KeyStorageManager {
     func getPrivateKey(withKeyEntryName keyEntryName: String) throws -> VSSPrivateKey {
         let keyEntry = try self.getKeyEntry(withKeyEntryName: keyEntryName)
         
@@ -188,7 +187,7 @@ fileprivate extension SecureChatKeyHelper {
     }
 }
 
-fileprivate extension SecureChatKeyHelper {
+fileprivate extension KeyStorageManager {
     func removeKeyEntry(withKeyEntryName keyEntryName: String) throws {
         try self.keyStorage.deleteKeyEntry(withName: keyEntryName)
     }
@@ -198,7 +197,7 @@ fileprivate extension SecureChatKeyHelper {
     }
 }
 
-fileprivate extension SecureChatKeyHelper {
+fileprivate extension KeyStorageManager {
     class KeyNamesHelper {
         private let identityCardId: String
         
@@ -259,21 +258,21 @@ fileprivate extension SecureChatKeyHelper {
     }
 }
 
-extension SecureChatKeyHelper {
+extension KeyStorageManager {
     struct HelperKeyEntry {
         let privateKey: VSSPrivateKey
         let keyName: String
     }
 }
 
-extension SecureChatKeyHelper {
+extension KeyStorageManager {
     struct SessionKeys {
         let encryptionKey: Data
         let decryptionKey: Data
     }
 }
 
-extension SecureChatKeyHelper.SessionKeys {
+extension KeyStorageManager.SessionKeys {
     func convertToData() -> Data {
         return self.encryptionKey + self.decryptionKey
     }

@@ -1,5 +1,5 @@
 //
-//  SecureChatCardsHelper.swift
+//  EphemeralCardsReplenisher.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/22/17.
@@ -9,21 +9,21 @@
 import Foundation
 import VirgilSDK
 
-class SecureChatCardsHelper {
+class EphemeralCardsReplenisher {
     private let crypto: VSSCryptoProtocol
     private let identityPrivateKey: VSSPrivateKey
     private let identityCardId: String
     private let client: Client
     private let deviceManager: VSSDeviceManagerProtocol
-    private let keyHelper: SecureChatKeyHelper
+    private let keyStorageManager: KeyStorageManager
     
-    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, deviceManager: VSSDeviceManagerProtocol, keyHelper: SecureChatKeyHelper) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, deviceManager: VSSDeviceManagerProtocol, keyStorageManager: KeyStorageManager) {
         self.crypto = crypto
         self.identityPrivateKey = identityPrivateKey
         self.identityCardId = identityCardId
         self.client = client
         self.deviceManager = deviceManager
-        self.keyHelper = keyHelper
+        self.keyStorageManager = keyStorageManager
     }
     
     private func generateRequest(withKeyPair keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
@@ -45,7 +45,7 @@ class SecureChatCardsHelper {
     func addCards(includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
         Log.debug("Adding \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard)")
         
-        var otcKeys: [SecureChatKeyHelper.HelperKeyEntry] = []
+        var otcKeys: [KeyStorageManager.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
         
         var otcCardsRequests: [CreateEphemeralCardRequest] = []
@@ -56,25 +56,25 @@ class SecureChatCardsHelper {
             let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
-            let keyEntry = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            let keyEntry = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
             otcKeys.append(keyEntry)
         }
         
-        let ltcKey: SecureChatKeyHelper.HelperKeyEntry?
+        let ltcKey: KeyStorageManager.HelperKeyEntry?
         let ltcCardRequest: CreateEphemeralCardRequest?
         if includeLtcCard {
             let keyPair = self.crypto.generateKeyPair()
             let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: true)
             ltcCardRequest = request
             
-            ltcKey = SecureChatKeyHelper.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            ltcKey = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
         }
         else {
             ltcKey = nil
             ltcCardRequest = nil
         }
         
-        try self.keyHelper.persistKeys(keys: otcKeys, ltKey: ltcKey)
+        try self.keyStorageManager.persistKeys(keys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
             if let error = error {

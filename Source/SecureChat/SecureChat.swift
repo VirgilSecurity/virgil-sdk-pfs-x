@@ -15,7 +15,7 @@ import VirgilSDK
     public let identityCardId: String
     public let client: Client
     
-    fileprivate let cardsHelper: SecureChatCardsHelper
+    fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
     fileprivate let sessionManager: SessionManager
     fileprivate let rotator: KeysRotator
     
@@ -23,18 +23,16 @@ import VirgilSDK
         self.identityCardId = preferences.identityCard.identifier
         self.client = Client(serviceConfig: preferences.serviceConfig)
         
-        let keyHelper = SecureChatKeyHelper(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl)
-        self.cardsHelper = SecureChatCardsHelper(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyHelper: keyHelper)
+        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl)
+        self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyStorageManager: keyStorageManager)
         
-        let sessionHelper = SecureChatSessionHelper(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
+        let sessionStorageManager = SessionStorageManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
-        let exhaustHelper = SecureChatExhaustHelper(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
+        let exhaustInfoManager = ExhaustInfoManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
-        let sessionInitializer = SessionInitializer(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCard: preferences.identityCard)
+        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
         
-        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyHelper: keyHelper, sessionHelper: sessionHelper, sessionInitializer: sessionInitializer)
-        
-        self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.onetimeCardExhaustLifetime, cardsHelper: self.cardsHelper, sessionHelper: sessionHelper, keyHelper: keyHelper, exhaustHelper: exhaustHelper, client: self.client)
+        self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.onetimeCardExhaustLifetime, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
         
         super.init()
     }
@@ -110,7 +108,7 @@ extension SecureChat {
         
         if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
             // Add new one time card
-            try? self.cardsHelper.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
+            try? self.ephemeralCardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
                 guard error == nil else {
                     Log.error("SecureChat:\(self.identityCardId). WARNING: Error occured while adding new otc in loadUpSession")
                     return

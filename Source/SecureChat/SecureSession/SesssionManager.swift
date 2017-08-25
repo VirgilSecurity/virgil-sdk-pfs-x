@@ -13,22 +13,22 @@ class SessionManager {
     fileprivate let identityPrivateKey: VSSPrivateKey
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let sessionTtl: TimeInterval
-    fileprivate let keyHelper: SecureChatKeyHelper
-    fileprivate let sessionHelper: SecureChatSessionHelper
+    fileprivate let keyStorageManager: KeyStorageManager
+    fileprivate let sessionStorageManager: SessionStorageManager
     fileprivate let sessionInitializer: SessionInitializer
     
-    init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyHelper: SecureChatKeyHelper, sessionHelper: SecureChatSessionHelper, sessionInitializer: SessionInitializer) {
+    init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyStorageManager: KeyStorageManager, sessionStorageManager: SessionStorageManager) {
         self.identityCard = identityCard
         self.identityPrivateKey = identityPrivateKey
         self.crypto = crypto
         self.sessionTtl = sessionTtl
-        self.keyHelper = keyHelper
-        self.sessionHelper = sessionHelper
-        self.sessionInitializer = sessionInitializer
+        self.keyStorageManager = keyStorageManager
+        self.sessionStorageManager = sessionStorageManager
+        self.sessionInitializer = SessionInitializer(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard)
     }
     
     func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
-        guard case let sessionState?? = try? self.sessionHelper.getNewestSessionState(forRecipientCardId: cardId) else {
+        guard case let sessionState?? = try? self.sessionStorageManager.getNewestSessionState(forRecipientCardId: cardId) else {
             return nil
         }
         
@@ -54,13 +54,13 @@ extension SessionManager {
         let encryptionKey = session.encryptionKey
         let decryptionKey = session.decryptionKey
         
-        let sessionKeys = SecureChatKeyHelper.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
+        let sessionKeys = KeyStorageManager.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
         
-        try self.keyHelper.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
+        try self.keyStorageManager.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
         
         let sessionState = SessionState(creationDate: creationDate, expirationDate: session.expirationDate, sessionId: session.sessionId, additionalData: session.additionalData)
 
-        try self.sessionHelper.addSessionState(sessionState, forRecipientCardId: participantCardId)
+        try self.sessionStorageManager.addSessionState(sessionState, forRecipientCardId: participantCardId)
     }
 }
 
@@ -68,7 +68,7 @@ extension SessionManager {
     func checkExistingSessionOnStart(recipientCardId: String) throws  {
         let sessionState: SessionState?
         do {
-            sessionState = try self.sessionHelper.getNewestSessionState(forRecipientCardId: recipientCardId)
+            sessionState = try self.sessionStorageManager.getNewestSessionState(forRecipientCardId: recipientCardId)
         }
         catch {
             throw SecureChat.makeError(withCode: .checkingForExistingSession, description: "Error checking for existing session. Underlying error: \(error.localizedDescription)")
@@ -94,7 +94,7 @@ extension SessionManager {
 
 extension SessionManager {
     func loadSession(recipientCardId: String, sessionId: Data) throws -> SecureSession {
-        guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: recipientCardId, sessionId: sessionId),
+        guard case let sessionState?? = try? self.sessionStorageManager.getSessionState(forRecipientCardId: recipientCardId, sessionId: sessionId),
             sessionState.sessionId == sessionId else {
                 throw SecureChat.makeError(withCode: .sessionNotFound, description: "Session not found.")
         }
@@ -122,11 +122,11 @@ extension SessionManager {
             throw SecureSession.makeError(withCode: .initiatorIdentityCardIdDoesntMatch, description: "Initiator identity card id for this session and InitiationMessage doesn't match.")
         }
         
-        let ltPrivateKey = try self.keyHelper.getLtPrivateKey(withName: initiationMessage.responderLtcId)
+        let ltPrivateKey = try self.keyStorageManager.getLtPrivateKey(withName: initiationMessage.responderLtcId)
         
         let otPrivateKey: VSSPrivateKey?
         if let recponderOtcId = initiationMessage.responderOtcId {
-            otPrivateKey = try self.keyHelper.getOtPrivateKey(name: recponderOtcId)
+            otPrivateKey = try self.keyStorageManager.getOtPrivateKey(name: recponderOtcId)
         }
         else {
             otPrivateKey = nil
@@ -202,7 +202,7 @@ extension SessionManager {
     fileprivate func recoverSession(myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureSession {
         Log.debug("SessionManager: \(self.identityCard.identifier). Recovering session: \(sessionState.sessionId.base64EncodedString())")
         
-        let sessionKeys = try self.keyHelper.getSessionKeys(forSessionWithId: sessionState.sessionId)
+        let sessionKeys = try self.keyStorageManager.getSessionKeys(forSessionWithId: sessionState.sessionId)
         
         return try self.sessionInitializer.initializeSavedSession(sessionId: sessionState.sessionId, encryptionKey: sessionKeys.encryptionKey, decryptionKey: sessionKeys.decryptionKey, additionalData: sessionState.additionalData, expirationDate: sessionState.expirationDate)
     }
@@ -213,7 +213,7 @@ extension SessionManager {
     func gentleReset() throws {
         Log.debug("SessionManager: \(self.identityCard.identifier). Gentle reset started")
         
-        let sessionStates = try self.sessionHelper.getAllSessionsStates()
+        let sessionStates = try self.sessionStorageManager.getAllSessionsStates()
         
         for sessionState in sessionStates {
             try? self.removeSessions(withParticipantWithCardId: sessionState.key)
@@ -225,17 +225,17 @@ extension SessionManager {
     private func removeAllKeys() {
         Log.debug("SessionManager: \(self.identityCard.identifier). Removing all keys.")
         
-        self.keyHelper.gentleReset()
+        self.keyStorageManager.gentleReset()
     }
     
     func removeSessions(withParticipantWithCardId cardId: String) throws {
         Log.debug("SessionManager: \(self.identityCard.identifier). Removing sessions with: \(cardId)")
         
-        let sessionStatesIds = try self.sessionHelper.getSessionStatesIds(forRecipientCardId: cardId)
+        let sessionStatesIds = try self.sessionStorageManager.getSessionStatesIds(forRecipientCardId: cardId)
         for sessionId in sessionStatesIds {
             var err: Error?
             do {
-                try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionId)
+                try self.sessionStorageManager.removeSessionState(forCardId: cardId, sessionId: sessionId)
             }
             catch {
                 err = error
@@ -252,14 +252,14 @@ extension SessionManager {
         Log.debug("SessionManager: \(self.identityCard.identifier). Removing session with: \(cardId), sessionId: \(sessionId.base64EncodedString())")
         
         try self.removeSessionKeys(forSessionId: sessionId)
-        try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionId)
+        try self.sessionStorageManager.removeSessionState(forCardId: cardId, sessionId: sessionId)
     }
     
     private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
         Log.debug("SessionManager: \(self.identityCard.identifier). Removing session keys for: \(cardId).")
         
         do {
-            try self.keyHelper.removeOtPrivateKey(withName: cardId)
+            try self.keyStorageManager.removeOtPrivateKey(withName: cardId)
         }
         catch {
             throw SecureChat.makeError(withCode: .removingOtKey, description: "Error while removing ot key: \(error.localizedDescription)")
@@ -269,6 +269,6 @@ extension SessionManager {
     private func removeSessionKeys(forSessionId sessionId: Data) throws {
         Log.debug("SessionManager: \(self.identityCard.identifier). Removing session keys for: \(sessionId.base64EncodedString()).")
         
-        try self.keyHelper.removeSessionKeys(forSessionWithId: sessionId)
+        try self.keyStorageManager.removeSessionKeys(forSessionWithId: sessionId)
     }
 }
