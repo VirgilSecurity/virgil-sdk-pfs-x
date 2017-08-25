@@ -19,6 +19,7 @@ import VirgilSDK
     fileprivate let cardsHelper: SecureChatCardsHelper
     fileprivate let sessionHelper: SecureChatSessionHelper
     fileprivate let exhaustHelper: SecureChatExhaustHelper
+    fileprivate let sessionInitializer: SessionInitializer
     
     fileprivate var rotateKeysMutex = Mutex()
     
@@ -38,6 +39,8 @@ import VirgilSDK
             return nil
         }
         self.exhaustHelper = SecureChatExhaustHelper(cardId: self.preferences.identityCard.identifier, storage: exhaustStorage)
+        
+        self.sessionInitializer = SessionInitializer(crypto: self.preferences.crypto, identityPrivateKey: self.preferences.privateKey, identityCard: self.preferences.identityCard, sessionHelper: self.sessionHelper, keyHelper: self.keyHelper)
         
         super.init()
     }
@@ -116,7 +119,7 @@ extension SecureChat {
         }
         
         let date = Date()
-        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, keyHelper: self.keyHelper, additionalData: additionalData, myIdCard: self.preferences.identityCard, ephPrivateKey: ephPrivateKey, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
+        let secureSession = try self.sessionInitializer.initializeInitiatorSession(ephPrivateKey: ephPrivateKey, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, additionalData: additionalData, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
      
         return secureSession
     }
@@ -200,9 +203,7 @@ extension SecureChat {
             let cardEntry = SecureSession.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
             
             let date = Date()
-            let secureSession = SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
-            
-            let _ = try secureSession.decrypt(initiationMessage)
+            let secureSession = try self.sessionInitializer.initializeResponderSession(initiatorCardEntry: cardEntry, initiationMessage: initiationMessage, additionalData: additionalData, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
             
             return secureSession
         }
@@ -230,7 +231,8 @@ extension SecureChat {
         Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Recovering session: \(sessionState.sessionId.base64EncodedString())")
         
         let sessionKeys = try self.keyHelper.getSessionKeys(forSessionWithId: sessionState.sessionId)
-        return try SecureSession(sessionId: sessionState.sessionId, encryptionKey: sessionKeys.encryptionKey, decryptionKey: sessionKeys.decryptionKey, additionalData: sessionState.additionalData, expirationDate: sessionState.expirationDate)
+        
+        return try self.sessionInitializer.initializeSavedSession(sessionId: sessionState.sessionId, encryptionKey: sessionKeys.encryptionKey, decryptionKey: sessionKeys.decryptionKey, additionalData: sessionState.additionalData, expirationDate: sessionState.expirationDate)
     }
 }
 

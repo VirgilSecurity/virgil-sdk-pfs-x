@@ -20,25 +20,14 @@ import VirgilCrypto
     
     let expirationDate: Date
     
-    let pfs = VSCPfs()
+    fileprivate var firstMsgGenerator: ((SecureSession, String) throws -> String)?
     
-    public var isInitialized: Bool {
-        return self.pfs.session != nil
-    }
+    fileprivate let pfs = VSCPfs()
     
-    init(expirationDate: Date) {
+    init(pfsSession: VSCPfsSession, expirationDate: Date, firstMsgGenerator: ((SecureSession, String) throws -> String)?) {
+        self.pfs.session = pfsSession
         self.expirationDate = expirationDate
-        
-        super.init()
-    }
-    
-    init(sessionId: Data, encryptionKey: Data, decryptionKey: Data, additionalData: Data, expirationDate: Date) throws {
-        guard let session = VSCPfsSession(identifier: sessionId, encryptionSecretKey: encryptionKey, decryptionSecretKey: decryptionKey, additionalData: additionalData) else {
-            throw SecureSession.makeError(withCode: .recoveringInitiatedSession, description: "Error creating session using symmetric keys.")
-        }
-        
-        self.pfs.session = session
-        self.expirationDate = expirationDate
+        self.firstMsgGenerator = firstMsgGenerator
         
         super.init()
     }
@@ -81,8 +70,16 @@ extension SecureSession {
             throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error while converting message to data in SecureSession.")
         }
         
-        guard let message = try? SecureSession.extractMessage(messageData) else {
-            throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message in SecureSession.")
+        let message: Message
+        if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData),
+            let pfsSession = self.pfs.session {
+            message = Message(sessionId: pfsSession.identifier, salt: initiationMessage.salt, cipherText: initiationMessage.cipherText)
+        }
+        else {
+            guard let msg = try? SecureSession.extractMessage(messageData) else {
+                throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message in SecureSession.")
+            }
+            message = msg
         }
         
         return try self.decrypt(encryptedMessage: message)
@@ -92,6 +89,13 @@ extension SecureSession {
 // Encryption
 extension SecureSession {
     public func encrypt(_ message: String) throws -> String {
+        // Initiation message
+        if let firstMsgGenerator = self.firstMsgGenerator {
+            let encryptedMessage = try firstMsgGenerator(self, message)
+            self.firstMsgGenerator = nil
+            return encryptedMessage
+        }
+        
         guard let messageData = message.data(using: .utf8) else {
             throw SecureSession.makeError(withCode: .convertingMessageToDataWhileEncrypting, description: "Error converting message to data while encrypting.")
         }
@@ -112,6 +116,28 @@ extension SecureSession {
         
         guard let msgStr = String(data: msgData, encoding: .utf8) else {
             throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error converting encrypted message to data using utf8.")
+        }
+        
+        return msgStr
+    }
+}
+
+extension SecureSession {
+    func encryptInitiationMessage(_ message: String, ephPublicKeyData: Data, ephPublicKeySignature: Data, initiatorIcId: String, responderIcId: String, responderLtcId: String, responderOtcId: String?) throws -> String {
+        guard let messageData = message.data(using: .utf8) else {
+            throw SecureSession.makeError(withCode: .convertingMessageToDataWhileEncrypting, description: "Error converting message to data while encrypting.")
+        }
+        
+        guard let encryptedMessage = self.pfs.encryptData(messageData) else {
+            throw SecureSession.makeError(withCode: .encryptingMessage, description: "Error encrypting message.")
+        }
+        
+        let initMsg = InitiationMessage(initiatorIcId: initiatorIcId, responderIcId: responderIcId, responderLtcId: responderLtcId, responderOtcId: responderOtcId, ephPublicKey: ephPublicKeyData, ephPublicKeySignature: ephPublicKeySignature, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText)
+        
+        let msgData = try JSONSerialization.data(withJSONObject: initMsg.serialize(), options: [])
+        
+        guard let msgStr = String(data: msgData, encoding: .utf8) else {
+            throw SecureSession.makeError(withCode: .convertingEncryptedInitiationMessageToUtf8Data, description: "Error converting encrypted initiation message to data using utf8.")
         }
         
         return msgStr
