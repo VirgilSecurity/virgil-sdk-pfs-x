@@ -10,14 +10,16 @@ import Foundation
 
 class SessionManager {
     fileprivate let identityCard: VSSCard
+    fileprivate let identityPrivateKey: VSSPrivateKey
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let sessionTtl: TimeInterval
     fileprivate let keyHelper: SecureChatKeyHelper
     fileprivate let sessionHelper: SecureChatSessionHelper
     fileprivate let sessionInitializer: SessionInitializer
     
-    init(identityCard: VSSCard, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyHelper: SecureChatKeyHelper, sessionHelper: SecureChatSessionHelper, sessionInitializer: SessionInitializer) {
+    init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyHelper: SecureChatKeyHelper, sessionHelper: SecureChatSessionHelper, sessionInitializer: SessionInitializer) {
         self.identityCard = identityCard
+        self.identityPrivateKey = identityPrivateKey
         self.crypto = crypto
         self.sessionTtl = sessionTtl
         self.keyHelper = keyHelper
@@ -105,10 +107,35 @@ extension SessionManager {
 
 extension SessionManager {
     func initializeResponderSession(initiatorCardEntry: CardEntry, initiationMessage: InitiationMessage, additionalData: Data?) throws -> SecureSession {
+        guard let initiatorPublicKey = self.crypto.importPublicKey(from: initiatorCardEntry.publicKeyData) else {
+            throw SecureSession.makeError(withCode: .importingInitiatorPublicKeyFromIdentityCard, description: "Error importing initiator public key from identity card.")
+        }
+        
+        do {
+            try self.crypto.verify(initiationMessage.ephPublicKey, withSignature: initiationMessage.ephPublicKeySignature, using: initiatorPublicKey)
+        }
+        catch {
+            throw SecureSession.makeError(withCode: .validatingInitiatorSignature, description: "Error validating initiator signature.")
+        }
+        
+        guard initiationMessage.initiatorIcId == initiatorCardEntry.identifier else {
+            throw SecureSession.makeError(withCode: .initiatorIdentityCardIdDoesntMatch, description: "Initiator identity card id for this session and InitiationMessage doesn't match.")
+        }
+        
+        let ltPrivateKey = try self.keyHelper.getLtPrivateKey(withName: initiationMessage.responderLtcId)
+        
+        let otPrivateKey: VSSPrivateKey?
+        if let recponderOtcId = initiationMessage.responderOtcId {
+            otPrivateKey = try self.keyHelper.getOtPrivateKey(name: recponderOtcId)
+        }
+        else {
+            otPrivateKey = nil
+        }
+        
         let creationDate = Date()
         let expirationDate = creationDate.addingTimeInterval(self.sessionTtl)
         
-        let secureSession = try self.sessionInitializer.initializeResponderSession(initiatorCardEntry: initiatorCardEntry, initiationMessage: initiationMessage, additionalData: additionalData, expirationDate: expirationDate)
+        let secureSession = try self.sessionInitializer.initializeResponderSession(initiatorCardEntry: initiatorCardEntry, privateKey: self.identityPrivateKey, ltPrivateKey: ltPrivateKey, otPrivateKey: otPrivateKey, ephPublicKey: initiationMessage.ephPublicKey, additionalData: additionalData, expirationDate: expirationDate)
         
         try self.saveSession(secureSession, creationDate: creationDate, participantCardId: initiatorCardEntry.identifier)
         

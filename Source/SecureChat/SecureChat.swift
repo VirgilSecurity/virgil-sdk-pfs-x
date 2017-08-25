@@ -30,9 +30,9 @@ import VirgilSDK
         
         let exhaustHelper = SecureChatExhaustHelper(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
-        let sessionInitializer = SessionInitializer(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCard: preferences.identityCard, keyHelper: keyHelper)
+        let sessionInitializer = SessionInitializer(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCard: preferences.identityCard)
         
-        self.sessionManager = SessionManager(identityCard: preferences.identityCard, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyHelper: keyHelper, sessionHelper: sessionHelper, sessionInitializer: sessionInitializer)
+        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyHelper: keyHelper, sessionHelper: sessionHelper, sessionInitializer: sessionInitializer)
         
         self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.onetimeCardExhaustLifetime, cardsHelper: self.cardsHelper, sessionHelper: sessionHelper, keyHelper: keyHelper, exhaustHelper: exhaustHelper, client: self.client)
         

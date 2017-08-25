@@ -14,13 +14,11 @@ class SessionInitializer {
     private let crypto: VSSCryptoProtocol
     private let identityPrivateKey: VSSPrivateKey
     private let identityCard: VSSCard
-    private let keyHelper: SecureChatKeyHelper
     
-    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, keyHelper: SecureChatKeyHelper) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard) {
         self.crypto = crypto
         self.identityPrivateKey = identityPrivateKey
         self.identityCard = identityCard
-        self.keyHelper = keyHelper
     }
     
     func initializeInitiatorSession(ephPrivateKey: VSSPrivateKey, recipientIdCard: CardEntry, recipientLtCard: CardEntry, recipientOtCard: CardEntry?, additionalData: Data?, expirationDate: Date) throws -> SecureSession {
@@ -69,36 +67,10 @@ class SessionInitializer {
         return secureSession
     }
     
-    func initializeResponderSession(initiatorCardEntry: CardEntry, initiationMessage: InitiationMessage, additionalData: Data?, expirationDate: Date) throws -> SecureSession {
-        guard let initiatorPublicKey = self.crypto.importPublicKey(from: initiatorCardEntry.publicKeyData) else {
-            throw SecureSession.makeError(withCode: .importingInitiatorPublicKeyFromIdentityCard, description: "Error importing initiator public key from identity card.")
-        }
-
-        do {
-            try self.crypto.verify(initiationMessage.ephPublicKey, withSignature: initiationMessage.ephPublicKeySignature, using: initiatorPublicKey)
-        }
-        catch {
-            throw SecureSession.makeError(withCode: .validatingInitiatorSignature, description: "Error validating initiator signature.")
-        }
-
-        guard initiationMessage.initiatorIcId == initiatorCardEntry.identifier else {
-            throw SecureSession.makeError(withCode: .initiatorIdentityCardIdDoesntMatch, description: "Initiator identity card id for this session and InitiationMessage doesn't match.")
-        }
-
+    func initializeResponderSession(initiatorCardEntry: CardEntry, privateKey: VSSPrivateKey, ltPrivateKey: VSSPrivateKey, otPrivateKey: VSSPrivateKey?, ephPublicKey: Data, additionalData: Data?, expirationDate: Date) throws -> SecureSession {
         let privateKeyData = self.crypto.export(self.identityPrivateKey, withPassword: nil)
-
-        let myLtPrivateKey = try self.keyHelper.getLtPrivateKey(withName: initiationMessage.responderLtcId)
-        
-        let myOtPrivateKey: VSSPrivateKey?
-        if let recponderOtcId = initiationMessage.responderOtcId {
-            myOtPrivateKey = try self.keyHelper.getOtPrivateKey(name: recponderOtcId)
-        }
-        else {
-            myOtPrivateKey = nil
-        }
-
-        let ltPrivateKeyData = self.crypto.export(myLtPrivateKey, withPassword: nil)
-        let otPrivateKeyData = myOtPrivateKey != nil ? self.crypto.export(myOtPrivateKey!, withPassword: nil) : nil
+        let ltPrivateKeyData = self.crypto.export(ltPrivateKey, withPassword: nil)
+        let otPrivateKeyData = otPrivateKey != nil ? self.crypto.export(otPrivateKey!, withPassword: nil) : nil
         guard let privateKey = VSCPfsPrivateKey(key: privateKeyData, password: nil),
             let ltPrivateKey = VSCPfsPrivateKey(key: ltPrivateKeyData, password: nil) else {
                 throw SecureSession.makeError(withCode: .convertingResponderKeysDuringResponderInitialization, description: "Error while converting responder crypto keys to pfs keys during responder initialization.")
@@ -110,7 +82,7 @@ class SessionInitializer {
             throw SecureSession.makeError(withCode: .instantiationResponderPrivateInfo, description: "Error instantiating responderPrivateInfo.")
         }
 
-        guard let initiatorEphPublicKey = VSCPfsPublicKey(key: initiationMessage.ephPublicKey),
+        guard let initiatorEphPublicKey = VSCPfsPublicKey(key: ephPublicKey),
             let initiatorIdPublicKey = VSCPfsPublicKey(key: initiatorCardEntry.publicKeyData) else {
                 throw SecureSession.makeError(withCode: .convertingInitiatorKeysDuringResponderInitialization, description: "Error while converting initiator crypto keys to pfs keys during responder initialization.")
         }
