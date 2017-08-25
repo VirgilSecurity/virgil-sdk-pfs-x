@@ -56,7 +56,7 @@ extension SecureChatSessionHelper {
         return state
     }
     
-    func getSessionStates(forRecipientCardId cardId: String) throws -> [SessionState] {
+    func getSessionStatesIds(forRecipientCardId cardId: String) throws -> [Data] {
         Log.debug("Getting session states for: \(cardId)")
         
         guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any],
@@ -65,12 +65,13 @@ extension SecureChatSessionHelper {
         }
         
         return try sessionsDict
-            .map({ (sessionIdStr: String, dict: Any) throws -> SessionState in
-                guard let state = SessionState(dictionary: dict) else {
+            .keys
+            .map({
+                guard let sessionId = Data(base64Encoded: $0) else {
                     throw NSError(domain: SecureChat.ErrorDomain, code: SecureChatErrorCode.corruptedSavedSession.rawValue, userInfo: [NSLocalizedDescriptionKey: "Corrupted saved session."])
                 }
                 
-                return state
+                return sessionId
             })
     }
 }

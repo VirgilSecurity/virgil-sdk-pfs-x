@@ -92,6 +92,7 @@
 		429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E01F4DAB6B00103BE0 /* KeysRotator.swift */; };
 		429123E31F4DD3EE00103BE0 /* Sequence+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */; };
 		429123E51F4F9BE800103BE0 /* SessionInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E41F4F9BE800103BE0 /* SessionInitializer.swift */; };
+		429123E81F5068C500103BE0 /* VSP004_SessionHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -225,6 +226,7 @@
 		429123E01F4DAB6B00103BE0 /* KeysRotator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeysRotator.swift; sourceTree = "<group>"; };
 		429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Split.swift"; sourceTree = "<group>"; };
 		429123E41F4F9BE800103BE0 /* SessionInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionInitializer.swift; sourceTree = "<group>"; };
+		429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP004_SessionHelperTests.swift; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -317,6 +319,7 @@
 				420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */,
 				425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */,
 				429624181F15038900284665 /* VSP003_FingerprintTests.m */,
+				429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -848,6 +851,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
+				429123E81F5068C500103BE0 /* VSP004_SessionHelperTests.swift in Sources */,
 				425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */,
 				420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */,
 				420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */,
@@ -1096,6 +1100,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1122,6 +1127,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};

@@ -134,19 +134,18 @@ extension SecureChat {
         
         // If we have existing session
         if let sessionState = sessionState {
-            // If session is not expired - return error
-            guard sessionState.isExpired(now: Date()) else {
-                completion(nil, SecureChat.makeError(withCode: .foundActiveSession, description: "Found active session for given recipient. Try to loadUpSession:, if that fails try to remove session."))
-                return
+            if !sessionState.isExpired(now: Date()) {
+                Log.error("Found active session for \(recipientCard.identifier). Try to loadUpSession:, if that fails try to remove session.")
             }
-            
-            // If session is expired, just remove old session and create new one
-            do {
-                try self.removeSession(withParticipantWithCardId: recipientCard.identifier, sessionId: sessionState.sessionId)
-            }
-            catch {
-                completion(nil, SecureChat.makeError(withCode: .removingExpiredSession, description: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"))
-                return
+            else {
+                // If session is expired, just remove old session and create new one
+                do {
+                    try self.removeSession(withParticipantWithCardId: recipientCard.identifier, sessionId: sessionState.sessionId)
+                }
+                catch {
+                    completion(nil, SecureChat.makeError(withCode: .removingExpiredSession, description: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"))
+                    return
+                }
             }
         }
         
@@ -254,17 +253,17 @@ extension SecureChat {
     public func removeSessions(withParticipantWithCardId cardId: String) throws {
         Log.debug("SecureChat:\(self.preferences.identityCard.identifier). Removing sessions with: \(cardId)")
         
-        let sessionStates = try self.sessionHelper.getSessionStates(forRecipientCardId: cardId)
-        for sessionState in sessionStates {
+        let sessionStatesIds = try self.sessionHelper.getSessionStatesIds(forRecipientCardId: cardId)
+        for sessionId in sessionStatesIds {
             var err: Error?
             do {
-                try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionState.sessionId)
+                try self.sessionHelper.removeSessionState(forCardId: cardId, sessionId: sessionId)
             }
             catch {
                 err = error
             }
             
-            try self.removeSessionKeys(forSessionId: sessionState.sessionId)
+            try self.removeSessionKeys(forSessionId: sessionId)
             if let err = err {
                 throw err
             }

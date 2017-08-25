@@ -60,3 +60,12 @@ extension SessionState {
         case additionalData = "additional_data"
     }
 }
+
+extension SessionState: Equatable {
+    static func ==(lhs: SessionState, rhs: SessionState) -> Bool {
+        return lhs.creationDate == rhs.creationDate
+            && lhs.expirationDate == rhs.expirationDate
+            && lhs.sessionId == rhs.sessionId
+            && lhs.additionalData == rhs.additionalData
+    }
+}
