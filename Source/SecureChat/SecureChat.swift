@@ -32,7 +32,7 @@ import VirgilSDK
         
         self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
         
-        self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.onetimeCardExhaustLifetime, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
+        self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.oneTimeCardExhaustTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
         
         super.init()
     }
