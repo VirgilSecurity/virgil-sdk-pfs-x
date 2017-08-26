@@ -499,7 +499,7 @@
 		425A02321EF93B2800D9BBEF /* SecureChat */ = {
 			isa = PBXGroup;
 			children = (
-				429123B61F4D7C2C00103BE0 /* DateStorage */,
+				429123B61F4D7C2C00103BE0 /* DataStorage */,
 				429123BB1F4D7C2C00103BE0 /* KeyStorage */,
 				429123C41F4D7C2C00103BE0 /* SecureSession */,
 				425A02391EF974B600D9BBEF /* Models */,
@@ -536,13 +536,12 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
-		429123B61F4D7C2C00103BE0 /* DateStorage */ = {
+		429123B61F4D7C2C00103BE0 /* DataStorage */ = {
 			isa = PBXGroup;
 			children = (
 				429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */,
 				429123B91F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift */,
 			);
-			name = DateStorage;
 			path = DataStorage;
 			sourceTree = "<group>";
 		};
