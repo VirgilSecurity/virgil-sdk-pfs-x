@@ -67,69 +67,88 @@ class KeysRotator {
         return actualSessionsStatesIds
     }
     
+    private func removeOrphanedOtcs(now: Date, otKeysIds: [String]) throws -> ([OtcExhaustInfo], [String]) {
+        let exhaustInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
+        
+        let otcExhaustTtl = self.oneTimeCardExhaustTtl
+        
+        let orphanedOtcIds = exhaustInfo.filter({ $0.exhaustDate.addingTimeInterval(otcExhaustTtl) < now }).map({ $0.cardId })
+        
+        let updatedExhaustInfo: [OtcExhaustInfo]
+        if orphanedOtcIds.count > 0 {
+            Log.error("WARNING: orphaned otcs found: \(orphanedOtcIds)")
+            try self.keyStorageManager.removeOtPrivateKeys(withNames: orphanedOtcIds)
+            updatedExhaustInfo = exhaustInfo.filter({ !orphanedOtcIds.contains($0.cardId) })
+        }
+        else {
+            updatedExhaustInfo = exhaustInfo
+        }
+        
+        let exhaustedCards = Set<String>(exhaustInfo.map({ $0.cardId }))
+        let otCardsToCheck = Array<String>(Set<String>(otKeysIds).subtracting(exhaustedCards))
+        
+        return (updatedExhaustInfo, otCardsToCheck)
+    }
+    
+    private func removeOrhpanedSessionKeys() throws -> [String] {
+        let actualSessionIds = Set<Data>(try self.removeExpiredSessionsAndReturnActualSessionIds())
+        
+        let (otKeysIds, sessionKeysIds) = try self.keyStorageManager.getAllOtCardsAndSessionKeysIds()
+        
+        let orphanedSessionKeysIds = sessionKeysIds.filter({ !actualSessionIds.contains($0) })
+        
+        if orphanedSessionKeysIds.count > 0 {
+            Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
+            try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
+        }
+        
+        return otKeysIds
+    }
+    
+    private func updateExhaustInfo(now: Date, exhaustInfo: [OtcExhaustInfo], exhaustedCardsIds: [String]) throws {
+        var newExhaustInfo = exhaustInfo
+        newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
+        
+        try self.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo)
+    }
+    
     private static let SecondsInDay: TimeInterval = 24 * 60 * 60
     private func cleanup(completion: @escaping (Error?)->()) {
         Log.debug("Cleanup started.")
-        
-        let exhaustedInfo: [OtcExhaustInfo]
-        let orphanedOtcIds: Array<String>
-        let otCardsToCheck: Array<String>
         let now = Date()
         
         do {
-            let actualSessionIds = Set<Data>(try self.removeExpiredSessionsAndReturnActualSessionIds())
+            try self.keyStorageManager.removeExhaustedLtKeys()
+            
+            let otKeysIds = try self.removeOrhpanedSessionKeys()
+            
+            let (updatedExhaustInfo, otCardsToCheck) = try self.removeOrphanedOtcs(now: now, otKeysIds: otKeysIds)
         
-            let (otKeysIds, sessionKeysIds) = try self.keyStorageManager.getAllOtCardsAndSessionKeysIds()
-            
-            let orphanedSessionKeysIds = sessionKeysIds.filter({ !actualSessionIds.contains($0) })
-            
-            if orphanedSessionKeysIds.count > 0 {
-                Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
-                try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
+            self.client.validateOneTimeCards(forRecipientWithId: self.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
+                guard error == nil else {
+                    completion(error)
+                    return
+                }
+                
+                guard let exhaustedCardsIds = exhaustedCardsIds else {
+                    completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
+                    return
+                }
+                
+                do {
+                    try self.updateExhaustInfo(now: now, exhaustInfo: updatedExhaustInfo, exhaustedCardsIds: exhaustedCardsIds)
+                }
+                catch {
+                    completion(error)
+                    return
+                }
+                
+                completion(nil)
             }
-
-            exhaustedInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
-            
-            let otcTtl = self.oneTimeCardExhaustTtl
-            
-            orphanedOtcIds = exhaustedInfo.filter({ $0.exhaustDate.addingTimeInterval(otcTtl) < now }).map({ $0.cardId })
-            
-            if orphanedOtcIds.count > 0 {
-                Log.error("WARNING: orphaned otcs found: \(orphanedOtcIds)")
-                try self.keyStorageManager.removeOtPrivateKeys(withNames: orphanedOtcIds)
-            }
-            
-            let exhaustedCards = Set<String>(exhaustedInfo.map({ $0.cardId }))
-            otCardsToCheck = Array<String>(Set<String>(otKeysIds).subtracting(exhaustedCards))
         }
         catch {
             completion(error)
             return
-        }
-        
-        self.client.validateOneTimeCards(forRecipientWithId: self.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
-            guard error == nil else {
-                completion(error)
-                return
-            }
-            
-            guard let exhaustedCardsIds = exhaustedCardsIds else {
-                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
-                return
-            }
-            
-            var newExhaustInfo = exhaustedInfo.filter({ !orphanedOtcIds.contains($0.cardId) })
-            newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
-            
-            do {
-                try self.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo)
-            }
-            catch {
-                completion(error)
-                return
-            }
-            
-            completion(nil)
         }
     }
     

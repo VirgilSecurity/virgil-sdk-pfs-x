@@ -23,7 +23,7 @@ import VirgilSDK
         self.identityCardId = preferences.identityCard.identifier
         self.client = Client(serviceConfig: preferences.serviceConfig)
         
-        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl)
+        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl, longTermKeyExhaustTtl: preferences.longTermCardExhaustTtl)
         self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyStorageManager: keyStorageManager)
         
         let sessionStorageManager = SessionStorageManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)

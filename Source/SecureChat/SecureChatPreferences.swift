@@ -20,8 +20,9 @@ import VirgilSDK
     public var longTermKeysTtl: TimeInterval
     public var sessionTtl: TimeInterval
     public var oneTimeCardExhaustTtl: TimeInterval
+    public var longTermCardExhaustTtl: TimeInterval
     
-    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, oneTimeCardExhaustTtl: TimeInterval? = nil) throws {
+    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, longTermCardExhaustTtl: TimeInterval? = nil, oneTimeCardExhaustTtl: TimeInterval? = nil) throws {
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
@@ -31,6 +32,7 @@ import VirgilSDK
         self.serviceConfig = serviceConfig
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7
         self.sessionTtl = sessionTtl ?? 60*60*24*3
+        self.longTermCardExhaustTtl = longTermCardExhaustTtl ?? 60*60*24
         self.oneTimeCardExhaustTtl = oneTimeCardExhaustTtl ?? 60*60*24
     }
     

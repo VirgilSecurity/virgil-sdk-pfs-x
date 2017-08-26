@@ -32,7 +32,7 @@ class SessionManager {
             return nil
         }
         
-        guard !sessionState.isExpired(now: Date()) else {
+        guard !sessionState.isExpired() else {
             do {
                 try self.removeSession(withParticipantWithCardId: cardId, sessionId: sessionState.sessionId)
             }
@@ -76,7 +76,7 @@ extension SessionManager {
         
         // If we have existing session
         if let sessionState = sessionState {
-            if !sessionState.isExpired(now: Date()) {
+            if !sessionState.isExpired() {
                 Log.error("Found active session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
             }
             else {

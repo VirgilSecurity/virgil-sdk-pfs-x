@@ -11,6 +11,10 @@ import Foundation
 @objc(VSPKeychainKeyStorage) public class KeychainKeyStorage: NSObject, KeyStorage {
     private let virgilKeyStorage: VSSKeyStorage
     
+    convenience override init() {
+        self.init(virgilKeyStorage: VSSKeyStorage())
+    }
+    
     init(virgilKeyStorage: VSSKeyStorage) {
         self.virgilKeyStorage = virgilKeyStorage
         

@@ -56,7 +56,7 @@ class EphemeralCardsReplenisher {
             let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
-            let keyEntry = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            let keyEntry = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, name: cardId)
             otcKeys.append(keyEntry)
         }
         
@@ -67,14 +67,14 @@ class EphemeralCardsReplenisher {
             let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: true)
             ltcCardRequest = request
             
-            ltcKey = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            ltcKey = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, name: cardId)
         }
         else {
             ltcKey = nil
             ltcCardRequest = nil
         }
         
-        try self.keyStorageManager.persistKeys(keys: otcKeys, ltKey: ltcKey)
+        try self.keyStorageManager.saveKeys(otKeys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
             if let error = error {

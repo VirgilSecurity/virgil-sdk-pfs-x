@@ -15,22 +15,22 @@ class KeyStorageManager {
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let keyStorage: KeyStorage
     fileprivate let longTermKeyTtl: TimeInterval
+    fileprivate let longTermKeyExhaustTtl: TimeInterval
     fileprivate let namesHelper: KeyNamesHelper
     
-    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String, longTermKeyTtl: TimeInterval) {
+    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String, longTermKeyTtl: TimeInterval, longTermKeyExhaustTtl: TimeInterval) {
         self.crypto = crypto
         self.keyStorage = keyStorage
         self.longTermKeyTtl = longTermKeyTtl
+        self.longTermKeyExhaustTtl = longTermKeyExhaustTtl
         self.namesHelper = KeyNamesHelper(identityCardId: identityCardId)
     }
     
-    func persistKeys(keys: [HelperKeyEntry], ltKey: HelperKeyEntry?) throws {
-        for key in keys {
-            try self.saveOtPrivateKey(key.privateKey, name: key.keyName)
-        }
+    func saveKeys(otKeys: [HelperKeyEntry], ltKey: HelperKeyEntry?) throws {
+        try self.saveOtPrivateKeys(otKeys.map({ $0.privateKey }), names: otKeys.map({ $0.name }))
         
         if let ltKey = ltKey {
-            try self.saveLtPrivateKey(ltKey.privateKey, name: ltKey.keyName)
+            try self.saveLtPrivateKey(ltKey.privateKey, name: ltKey.name)
         }
     }
     
@@ -50,13 +50,22 @@ class KeyStorageManager {
         return (otKeysIds, sessionsIds)
     }
     
-    func hasRelevantLtKey() -> Bool {
+    func removeExhaustedLtKeys(now: Date = Date()) throws {
+        let keysAttrs = try self.keyStorage.getAllKeysAttrs()
+        
+        let keysToRemove = keysAttrs
+            .filter({ self.namesHelper.isLtKeyEntryName($0.name) && now > $0.creationDate.addingTimeInterval(self.longTermKeyTtl).addingTimeInterval(self.longTermKeyExhaustTtl)})
+            .map({ $0.name })
+        
+        try self.removeKeyEntries(withKeyEntryNames: keysToRemove)
+    }
+    
+    func hasRelevantLtKey(now: Date = Date()) -> Bool {
         guard let keysAttrs = try? self.keyStorage.getAllKeysAttrs() else {
             return false
         }
         
-        let date = Date()
-        return keysAttrs.contains(where: { self.namesHelper.isLtKeyEntryName($0.name) && date < $0.creationDate.addingTimeInterval(self.longTermKeyTtl)})
+        return keysAttrs.contains(where: { self.namesHelper.isLtKeyEntryName($0.name) && now < $0.creationDate.addingTimeInterval(self.longTermKeyTtl)})
     }
     
     func gentleReset() {
@@ -112,7 +121,7 @@ extension KeyStorageManager {
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
-    func saveLtPrivateKey(_ key: VSSPrivateKey, name: String) throws {
+    fileprivate func saveLtPrivateKey(_ key: VSSPrivateKey, name: String) throws {
         let keyEntryName = self.namesHelper.getLtPrivateKeyEntryName(name)
         try self.savePrivateKey(key, keyEntryName: keyEntryName)
     }
@@ -123,12 +132,7 @@ extension KeyStorageManager {
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }
     
-    func saveOtPrivateKey(_ key: VSSPrivateKey, name: String) throws {
-        let keyEntryName = self.namesHelper.getOtPrivateKeyEntryName(name)
-        try self.savePrivateKey(key, keyEntryName: keyEntryName)
-    }
-    
-    func saveOtPrivateKeys(_ keys: [VSSPrivateKey], names: [String]) throws {
+    fileprivate func saveOtPrivateKeys(_ keys: [VSSPrivateKey], names: [String]) throws {
         let keyEntryNames = names.map({ self.namesHelper.getOtPrivateKeyEntryName($0) })
         try self.savePrivateKeys(keys, keyEntryNames: keyEntryNames)
     }
@@ -261,7 +265,7 @@ fileprivate extension KeyStorageManager {
 extension KeyStorageManager {
     struct HelperKeyEntry {
         let privateKey: VSSPrivateKey
-        let keyName: String
+        let name: String
     }
 }
 

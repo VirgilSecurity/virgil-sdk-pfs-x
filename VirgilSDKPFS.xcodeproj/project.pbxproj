@@ -98,6 +98,8 @@
 		429123F51F521F2C00103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E61F5068B200103BE0 /* VSP004_SessionStorageManagerTests.swift */; };
 		429123FC1F5226FB00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123FA1F5226F700103BE0 /* VSP005_ExhaustInfoManagerTests.swift */; };
 		429123FD1F5226FC00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123FA1F5226F700103BE0 /* VSP005_ExhaustInfoManagerTests.swift */; };
+		429124001F5228A200103BE0 /* VSP006_KeyStorageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123FE1F52289300103BE0 /* VSP006_KeyStorageManagerTests.swift */; };
+		429124011F5228A300103BE0 /* VSP006_KeyStorageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123FE1F52289300103BE0 /* VSP006_KeyStorageManagerTests.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -235,6 +237,7 @@
 		429123EF1F5090B700103BE0 /* KeyStorageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorageManager.swift; sourceTree = "<group>"; };
 		429123F01F5090B700103BE0 /* SessionStorageManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStorageManager.swift; sourceTree = "<group>"; };
 		429123FA1F5226F700103BE0 /* VSP005_ExhaustInfoManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP005_ExhaustInfoManagerTests.swift; sourceTree = "<group>"; };
+		429123FE1F52289300103BE0 /* VSP006_KeyStorageManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP006_KeyStorageManagerTests.swift; sourceTree = "<group>"; };
 		429623E71F13BD3600284665 /* Fingerprint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fingerprint.swift; sourceTree = "<group>"; };
 		429624181F15038900284665 /* VSP003_FingerprintTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSP003_FingerprintTests.m; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
@@ -329,6 +332,7 @@
 				429624181F15038900284665 /* VSP003_FingerprintTests.m */,
 				429123E61F5068B200103BE0 /* VSP004_SessionStorageManagerTests.swift */,
 				429123FA1F5226F700103BE0 /* VSP005_ExhaustInfoManagerTests.swift */,
+				429123FE1F52289300103BE0 /* VSP006_KeyStorageManagerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -855,6 +859,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429124001F5228A200103BE0 /* VSP006_KeyStorageManagerTests.swift in Sources */,
 				429123FC1F5226FB00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
 				429123E81F5068C500103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
@@ -879,6 +884,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				429124011F5228A300103BE0 /* VSP006_KeyStorageManagerTests.swift in Sources */,
 				429123FD1F5226FC00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
 				424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */,
 				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,

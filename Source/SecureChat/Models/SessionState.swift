@@ -17,7 +17,7 @@ struct SessionState {
 }
 
 extension SessionState {
-    func isExpired(now: Date) -> Bool {
+    func isExpired(now: Date = Date()) -> Bool {
         return (now > self.expirationDate)
     }
 }
