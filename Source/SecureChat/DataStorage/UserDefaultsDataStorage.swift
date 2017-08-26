@@ -13,8 +13,6 @@ import Foundation
     
     public static let ErrorDomain = "VSPUserDefaultsDataStorageErrorDomain"
     
-    private static let RootKey = "ROOT_KEY"
-    
     private static let SuiteNameFormat = "VIRGIL.DEFAULTS.%@"
     
     private class func getSuiteName(forIdentifier identifier: String) -> String {
@@ -42,47 +40,11 @@ import Foundation
     }
     
     public func storeValue(_ value: Any?, forKey key: String) throws {
-        var dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any] ?? [:]
-        
-        dict[key] = value
-        
-        self.userDefaults.set(dict, forKey: UserDefaultsDataStorage.RootKey)
+        self.userDefaults.set(value, forKey: key)
         self.userDefaults.synchronize()
     }
     
     public func loadValue(forKey key: String) -> Any? {
-        guard let dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any] else {
-            return nil
-        }
-        
-        return dict[key]
-    }
-    
-    public func removeValue(forKey key: String) throws {
-        var dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any] ?? [:]
-        
-        guard dict.removeValue(forKey: key) != nil else {
-            throw NSError(domain: UserDefaultsDataStorage.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing value for key. Value doesn't exist."])
-        }
-        
-        self.userDefaults.set(dict, forKey: UserDefaultsDataStorage.RootKey)
-        self.userDefaults.synchronize()
-    }
-    
-    public func removeValues(forKeys keys: [String]) throws {
-        var dict = self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any]  ?? [:]
-        
-        for key in keys {
-            guard dict.removeValue(forKey: key) != nil else {
-                throw NSError(domain: UserDefaultsDataStorage.ErrorDomain, code: -1, userInfo: [NSLocalizedDescriptionKey: "Error while removing value for key. Value doesn't exist."])
-            }
-        }
-        
-        self.userDefaults.set(dict, forKey: UserDefaultsDataStorage.RootKey)
-        self.userDefaults.synchronize()
-    }
-
-    public func getAllValues() -> [String : Any]? {
-        return self.userDefaults.value(forKey: UserDefaultsDataStorage.RootKey) as? [String : Any]
+        return self.userDefaults.value(forKey: key)
     }
 }

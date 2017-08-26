@@ -12,6 +12,4 @@ import Foundation
     func loadValue(forKey key: String) -> Any?
     
     func storeValue(_ value: Any?, forKey defaultName: String) throws
-    
-    func removeValue(forKey key: String) throws
 }

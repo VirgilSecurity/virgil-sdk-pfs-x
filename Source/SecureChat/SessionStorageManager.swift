@@ -11,6 +11,7 @@ import Foundation
 class SessionStorageManager {
     fileprivate let cardId: String
     fileprivate let storage: InsensitiveDataStorage
+    fileprivate var mutex = Mutex()
     
     init(cardId: String, storage: InsensitiveDataStorage) {
         self.cardId = cardId
@@ -109,6 +110,11 @@ extension SessionStorageManager {
     func addSessionState(_ sessionState: SessionState, forRecipientCardId cardId: String) throws {
         Log.debug("Adding session state for: \(cardId). \(sessionState.sessionId)")
         
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
+        
         var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] ?? [:]
         
         var recipientEntry = entry[cardId] as? [String : Any] ?? [:]
@@ -123,10 +129,15 @@ extension SessionStorageManager {
 
 extension SessionStorageManager {
     func removeSessionsStates(dict: [String: [Data]?]) throws {
-        Log.debug("Removing sessions' states: \(dict)")
-        
         guard !dict.isEmpty else {
             return
+        }
+        
+        Log.debug("Removing sessions' states: \(dict)")
+        
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
         }
         
         guard var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
@@ -157,6 +168,11 @@ extension SessionStorageManager {
     
     func removeSessionState(forCardId cardId: String, sessionId: Data) throws {
         Log.debug("Removing session state: \(cardId) \(sessionId.base64EncodedString())")
+        
+        self.mutex.lock()
+        defer {
+            self.mutex.unlock()
+        }
         
         guard var entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
             throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions found.")

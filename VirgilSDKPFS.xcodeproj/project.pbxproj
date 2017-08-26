@@ -95,6 +95,7 @@
 		429123F21F5090B700103BE0 /* ExhaustInfoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123EE1F5090B700103BE0 /* ExhaustInfoManager.swift */; };
 		429123F31F5090B700103BE0 /* KeyStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123EF1F5090B700103BE0 /* KeyStorageManager.swift */; };
 		429123F41F5090B700103BE0 /* SessionStorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123F01F5090B700103BE0 /* SessionStorageManager.swift */; };
+		429123F51F521F2C00103BE0 /* VSP004_SessionHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E61F5068B200103BE0 /* VSP004_SessionHelperTests.swift */; };
 		429623E81F13BD3600284665 /* Fingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429623E71F13BD3600284665 /* Fingerprint.swift */; };
 		4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 429624181F15038900284665 /* VSP003_FingerprintTests.m */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
@@ -875,6 +876,7 @@
 			files = (
 				424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */,
 				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,
+				429123F51F521F2C00103BE0 /* VSP004_SessionHelperTests.swift in Sources */,
 				424A02261F34643600D17D0C /* VSPTestsConst.m in Sources */,
 				424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */,
 				424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */,
@@ -1181,6 +1183,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
 			};
 			name = Debug;
@@ -1199,6 +1202,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.virgilsecurity.VirgilSDKPFSAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TestApp.app/TestApp";
 			};
 			name = Release;
