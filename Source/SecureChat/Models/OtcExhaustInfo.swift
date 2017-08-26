@@ -22,7 +22,7 @@ extension OtcExhaustInfo {
     func encode() -> [String : Any] {
         let dict: [String : Any] = [
             Keys.cardId.rawValue: self.cardId,
-            Keys.exhaustDate.rawValue: self.exhaustDate.timeIntervalSince1970
+            Keys.exhaustDate.rawValue: self.exhaustDate
         ]
         
         return dict
@@ -30,11 +30,17 @@ extension OtcExhaustInfo {
     
     init?(dict: [String : Any]) {
         guard let cardId = dict[Keys.cardId.rawValue] as? String,
-            let exhaustDateInterval = dict[Keys.exhaustDate.rawValue] as? TimeInterval else {
+            let exhaustDate = dict[Keys.exhaustDate.rawValue] as? Date else {
                 return nil
         }
         
-        self.init(cardId: cardId, exhaustDate: Date(timeIntervalSince1970: exhaustDateInterval))
+        self.init(cardId: cardId, exhaustDate: exhaustDate)
     }
 }
 
+extension OtcExhaustInfo: Equatable {
+    static func ==(lhs: OtcExhaustInfo, rhs: OtcExhaustInfo) -> Bool {
+        return lhs.cardId == rhs.cardId
+            && lhs.exhaustDate == rhs.exhaustDate
+    }
+}
