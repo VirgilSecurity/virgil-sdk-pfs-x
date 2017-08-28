@@ -73,12 +73,12 @@ extension SecureSession {
         }
         
         let message: Message
-        if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData),
+        if let initiationMessage = try? SecureSession.extractInitiationMessage(fromData: messageData),
             let pfsSession = self.pfs.session {
             message = Message(sessionId: pfsSession.identifier, salt: initiationMessage.salt, cipherText: initiationMessage.cipherText)
         }
         else {
-            guard let msg = try? SecureSession.extractMessage(messageData) else {
+            guard let msg = try? SecureSession.extractMessage(fromData: messageData) else {
                 throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message in SecureSession.")
             }
             message = msg
@@ -147,8 +147,8 @@ extension SecureSession {
 }
 
 extension SecureSession {
-    static func extractInitiationMessage(_ message: Data) throws -> InitiationMessage {
-        let dict = try JSONSerialization.jsonObject(with: message, options: [])
+    static func extractInitiationMessage(fromData data: Data) throws -> InitiationMessage {
+        let dict = try JSONSerialization.jsonObject(with: data, options: [])
         
         guard let msg = InitiationMessage(dictionary: dict) else {
             throw SecureSession.makeError(withCode: .extractingInitiationMessage, description: "Error while extracting initiation message.")
@@ -157,8 +157,8 @@ extension SecureSession {
         return msg
     }
     
-    static func extractMessage(_ message: Data) throws -> Message {
-        let dict = try JSONSerialization.jsonObject(with: message, options: [])
+    static func extractMessage(fromData data: Data) throws -> Message {
+        let dict = try JSONSerialization.jsonObject(with: data, options: [])
         
         guard let msg = Message(dictionary: dict) else {
             throw SecureSession.makeError(withCode: .extractingMessage, description: "Error while extracting message.")

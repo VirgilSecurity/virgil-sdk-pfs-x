@@ -106,7 +106,7 @@ extension SecureChat {
             throw SecureChat.makeError(withCode: .invalidMessageString, description: "Invalid message string.")
         }
         
-        if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
+        if let initiationMessage = try? SecureSession.extractInitiationMessage(fromData: messageData) {
             // Add new one time card
             try? self.ephemeralCardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
                 guard error == nil else {
@@ -119,7 +119,7 @@ extension SecureChat {
             
             return try self.sessionManager.initializeResponderSession(initiatorCardEntry: cardEntry, initiationMessage: initiationMessage, additionalData: additionalData)
         }
-        else if let message = try? SecureSession.extractMessage(messageData) {
+        else if let message = try? SecureSession.extractMessage(fromData: messageData) {
             let sessionId = message.sessionId
             
             return try self.sessionManager.loadSession(recipientCardId: card.identifier, sessionId: sessionId)

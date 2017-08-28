@@ -20,10 +20,10 @@ extension SecureChat {
             return .unknown
         }
         
-        if (try? SecureSession.extractMessage(messageData)) != nil {
+        if (try? SecureSession.extractMessage(fromData: messageData)) != nil {
             return .regular
         }
-        else if (try? SecureSession.extractInitiationMessage(messageData)) != nil {
+        else if (try? SecureSession.extractInitiationMessage(fromData: messageData)) != nil {
             return .initial
         }
         
