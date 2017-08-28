@@ -637,7 +637,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:responderCard privateKey:responderKeyPair.privateKey accessToken:@"" error:&err];
             responderPreferences.longTermKeysTtl = 5;
-            responderPreferences.longTermCardExhaustTtl = 5;
+            responderPreferences.expiredLongTermCardTtl = 5;
             responderPreferences.serviceConfig = self.client.serviceConfig;
             XCTAssert(err == nil);
             
@@ -1504,7 +1504,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
         NSError *err;
         VSPSecureChatPreferences *preferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:card privateKey:keyPair.privateKey accessToken:@"" error:&err];
         preferences.serviceConfig = self.client.serviceConfig;
-        preferences.oneTimeCardExhaustTtl = 5;
+        preferences.exhaustedOneTimeCardTtl = 5;
         XCTAssert(err == nil);
         
         self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:preferences];

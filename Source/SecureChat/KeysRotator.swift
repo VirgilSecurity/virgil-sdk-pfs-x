@@ -11,7 +11,8 @@ import VirgilSDK
 
 class KeysRotator {
     private let identityCard: VSSCard
-    private let oneTimeCardExhaustTtl: TimeInterval
+    private let exhaustedOneTimeCardTtl: TimeInterval
+    private let expiredSessionTtl: TimeInterval
     private let ephemeralCardsReplenisher: EphemeralCardsReplenisher
     private let sessionStorageManager: SessionStorageManager
     private let keyStorageManager: KeyStorageManager
@@ -19,9 +20,10 @@ class KeysRotator {
     private let client: Client
     private let mutex = Mutex()
     
-    init(identityCard: VSSCard, oneTimeCardExhaustTtl: TimeInterval, ephemeralCardsReplenisher: EphemeralCardsReplenisher, sessionStorageManager: SessionStorageManager, keyStorageManager: KeyStorageManager, exhaustInfoManager: ExhaustInfoManager, client: Client) {
+    init(identityCard: VSSCard, exhaustedOneTimeCardTtl: TimeInterval, expiredSessionTtl: TimeInterval, ephemeralCardsReplenisher: EphemeralCardsReplenisher, sessionStorageManager: SessionStorageManager, keyStorageManager: KeyStorageManager, exhaustInfoManager: ExhaustInfoManager, client: Client) {
         self.identityCard = identityCard
-        self.oneTimeCardExhaustTtl = oneTimeCardExhaustTtl
+        self.exhaustedOneTimeCardTtl = exhaustedOneTimeCardTtl
+        self.expiredSessionTtl = expiredSessionTtl
         self.ephemeralCardsReplenisher = ephemeralCardsReplenisher
         self.sessionStorageManager = sessionStorageManager
         self.keyStorageManager = keyStorageManager
@@ -34,7 +36,7 @@ class KeysRotator {
         
         let sessionsStates = try self.sessionStorageManager.getAllSessionsStates()
         
-        let date = Date()
+        let now = Date()
         
         var expiredSessionsStates = [String : [Data : SessionState]]()
         var actualSessionsStatesIds = [Data]()
@@ -42,7 +44,7 @@ class KeysRotator {
             var expiredSessionsStatesDict = [Data : SessionState]()
             
             for sessionStateDict in sessionState.value {
-                if sessionStateDict.value.isExpired(now: date) {
+                if sessionStateDict.value.expirationDate.addingTimeInterval(self.expiredSessionTtl) < now {
                     expiredSessionsStatesDict[sessionStateDict.key] = sessionStateDict.value
                 }
                 else {
@@ -61,6 +63,7 @@ class KeysRotator {
         
         let expiredSessionsIds = expiredSessionsDict.reduce([]) { $0 + $1.value }
         
+        // FIXME
         try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: expiredSessionsIds)
         try self.sessionStorageManager.removeSessionsStates(dict: expiredSessionsDict)
         
@@ -70,7 +73,7 @@ class KeysRotator {
     private func removeOrphanedOtcs(now: Date, otKeysIds: [String]) throws -> ([OtcExhaustInfo], [String]) {
         let exhaustInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
         
-        let otcExhaustTtl = self.oneTimeCardExhaustTtl
+        let otcExhaustTtl = self.exhaustedOneTimeCardTtl
         
         let orphanedOtcIds = exhaustInfo.filter({ $0.exhaustDate.addingTimeInterval(otcExhaustTtl) < now }).map({ $0.cardId })
         

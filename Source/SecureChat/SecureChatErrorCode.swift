@@ -14,7 +14,6 @@ import Foundation
     case longTermCardValidation
     case oneTimeCardValidation
     case checkingForExistingSession
-    case removingExpiredSession
     case obtainingRecipientCardsSet
     case recipientSetEmpty
     case invalidMessageString

@@ -167,3 +167,17 @@ extension SecureSession {
         return msg
     }
 }
+
+extension SecureSession {
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? SecureSession else {
+            return false
+        }
+        
+        return self.additionalData == other.additionalData
+            && self.decryptionKey == other.decryptionKey
+            && self.encryptionKey == other.encryptionKey
+            && self.expirationDate == other.expirationDate
+            && self.sessionId == other.sessionId
+    }
+}

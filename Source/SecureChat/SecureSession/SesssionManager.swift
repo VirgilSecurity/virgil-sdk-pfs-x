@@ -28,18 +28,9 @@ class SessionManager {
     }
     
     func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
-        guard case let sessionState?? = try? self.sessionStorageManager.getNewestSessionState(forRecipientCardId: cardId) else {
-            return nil
-        }
-        
-        guard !sessionState.isExpired() else {
-            do {
-                try self.removeSession(withParticipantWithCardId: cardId, sessionId: sessionState.sessionId)
-            }
-            catch {
-                Log.error("SessionManager: \(self.identityCard.identifier). WARNING: Error occured while removing expired session in activeSession")
-            }
-            return nil
+        guard case let sessionState?? = try? self.sessionStorageManager.getNewestSessionState(forRecipientCardId: cardId),
+            !sessionState.isExpired() else {
+                return nil
         }
         
         let secureSession = try? self.recoverSession(myIdentityCard: self.identityCard, sessionState: sessionState)
@@ -49,7 +40,7 @@ class SessionManager {
 }
 
 extension SessionManager {
-    func saveSession(_ session: SecureSession, creationDate: Date, participantCardId: String) throws {
+    fileprivate func saveSession(_ session: SecureSession, creationDate: Date, participantCardId: String) throws {
         let sessionId = session.sessionId
         let encryptionKey = session.encryptionKey
         let decryptionKey = session.decryptionKey
@@ -74,20 +65,8 @@ extension SessionManager {
             throw SecureChat.makeError(withCode: .checkingForExistingSession, description: "Error checking for existing session. Underlying error: \(error.localizedDescription)")
         }
         
-        // If we have existing session
-        if let sessionState = sessionState {
-            if !sessionState.isExpired() {
-                Log.error("Found active session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
-            }
-            else {
-                // If session is expired, just remove old session and create new one
-                do {
-                    try self.removeSession(withParticipantWithCardId: recipientCardId, sessionId: sessionState.sessionId)
-                }
-                catch {
-                    throw SecureChat.makeError(withCode: .removingExpiredSession, description: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)")
-                }
-            }
+        if let sessionState = sessionState, !sessionState.isExpired() {
+            Log.error("Found active session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
         }
     }
 }

@@ -23,7 +23,7 @@ import VirgilSDK
         self.identityCardId = preferences.identityCard.identifier
         self.client = Client(serviceConfig: preferences.serviceConfig)
         
-        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl, longTermKeyExhaustTtl: preferences.longTermCardExhaustTtl)
+        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier, longTermKeyTtl: preferences.longTermKeysTtl, longTermKeyExhaustTtl: preferences.expiredLongTermCardTtl)
         self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyStorageManager: keyStorageManager)
         
         let sessionStorageManager = SessionStorageManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
@@ -32,7 +32,7 @@ import VirgilSDK
         
         self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
         
-        self.rotator = KeysRotator(identityCard: preferences.identityCard, oneTimeCardExhaustTtl: preferences.oneTimeCardExhaustTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
+        self.rotator = KeysRotator(identityCard: preferences.identityCard, exhaustedOneTimeCardTtl: preferences.exhaustedOneTimeCardTtl, expiredSessionTtl: preferences.expiredSessionTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
         
         super.init()
     }

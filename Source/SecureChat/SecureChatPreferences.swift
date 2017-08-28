@@ -19,10 +19,11 @@ import VirgilSDK
     public var serviceConfig: ServiceConfig
     public var longTermKeysTtl: TimeInterval
     public var sessionTtl: TimeInterval
-    public var oneTimeCardExhaustTtl: TimeInterval
-    public var longTermCardExhaustTtl: TimeInterval
+    public var expiredSessionTtl: TimeInterval
+    public var exhaustedOneTimeCardTtl: TimeInterval
+    public var expiredLongTermCardTtl: TimeInterval
     
-    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, longTermCardExhaustTtl: TimeInterval? = nil, oneTimeCardExhaustTtl: TimeInterval? = nil) throws {
+    public init(crypto: VSSCryptoProtocol, privateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, deviceManager: VSSDeviceManagerProtocol? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, expiredSessionTtl: TimeInterval? = nil, expiredLongTermCardTtl: TimeInterval? = nil, exhaustedOneTimeCardTtl: TimeInterval? = nil) throws {
         self.crypto = crypto
         self.privateKey = privateKey
         self.identityCard = identityCard
@@ -32,8 +33,9 @@ import VirgilSDK
         self.serviceConfig = serviceConfig
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7
         self.sessionTtl = sessionTtl ?? 60*60*24*3
-        self.longTermCardExhaustTtl = longTermCardExhaustTtl ?? 60*60*24
-        self.oneTimeCardExhaustTtl = oneTimeCardExhaustTtl ?? 60*60*24
+        self.expiredSessionTtl = expiredSessionTtl ?? 60*60*24
+        self.expiredLongTermCardTtl = expiredLongTermCardTtl ?? 60*60*24
+        self.exhaustedOneTimeCardTtl = exhaustedOneTimeCardTtl ?? 60*60*24
     }
     
     convenience public init(crypto: VSSCryptoProtocol, identityCard: VSSCard, privateKey: VSSPrivateKey, accessToken: String) throws {
