@@ -143,7 +143,6 @@ extension SessionManager {
     }
     
     func initializeInitiatorSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
-        
         if cardsSet.oneTimeCard == nil {
             Log.error("WARNING: Creating weak session with \(recipientCard.identifier).")
         }

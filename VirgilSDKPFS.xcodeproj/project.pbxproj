@@ -111,6 +111,8 @@
 		42ACE9CE1F5411F100309D83 /* InitiationMessageExample.txt in Resources */ = {isa = PBXBuildFile; fileRef = 42ACE9C71F540F9B00309D83 /* InitiationMessageExample.txt */; };
 		42ACE9D11F54166A00309D83 /* InitiationWeakMessageExample.txt in Resources */ = {isa = PBXBuildFile; fileRef = 42ACE9CF1F54165F00309D83 /* InitiationWeakMessageExample.txt */; };
 		42ACE9D21F54166A00309D83 /* InitiationWeakMessageExample.txt in Resources */ = {isa = PBXBuildFile; fileRef = 42ACE9CF1F54165F00309D83 /* InitiationWeakMessageExample.txt */; };
+		42ACE9D91F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */; };
+		42ACE9DA1F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
 		42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */; };
 /* End PBXBuildFile section */
@@ -253,6 +255,7 @@
 		42ACE9C71F540F9B00309D83 /* InitiationMessageExample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = InitiationMessageExample.txt; sourceTree = "<group>"; };
 		42ACE9C91F5411EB00309D83 /* RegularMessageExample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RegularMessageExample.txt; sourceTree = "<group>"; };
 		42ACE9CF1F54165F00309D83 /* InitiationWeakMessageExample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = InitiationWeakMessageExample.txt; sourceTree = "<group>"; };
+		42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP008_SessionInitializerTests.swift; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
 		42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatErrorCode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -347,6 +350,7 @@
 				429123FA1F5226F700103BE0 /* VSP005_ExhaustInfoManagerTests.swift */,
 				429123FE1F52289300103BE0 /* VSP006_KeyStorageManagerTests.swift */,
 				42ACE9C21F540F2000309D83 /* VSP007_CompatibilityTests.swift */,
+				42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -887,6 +891,7 @@
 				429123FC1F5226FB00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
 				429123E81F5068C500103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
+				42ACE9D91F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
 				42ACE9C41F540F3600309D83 /* VSP007_CompatibilityTests.swift in Sources */,
 				425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */,
 				420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */,
@@ -915,6 +920,7 @@
 				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,
 				429123F51F521F2C00103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
 				424A02261F34643600D17D0C /* VSPTestsConst.m in Sources */,
+				42ACE9DA1F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
 				424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */,
 				424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */,
 				42ACE9C51F540F3700309D83 /* VSP007_CompatibilityTests.swift in Sources */,
