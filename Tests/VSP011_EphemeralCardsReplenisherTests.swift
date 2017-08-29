@@ -16,6 +16,7 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
     private var utils: VSPTestUtils!
     private var crypto: VSSCryptoProtocol!
     private var virgilClient: VSSClient!
+    private var keyStorageManager: KeyStorageManager!
 
     override func setUp() {
         let consts = VSPTestsConst()
@@ -47,15 +48,15 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
     }
     
     private func initializerReplenisher(privateKey: VSSPrivateKey, card: VSSCard) {
-        let keyStorageManager = KeyStorageManager(crypto: self.crypto, keyStorage: KeychainKeyStorage(), identityCardId: card.identifier)
+        self.keyStorageManager = KeyStorageManager(crypto: self.crypto, keyStorage: KeychainKeyStorage(), identityCardId: card.identifier)
         
-        self.cardsReplenisher = EphemeralCardsReplenisher(crypto: self.crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client, deviceManager: VSSDeviceManager(), keyStorageManager: keyStorageManager)
+        self.cardsReplenisher = EphemeralCardsReplenisher(crypto: self.crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client, deviceManager: VSSDeviceManager(), keyStorageManager: self.keyStorageManager)
     }
     
-    func test001() {
+    func test001_addCards() {
         let ex = self.expectation(description: "")
         
-        let numberOfRequests = 2
+        let numberOfRequests = 7
         let timeout = Double(numberOfRequests) * kEstimatedRequestCompletionTime
         
         let keyPair = self.crypto.generateKeyPair()
@@ -65,10 +66,54 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
         self.virgilClient.createCard(with: identityRequest) { card, error in
             self.initializerReplenisher(privateKey: keyPair.privateKey, card: card!)
             
-            try! self.cardsReplenisher.addCards(includeLtcCard: true, numberOfOtcCards: 10) { error in
+            XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 0)
+            XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().lt.count == 0)
+            
+            let cardId = card!.identifier
+            let desiredNumber1 = 0
+            let desiredNumber2 = 10
+            let desiredNumber3 = 10
+            
+            try! self.cardsReplenisher.addCards(includeLtcCard: true, numberOfOtcCards: desiredNumber1) { error in
                 XCTAssert(error == nil)
                 
-                ex.fulfill()
+                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == desiredNumber1)
+                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().lt.count == 1)
+                
+                self.client.getCardsStatus(forUserWithCardId: cardId) { status, error in
+                    XCTAssert(error == nil)
+                    
+                    XCTAssert(status!.active == desiredNumber1)
+                    XCTAssert(status!.exhausted == 0)
+                    
+                    try! self.cardsReplenisher.addCards(includeLtcCard: true, numberOfOtcCards: desiredNumber2) { error in
+                        XCTAssert(error == nil)
+                        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == desiredNumber1 + desiredNumber2)
+                        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().lt.count == 2)
+                        
+                        self.client.getCardsStatus(forUserWithCardId: cardId) { status, error in
+                            XCTAssert(error == nil)
+                            
+                            XCTAssert(status!.active == desiredNumber1 + desiredNumber2)
+                            XCTAssert(status!.exhausted == 0)
+                            
+                            try! self.cardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: desiredNumber3) { error in
+                                XCTAssert(error == nil)
+                                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == desiredNumber1 + desiredNumber2 + desiredNumber3)
+                                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().lt.count == 2)
+                                
+                                self.client.getCardsStatus(forUserWithCardId: cardId) { status, error in
+                                    XCTAssert(error == nil)
+                                    
+                                    XCTAssert(status!.active == desiredNumber1 + desiredNumber2 + desiredNumber3)
+                                    XCTAssert(status!.exhausted == 0)
+                                    
+                                    ex.fulfill()
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         
