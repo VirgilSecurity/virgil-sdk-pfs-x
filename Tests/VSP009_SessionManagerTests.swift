@@ -41,12 +41,14 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.sessionId)
         
+        let eps = 0.5
+        
         XCTAssert(session.additionalData.count > 0)
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         let now = Date()
         let expUpperBound = now.addingTimeInterval(self.sessionTtl)
-        let expLowerBound = now.addingTimeInterval(self.sessionTtl - 0.1)
+        let expLowerBound = now.addingTimeInterval(self.sessionTtl - eps)
         XCTAssert(session.expirationDate > expLowerBound)
         XCTAssert(session.expirationDate < expUpperBound)
         XCTAssert(session.isExpired == false)
@@ -108,7 +110,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         var errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: otKeyName)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: otKeyName)
         }
         catch {
             errorWasThrown = true
@@ -121,8 +123,9 @@ class VSP009_SessionManagerTests: XCTestCase {
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         let now = Date()
+        let eps = 0.5
         let expUpperBound = now.addingTimeInterval(self.sessionTtl)
-        let expLowerBound = now.addingTimeInterval(self.sessionTtl - 0.1)
+        let expLowerBound = now.addingTimeInterval(self.sessionTtl - eps)
         XCTAssert(session.expirationDate > expLowerBound)
         XCTAssert(session.expirationDate < expUpperBound)
         XCTAssert(session.isExpired == false)

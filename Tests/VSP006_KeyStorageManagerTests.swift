@@ -192,22 +192,22 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 3)
         
-        let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry1.name)
-        let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
-        let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry3.name)
+        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: keyEntry1.name)
+        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: keyEntry2.name)
+        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: keyEntry3.name)
         
         try! self.keyStorageManager.removeOtPrivateKey(withName: keyEntry1.name)
         
         var errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry1.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry1.name)
         }
         catch {
             errorWasThrown = true
         }
         XCTAssert(errorWasThrown)
-        let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
-        let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry3.name)
+        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: keyEntry2.name)
+        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: keyEntry3.name)
         
         XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 2)
         
@@ -215,7 +215,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry1.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry1.name)
         }
         catch {
             errorWasThrown = true
@@ -223,7 +223,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry2.name)
         }
         catch {
             errorWasThrown = true
@@ -231,7 +231,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry3.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry3.name)
         }
         catch {
             errorWasThrown = true
@@ -294,7 +294,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry1.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry1.name)
         }
         catch {
             errorWasThrown = true
@@ -302,7 +302,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry2.name)
         }
         catch {
             errorWasThrown = true
@@ -310,7 +310,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getOtPrivateKey(name: keyEntry3.name)
+            let _ = try self.keyStorageManager.getOtPrivateKey(withName: keyEntry3.name)
         }
         catch {
             errorWasThrown = true

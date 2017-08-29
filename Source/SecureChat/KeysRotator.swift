@@ -149,8 +149,8 @@ class KeysRotator {
                     return
             }
             
-            if numberOfMissingCards > 0 {
-                let addLtCard = !self.owner.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: self.owner.longTermKeysTtl)
+            let addLtCard = !self.owner.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: self.owner.longTermKeysTtl)
+            if numberOfMissingCards > 0 || addLtCard {
                 do {
                     try self.owner.ephemeralCardsReplenisher.addCards(includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                         if let error = error {
@@ -255,7 +255,6 @@ fileprivate extension KeysRotator {
         let sessionInfosToRemove = exhaustInfo.sessions.filter({ $0.exhaustDate.addingTimeInterval(self.expiredSessionTtl) < now })
         let sessionIdsToRemove = sessionInfosToRemove.map({ $0.identifier })
         
-        // FIXME
         try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: sessionIdsToRemove)
         try self.sessionStorageManager.removeSessionsStates(sessionInfosToRemove.map({ ($0.cardId, $0.identifier) }))
         
@@ -270,8 +269,8 @@ fileprivate extension KeysRotator {
         
         // Add recently expired keys
         let newSessionsIds = newSessions.map({ $0.identifier })
-        let newExpiredSessions = allSessionsUpdated.filter({ $0.1.isExpired(now: now) && !newSessionsIds.contains($0.1.sessionId) })
-        newSessions.append(contentsOf: newExpiredSessions.map({ SessionExhaustInfo(identifier: $0.1.sessionId, cardId: $0.0, exhaustDate: now) }))
+        let recentlyExpiredSessions = allSessionsUpdated.filter({ $0.1.isExpired(now: now) && !newSessionsIds.contains($0.1.sessionId) })
+        newSessions.append(contentsOf: recentlyExpiredSessions.map({ SessionExhaustInfo(identifier: $0.1.sessionId, cardId: $0.0, exhaustDate: now) }))
         
         // Updated exhaust info
         exhaustInfo = ExhaustInfo(otc: exhaustInfo.otc, ltc: exhaustInfo.ltc, sessions: newSessions)
@@ -303,7 +302,7 @@ fileprivate extension KeysRotator {
         try self.keyStorageManager.removeLtPrivateKeys(withNames: ltcIdsToRemove)
         
         // Updated lt keys info
-        let ltKeysUpdated = ltKeys.filter({ ltcIdsToRemove.contains($0.name) })
+        let ltKeysUpdated = ltKeys.filter({ !ltcIdsToRemove.contains($0.name) })
         
         // Update exhaust info:
         var newLtKeys = exhaustInfo.ltc

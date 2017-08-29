@@ -132,7 +132,7 @@ extension KeyStorageManager {
     }
     
     // Ot keys
-    func getOtPrivateKey(name: String) throws -> VSSPrivateKey {
+    func getOtPrivateKey(withName name: String) throws -> VSSPrivateKey {
         let keyEntryName = self.namesHelper.getOtPrivateKeyEntryName(name)
         return try self.getPrivateKey(withKeyEntryName: keyEntryName)
     }

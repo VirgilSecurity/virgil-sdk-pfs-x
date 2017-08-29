@@ -105,7 +105,7 @@ extension SessionManager {
         
         let otPrivateKey: VSSPrivateKey?
         if let recponderOtcId = initiationMessage.responderOtcId {
-            otPrivateKey = try self.keyStorageManager.getOtPrivateKey(name: recponderOtcId)
+            otPrivateKey = try self.keyStorageManager.getOtPrivateKey(withName: recponderOtcId)
             try self.keyStorageManager.removeOtPrivateKey(withName: recponderOtcId)
         }
         else {
