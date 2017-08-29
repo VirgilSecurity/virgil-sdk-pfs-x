@@ -78,7 +78,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created"];
     
     NSUInteger numberOfRequests = 3;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -109,7 +109,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated."];
     
     NSUInteger numberOfRequests = 4;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -142,7 +142,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -196,7 +196,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -260,7 +260,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator session should be recovered. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -315,7 +315,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator session should be recovered using message. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -370,7 +370,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder session should be recovered. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -425,7 +425,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder session should be recovered using message. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -480,7 +480,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator secure chat should be initialized."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -550,7 +550,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Responder secure chat should be initialized."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -618,7 +618,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added. LongTerm card should expire."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5 + 10;
+    NSTimeInterval expirationTime = 5, exhaustTime = 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + expirationTime + exhaustTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -636,8 +637,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             XCTAssert(err == nil);
             
             VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:responderCard privateKey:responderKeyPair.privateKey accessToken:@"" error:&err];
-            responderPreferences.longTermKeysTtl = 5;
-            responderPreferences.expiredLongTermCardTtl = 5;
+            responderPreferences.longTermKeysTtl = expirationTime;
+            responderPreferences.expiredLongTermCardTtl = exhaustTime;
             responderPreferences.serviceConfig = self.client.serviceConfig;
             XCTAssert(err == nil);
             
@@ -664,7 +665,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                             XCTAssert(err == nil);
                             XCTAssert([self.message1 isEqualToString:message1]);
                             
-                            sleep(15);
+                            sleep(expirationTime + exhaustTime);
                             
                             [self.responderSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
                                 [self.client getRecipientCardsSetForCardsIds:@[responderCard.identifier] completion:^(NSArray<VSPRecipientCardsSet *> *cardsSet, NSError *error) {
@@ -712,7 +713,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. OTC cards should end. Weak session should be started."];
     
     NSUInteger numberOfRequests = 7;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -789,7 +790,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
     
     NSUInteger numberOfRequests = 11;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair1 = [self.crypto generateKeyPair];
@@ -878,7 +879,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. LongTerm card should be added."];
     
     NSUInteger numberOfRequests = 11;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair1 = [self.crypto generateKeyPair];
     VSSKeyPair *initiatorKeyPair2 = [self.crypto generateKeyPair];
@@ -967,7 +968,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Session should be removed on both sides."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1033,7 +1034,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Sessions should be removed. New sessions should be started."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1114,7 +1115,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Another session with same participant should be started."];
     
     NSUInteger numberOfRequests = 4;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -1156,7 +1157,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. SecurityChat should be initialized. SecurityChat should be reinitialized."];
     
     NSUInteger numberOfRequests = 5;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -1193,7 +1194,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5 + 10;
+    NSTimeInterval expireTime = 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + expireTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1211,7 +1213,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             
             VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:responderCard privateKey:responderKeyPair.privateKey accessToken:@"" error:&err];
             responderPreferences.serviceConfig = self.client.serviceConfig;
-            responderPreferences.sessionTtl = 5;
+            responderPreferences.sessionTtl = expireTime;
             XCTAssert(err == nil);
             
             self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
@@ -1233,7 +1235,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                         NSString *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:&err];
                         XCTAssert(err == nil);
                         
-                        sleep(10);
+                        sleep(expireTime);
                         
                         XCTAssert(responderSession.isExpired == YES);
                         XCTAssert(initiatorSession.isExpired == YES);
@@ -1265,7 +1267,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be expired. New session should be created."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5 + 10;
+    NSTimeInterval expireTime = 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + expireTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1278,11 +1281,11 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
             NSError *err;
             VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:initiatorCard privateKey:initiatorKeyPair.privateKey accessToken:@"" error:&err];
             initiatorPreferences.serviceConfig = self.client.serviceConfig;
-            initiatorPreferences.sessionTtl = 5;
+            initiatorPreferences.sessionTtl = expireTime;
             XCTAssert(err == nil);
             
             VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityCard:responderCard privateKey:responderKeyPair.privateKey accessToken:@"" error:&err];
-            responderPreferences.sessionTtl = 5;
+            responderPreferences.sessionTtl = expireTime;
             responderPreferences.serviceConfig = self.client.serviceConfig;
             XCTAssert(err == nil);
             
@@ -1302,7 +1305,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                         XCTAssert(err == nil);
                         XCTAssert([self.message1 isEqualToString:decryptedMessage1]);
                         
-                        sleep(10);
+                        sleep(expireTime);
                         
                         [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession2, NSError *error) {
                             XCTAssert(initiatorSession2 != nil && error == nil);
@@ -1334,7 +1337,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
 
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1389,7 +1392,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Further encryption/decryption should work."];
     
     NSUInteger numberOfRequests = 8;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
@@ -1459,7 +1462,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Concurrent rotateKeys should fail."];
     
     NSUInteger numberOfRequests = 3;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -1494,7 +1497,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Ot card should expire."];
     
     NSUInteger numberOfRequests = 3;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *keyPair = [self.crypto generateKeyPair];
     
@@ -1538,7 +1541,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator secure chat should be initialized."];
     
     NSUInteger numberOfRequests = 9;
-    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime + 5;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
     VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
