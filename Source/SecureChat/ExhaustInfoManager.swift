@@ -19,30 +19,26 @@ class ExhaustInfoManager {
 }
 
 extension ExhaustInfoManager {
-    func getKeysExhaustInfo() throws -> [OtcExhaustInfo] {
+    func getKeysExhaustInfo() throws -> ExhaustInfo {
         Log.debug("Getting exhaust info")
         
-        guard let entries = self.storage.loadValue(forKey: self.getExhaustEntryKey()) as? [[String : Any]] else {
-            return []
+        guard let entry = self.storage.loadValue(forKey: self.getExhaustEntryKey()) as? [String : Any] else {
+            return ExhaustInfo(otc: [], ltc: [], sessions: [])
         }
         
-        let exhaustInfos = Array<OtcExhaustInfo>(try entries.map({
-            guard let info = OtcExhaustInfo(dict: $0) else {
-                throw SecureChat.makeError(withCode: .corruptedExhaustInfo, description: "Corrupted exhaust info.")
-            }
-            
-            return info
-        }))
+        guard let info = ExhaustInfo(dict: entry) else {
+            throw SecureChat.makeError(withCode: .corruptedExhaustInfo, description: "Corrupted exhaust info.")
+        }
         
-        return exhaustInfos
+        return info
     }
 }
 
 extension ExhaustInfoManager {
-    func saveKeysExhaustInfo(_ keysExhaustInfo: [OtcExhaustInfo]) throws {
+    func saveKeysExhaustInfo(_ keysExhaustInfo: ExhaustInfo) throws {
         Log.debug("Saving exhaust info")
         
-        try self.storage.storeValue(keysExhaustInfo.map({ $0.encode() }), forKey: self.getExhaustEntryKey())
+        try self.storage.storeValue(keysExhaustInfo.encode(), forKey: self.getExhaustEntryKey())
     }
 }
 

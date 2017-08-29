@@ -14,15 +14,11 @@ class KeyStorageManager {
     
     fileprivate let crypto: VSSCryptoProtocol
     fileprivate let keyStorage: KeyStorage
-    fileprivate let longTermKeyTtl: TimeInterval
-    fileprivate let longTermKeyExhaustTtl: TimeInterval
     fileprivate let namesHelper: KeyNamesHelper
     
-    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String, longTermKeyTtl: TimeInterval, longTermKeyExhaustTtl: TimeInterval) {
+    init(crypto: VSSCryptoProtocol, keyStorage: KeyStorage, identityCardId: String) {
         self.crypto = crypto
         self.keyStorage = keyStorage
-        self.longTermKeyTtl = longTermKeyTtl
-        self.longTermKeyExhaustTtl = longTermKeyExhaustTtl
         self.namesHelper = KeyNamesHelper(identityCardId: identityCardId)
     }
     
@@ -34,38 +30,12 @@ class KeyStorageManager {
         }
     }
     
-    func getAllOtCardsAndSessionKeysIds() throws -> ([String], [Data]) {
-        let keysAttrs = try self.keyStorage.getAllKeysAttrs()
-        
-        let (otKeysAttrs, sessKeysAttrs) = keysAttrs
-            .splitIntoTwoArrays({
-                return (self.namesHelper.isOtKeyEntryName($0.name), self.namesHelper.isSessionKeysKeyEntryName($0.name))
-            })
-        
-        let otKeysIds = otKeysAttrs.map({ self.namesHelper.extractCardId(fromOtKeyEntryName: $0.name) })
-        let sessionsIds = sessKeysAttrs
-            .map({ self.namesHelper.extractSessionId(fromSessKeyEntryName: $0.name) })
-            .flatMap({ $0 })
-        
-        return (otKeysIds, sessionsIds)
-    }
-    
-    func removeExhaustedLtKeys(now: Date = Date()) throws {
-        let keysAttrs = try self.keyStorage.getAllKeysAttrs()
-        
-        let keysToRemove = keysAttrs
-            .filter({ self.namesHelper.isLtKeyEntryName($0.name) && now > $0.creationDate.addingTimeInterval(self.longTermKeyTtl).addingTimeInterval(self.longTermKeyExhaustTtl)})
-            .map({ $0.name })
-        
-        try self.removeKeyEntries(withKeyEntryNames: keysToRemove)
-    }
-    
-    func hasRelevantLtKey(now: Date = Date()) -> Bool {
+    func hasRelevantLtKey(now: Date = Date(), longTermKeyTtl: TimeInterval) -> Bool {
         guard let keysAttrs = try? self.keyStorage.getAllKeysAttrs() else {
             return false
         }
         
-        return keysAttrs.contains(where: { self.namesHelper.isLtKeyEntryName($0.name) && now < $0.creationDate.addingTimeInterval(self.longTermKeyTtl)})
+        return keysAttrs.contains(where: { self.namesHelper.isLtKeyEntryName($0.name) && now < $0.creationDate.addingTimeInterval(longTermKeyTtl)})
     }
     
     func gentleReset() {
@@ -89,6 +59,36 @@ extension KeyStorageManager {
         let keyEntry = try self.getKeyEntry(withKeyEntryName: keyEntryName)
         
         return SessionKeys(withData: keyEntry.value)
+    }
+    
+    func getAllKeysAttrs() throws -> (session: [KeyAttrs], lt: [KeyAttrs], ot: [KeyAttrs]) {
+        let keysAttrs = try self.keyStorage.getAllKeysAttrs()
+        
+        let sessions = keysAttrs
+            .filter({ self.namesHelper.isSessionKeysKeyEntryName($0.name) })
+            .flatMap({ (attrs: KeyAttrs) -> KeyAttrs? in
+                guard let sessionId = self.namesHelper.extractSessionId(fromSessKeyEntryName: attrs.name) else {
+                    return nil
+                }
+                
+                return KeyAttrs(name: sessionId.base64EncodedString(), creationDate: attrs.creationDate)
+            })
+        
+        let lt = keysAttrs
+            .filter({ self.namesHelper.isLtKeyEntryName($0.name) })
+            .map({ (attrs: KeyAttrs) -> KeyAttrs in
+                let cardId = self.namesHelper.extractCardId(fromLtKeyEntryName: attrs.name)
+                return KeyAttrs(name: cardId, creationDate: attrs.creationDate)
+            })
+        
+        let ot = keysAttrs
+            .filter({ self.namesHelper.isOtKeyEntryName($0.name) })
+            .map({ (attrs: KeyAttrs) -> KeyAttrs in
+                let cardId = self.namesHelper.extractCardId(fromOtKeyEntryName: attrs.name)
+                return KeyAttrs(name: cardId, creationDate: attrs.creationDate)
+            })
+        
+        return (session: sessions, lt: lt, ot: ot)
     }
     
     func saveSessionKeys(_ sessionKeys: SessionKeys, forSessionWithId sessionId: Data) throws {
@@ -124,6 +124,11 @@ extension KeyStorageManager {
     fileprivate func saveLtPrivateKey(_ key: VSSPrivateKey, name: String) throws {
         let keyEntryName = self.namesHelper.getLtPrivateKeyEntryName(name)
         try self.savePrivateKey(key, keyEntryName: keyEntryName)
+    }
+    
+    func removeLtPrivateKeys(withNames names: [String]) throws {
+        let keyEntryNames = names.map({ self.namesHelper.getLtPrivateKeyEntryName($0) })
+        try self.removeKeyEntries(withKeyEntryNames: keyEntryNames)
     }
     
     // Ot keys
@@ -211,6 +216,11 @@ fileprivate extension KeyStorageManager {
         
         func extractCardId(fromOtKeyEntryName keyEntryName: String) -> String {
             let prefix = "\(self.getPrivateKeyEntryHeader()).\(KeyNamesHelper.OtPrefix)."
+            return keyEntryName.replacingOccurrences(of: prefix, with: "")
+        }
+        
+        func extractCardId(fromLtKeyEntryName keyEntryName: String) -> String {
+            let prefix = "\(self.getPrivateKeyEntryHeader()).\(KeyNamesHelper.LtPrefix)."
             return keyEntryName.replacingOccurrences(of: prefix, with: "")
         }
         

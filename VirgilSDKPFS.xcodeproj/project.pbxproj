@@ -74,7 +74,7 @@
 		425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsStatus.swift */; };
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
 		429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
-		429123A31F4CE0AE00103BE0 /* OtcExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */; };
+		429123A31F4CE0AE00103BE0 /* ExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */; };
 		429123A91F4CE96000103BE0 /* Dictionary+Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */; };
 		429123CA1F4D7C2C00103BE0 /* InsensitiveDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */; };
 		429123CC1F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123B91F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift */; };
@@ -115,6 +115,12 @@
 		42ACE9DA1F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */; };
 		42ACE9DD1F5421FF00309D83 /* VSP009_SessionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9DB1F5421E800309D83 /* VSP009_SessionManagerTests.swift */; };
 		42ACE9DE1F54220000309D83 /* VSP009_SessionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9DB1F5421E800309D83 /* VSP009_SessionManagerTests.swift */; };
+		42ACE9E51F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9E31F55971B00309D83 /* VSP010_KeysRotatorTests.swift */; };
+		42ACE9E61F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9E31F55971B00309D83 /* VSP010_KeysRotatorTests.swift */; };
+		42ACE9EB1F55A53600309D83 /* VSPPfsTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */; };
+		42ACE9EC1F55A53700309D83 /* VSPPfsTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */; };
+		42ACE9EF1F55A7E000309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */; };
+		42ACE9F01F55A7E100309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
 		42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */; };
 /* End PBXBuildFile section */
@@ -228,7 +234,7 @@
 		425E08311EF824E300A74C29 /* CardsStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsStatus.swift; sourceTree = "<group>"; };
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 		4291238D1F4C6A9900103BE0 /* TestConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestConfig.plist; sourceTree = "<group>"; };
-		429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OtcExhaustInfo.swift; sourceTree = "<group>"; };
+		429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExhaustInfo.swift; sourceTree = "<group>"; };
 		429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Pairs.swift"; sourceTree = "<group>"; };
 		429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorage.swift; sourceTree = "<group>"; };
 		429123B91F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDataStorage.swift; sourceTree = "<group>"; };
@@ -259,6 +265,11 @@
 		42ACE9CF1F54165F00309D83 /* InitiationWeakMessageExample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = InitiationWeakMessageExample.txt; sourceTree = "<group>"; };
 		42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP008_SessionInitializerTests.swift; sourceTree = "<group>"; };
 		42ACE9DB1F5421E800309D83 /* VSP009_SessionManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP009_SessionManagerTests.swift; sourceTree = "<group>"; };
+		42ACE9E31F55971B00309D83 /* VSP010_KeysRotatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP010_KeysRotatorTests.swift; sourceTree = "<group>"; };
+		42ACE9E71F55984800309D83 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		42ACE9E81F55A50600309D83 /* VSPPfsTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPPfsTestUtils.h; sourceTree = "<group>"; };
+		42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPPfsTestUtils.m; sourceTree = "<group>"; };
+		42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP011_EphemeralCardsReplenisherTests.swift; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
 		42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatErrorCode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -342,10 +353,13 @@
 			isa = PBXGroup;
 			children = (
 				4291238A1F4C6A9900103BE0 /* Data */,
+				42ACE9E71F55984800309D83 /* BridgingHeader.h */,
 				420D151F1EF3FBD9002A9C22 /* VSPTestsConst.h */,
 				420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */,
 				420D15291EF40F1B002A9C22 /* VSPTestUtils.h */,
 				420D152A1EF40F24002A9C22 /* VSPTestUtils.m */,
+				42ACE9E81F55A50600309D83 /* VSPPfsTestUtils.h */,
+				42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */,
 				420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */,
 				425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */,
 				429624181F15038900284665 /* VSP003_FingerprintTests.m */,
@@ -355,6 +369,8 @@
 				42ACE9C21F540F2000309D83 /* VSP007_CompatibilityTests.swift */,
 				42ACE9D71F541CDE00309D83 /* VSP008_SessionInitializerTests.swift */,
 				42ACE9DB1F5421E800309D83 /* VSP009_SessionManagerTests.swift */,
+				42ACE9E31F55971B00309D83 /* VSP010_KeysRotatorTests.swift */,
+				42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -553,7 +569,7 @@
 				425A023A1EF974DD00D9BBEF /* InitiationMessage.swift */,
 				425A02581EFD17A600D9BBEF /* SessionState.swift */,
 				425A024A1EFBF10F00D9BBEF /* Message.swift */,
-				429123A21F4CE0AE00103BE0 /* OtcExhaustInfo.swift */,
+				429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */,
 				429123EB1F507DF500103BE0 /* CardEntry.swift */,
 			);
 			path = Models;
@@ -835,7 +851,7 @@
 				425E08301EF8248500A74C29 /* Client+Info.swift in Sources */,
 				429123E51F4F9BE800103BE0 /* SessionInitializer.swift in Sources */,
 				429123CF1F4D7C2C00103BE0 /* KeyEntry.swift in Sources */,
-				429123A31F4CE0AE00103BE0 /* OtcExhaustInfo.swift in Sources */,
+				429123A31F4CE0AE00103BE0 /* ExhaustInfo.swift in Sources */,
 				429123F41F5090B700103BE0 /* SessionStorageManager.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
 				425A025B1F0504BB00D9BBEF /* Client+Validation.swift in Sources */,
@@ -897,11 +913,14 @@
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
 				429123E81F5068C500103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
 				42ACE9D91F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
+				42ACE9EF1F55A7E000309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */,
 				42ACE9C41F540F3600309D83 /* VSP007_CompatibilityTests.swift in Sources */,
 				425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */,
 				420D15251EF3FBEE002A9C22 /* VSPTestsConst.m in Sources */,
 				420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */,
 				4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */,
+				42ACE9EB1F55A53600309D83 /* VSPPfsTestUtils.m in Sources */,
+				42ACE9E51F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -923,12 +942,15 @@
 				429123FD1F5226FC00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
 				424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */,
 				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,
+				42ACE9F01F55A7E100309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */,
 				429123F51F521F2C00103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
 				424A02261F34643600D17D0C /* VSPTestsConst.m in Sources */,
 				42ACE9DA1F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
+				42ACE9E61F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */,
 				424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */,
 				42ACE9DE1F54220000309D83 /* VSP009_SessionManagerTests.swift in Sources */,
 				424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */,
+				42ACE9EC1F55A53700309D83 /* VSPPfsTestUtils.m in Sources */,
 				42ACE9C51F540F3700309D83 /* VSP007_CompatibilityTests.swift in Sources */,
 				424A02271F34643600D17D0C /* VSPTestUtils.m in Sources */,
 			);
@@ -1152,6 +1174,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = Tests/BridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -1179,6 +1202,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.virgilsecurity.VirgilSDKPFS-iOS-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = Tests/BridgingHeader.h;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

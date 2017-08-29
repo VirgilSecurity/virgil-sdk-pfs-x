@@ -194,7 +194,7 @@ extension SessionManager {
         let sessionStates = try self.sessionStorageManager.getAllSessionsStates()
         
         for sessionState in sessionStates {
-            try? self.removeSessions(withParticipantWithCardId: sessionState.key)
+            try? self.removeSessions(withParticipantWithCardId: sessionState.0)
         }
         
         self.removeAllKeys()

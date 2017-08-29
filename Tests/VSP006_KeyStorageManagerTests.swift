@@ -16,7 +16,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
     
     override func setUp() {
         self.crypto = VSSCrypto()
-        self.keyStorageManager = KeyStorageManager(crypto: self.crypto, keyStorage: KeychainKeyStorage(), identityCardId: UUID().uuidString, longTermKeyTtl: 5, longTermKeyExhaustTtl: 5)
+        self.keyStorageManager = KeyStorageManager(crypto: self.crypto, keyStorage: KeychainKeyStorage(), identityCardId: UUID().uuidString)
     }
     
     override func tearDown() {
@@ -24,45 +24,65 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
     }
     
     func test001_hasRelevantLtKey() {
-        XCTAssert(!self.keyStorageManager.hasRelevantLtKey())
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
         
         let ltPrivateKeyName = UUID().uuidString
         try! self.keyStorageManager.saveKeys(otKeys: [], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltPrivateKeyName))
         
         let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltPrivateKeyName)
         
-        XCTAssert(self.keyStorageManager.hasRelevantLtKey())
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
         
-        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(6)))
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(6), longTermKeyTtl: 5))
     }
     
     func test002_LtKeys() {
-        let ltPrivateKeyName = UUID().uuidString
+        let ltName1 = UUID().uuidString
+        let ltName2 = UUID().uuidString
         
-        try! self.keyStorageManager.saveKeys(otKeys: [], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltPrivateKeyName))
+        try! self.keyStorageManager.saveKeys(otKeys: [], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltName1))
         
-        let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltPrivateKeyName)
+        let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltName1)
         
-        XCTAssert(self.keyStorageManager.hasRelevantLtKey())
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(6), longTermKeyTtl: 5))
+
+        sleep(3)
         
-        try! self.keyStorageManager.removeExhaustedLtKeys(now: Date().addingTimeInterval(6))
+        try! self.keyStorageManager.saveKeys(otKeys: [], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltName2))
         
-        XCTAssert(self.keyStorageManager.hasRelevantLtKey())
+        let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltName2)
         
-        let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltPrivateKeyName)
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(1), longTermKeyTtl: 5))
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(6), longTermKeyTtl: 5))
         
-        try! self.keyStorageManager.removeExhaustedLtKeys(now: Date().addingTimeInterval(11))
-        
-        XCTAssert(!self.keyStorageManager.hasRelevantLtKey())
+        try! self.keyStorageManager.removeLtPrivateKeys(withNames: [ltName1])
         
         var errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getLtPrivateKey(withName: ltPrivateKeyName)
+            let _ = try self.keyStorageManager.getLtPrivateKey(withName: ltName1)
         }
         catch {
             errorWasThrown = true
         }
+        XCTAssert(errorWasThrown)
         
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
+        XCTAssert(self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(1), longTermKeyTtl: 5))
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(now: Date().addingTimeInterval(6), longTermKeyTtl: 5))
+        
+        try! self.keyStorageManager.removeLtPrivateKeys(withNames: [ltName2])
+        
+        XCTAssert(!self.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: 5))
+        
+        errorWasThrown = false
+        do {
+            let _ = try self.keyStorageManager.getLtPrivateKey(withName: ltName2)
+        }
+        catch {
+            errorWasThrown = true
+        }
         XCTAssert(errorWasThrown)
     }
     
@@ -126,9 +146,9 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         let sessionKeys0 = KeyStorageManager.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
         try! self.keyStorageManager.saveSessionKeys(sessionKeys0, forSessionWithId: sessionId1)
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().1.count == 1)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 1)
         try! self.keyStorageManager.saveSessionKeys(sessionKeys0, forSessionWithId: sessionId2)
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().1.count == 2)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 2)
         
         let sessionKeys11 = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId1)
         let sessionKeys12 = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId1)
@@ -139,7 +159,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         XCTAssert(sessionKeys12.decryptionKey == decryptionKey)
         
         try! self.keyStorageManager.removeSessionKeys(forSessionsWithIds: [sessionId1, sessionId2])
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().1.count == 0)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 0)
         
         var errorWasThrown = false
         do {
@@ -170,7 +190,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         try! self.keyStorageManager.saveKeys(otKeys: [keyEntry1, keyEntry2, keyEntry3], ltKey: nil)
         
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().0.count == 3)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 3)
         
         let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry1.name)
         let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
@@ -189,7 +209,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry2.name)
         let _ = try! self.keyStorageManager.getOtPrivateKey(name: keyEntry3.name)
         
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().0.count == 2)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 2)
         
         try! self.keyStorageManager.removeOtPrivateKeys(withNames: [keyEntry2.name, keyEntry3.name])
         
@@ -218,7 +238,7 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         }
         XCTAssert(errorWasThrown)
         
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().0.count == 0)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 0)
     }
     
     func test006_gentleReset() {
@@ -244,9 +264,9 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         let sessionKeys0 = KeyStorageManager.SessionKeys(encryptionKey: encryptionKey, decryptionKey: decryptionKey)
         try! self.keyStorageManager.saveSessionKeys(sessionKeys0, forSessionWithId: sessionId1)
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().1.count == 1)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 1)
         try! self.keyStorageManager.saveSessionKeys(sessionKeys0, forSessionWithId: sessionId2)
-        XCTAssert(try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds().1.count == 2)
+        XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 2)
         
         let keyEntry1 = KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: UUID().uuidString)
         let keyEntry2 = KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: UUID().uuidString)
@@ -257,9 +277,10 @@ class VSP006_KeyStorageManagerTests: XCTestCase {
         
         self.keyStorageManager.gentleReset()
         
-        let (r1, r2) = try! self.keyStorageManager.getAllOtCardsAndSessionKeysIds()
+        let (r1, r2, r3) = try! self.keyStorageManager.getAllKeysAttrs()
         XCTAssert(r1.count == 0)
         XCTAssert(r2.count == 0)
+        XCTAssert(r3.count == 0)
         
         var errorWasThrown = false
         

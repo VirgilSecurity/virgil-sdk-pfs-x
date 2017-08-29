@@ -78,31 +78,30 @@ extension SessionStorageManager {
 }
 
 extension SessionStorageManager {
-    func getAllSessionsStates() throws -> [String : [Data : SessionState]] {
+    func getAllSessionsStates() throws -> [(String, SessionState)] {
         Log.debug("Getting all sessions' states")
         
         guard let entry = self.storage.loadValue(forKey: self.getSessionsEntryKey()) as? [String : Any] else {
-            return [:]
+            return []
         }
         
-        return try entry.mapPairs({ (key: String, val: Any) -> (String, [Data : SessionState]) in
-            guard let dict = val as? [String : Any] else {
+        var result = [(String, SessionState)]()
+        
+        for element in entry {
+            guard let dict = element.value as? [String : Any] else {
                 throw SecureChat.makeError(withCode: .corruptedSavedSession, description: "Corrupted saved session.")
             }
             
-            var sessions = [Data : SessionState]()
             for session in dict {
-                guard let sessionId = Data(base64Encoded: session.key),
-                    let state = SessionState(dictionary: session.value) else {
-                        throw SecureChat.makeError(withCode: .corruptedSavedSession, description: "Corrupted saved session.")
+                guard let state = SessionState(dictionary: session.value) else {
+                    throw SecureChat.makeError(withCode: .corruptedSavedSession, description: "Corrupted saved session.")
                 }
                 
-                sessions[sessionId] = state
+                result.append((element.key, state))
             }
-            
-            
-            return (key, sessions)
-        })
+        }
+        
+        return result
     }
 }
 
@@ -128,12 +127,12 @@ extension SessionStorageManager {
 }
 
 extension SessionStorageManager {
-    func removeSessionsStates(dict: [String: [Data]?]) throws {
-        guard !dict.isEmpty else {
+    func removeSessionsStates(_ array: [(String, Data)]) throws {
+        guard !array.isEmpty else {
             return
         }
         
-        Log.debug("Removing sessions' states: \(dict)")
+        Log.debug("Removing sessions' states: \(array)")
         
         self.mutex.lock()
         defer {
@@ -144,23 +143,19 @@ extension SessionStorageManager {
             throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions found.")
         }
         
-        for d in dict {
-            guard var sessions = entry[d.key] as? [String : Any] else {
-                throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions for \(d.key) found.")
+        for element in array {
+            let cardId = element.0
+            let sessionIdStr = element.1.base64EncodedString()
+            
+            guard var sessions = entry[cardId] as? [String : Any] else {
+                throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no sessions for \(cardId) found.")
             }
             
-            if let sessionIds = d.value {
-                for sessionId in sessionIds {
-                    guard sessions.removeValue(forKey: sessionId.base64EncodedString()) != nil else {
-                        throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no session for \(sessionId.base64EncodedString()) for this \(cardId) found.")
-                    }
-                }
-                
-                entry[d.key] = sessions
+            guard sessions.removeValue(forKey: sessionIdStr) != nil else {
+                throw SecureChat.makeError(withCode: .sessionNotFound, description: "Tried to remove sessions but no session for \(sessionIdStr) for this \(cardId) found.")
             }
-            else {
-                entry.removeValue(forKey: d.key)
-            }
+            
+            entry[cardId] = sessions
         }
         
         try self.storage.storeValue(entry, forKey: self.getSessionsEntryKey())

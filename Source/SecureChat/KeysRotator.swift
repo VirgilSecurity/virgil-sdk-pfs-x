@@ -10,20 +10,24 @@ import Foundation
 import VirgilSDK
 
 class KeysRotator {
-    private let identityCard: VSSCard
-    private let exhaustedOneTimeCardTtl: TimeInterval
-    private let expiredSessionTtl: TimeInterval
-    private let ephemeralCardsReplenisher: EphemeralCardsReplenisher
-    private let sessionStorageManager: SessionStorageManager
-    private let keyStorageManager: KeyStorageManager
-    private let exhaustInfoManager: ExhaustInfoManager
-    private let client: Client
-    private let mutex = Mutex()
+    fileprivate let identityCard: VSSCard
+    fileprivate let exhaustedOneTimeCardTtl: TimeInterval
+    fileprivate let expiredSessionTtl: TimeInterval
+    fileprivate let longTermKeysTtl: TimeInterval
+    fileprivate let expiredLongTermCardTtl: TimeInterval
+    fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
+    fileprivate let sessionStorageManager: SessionStorageManager
+    fileprivate let keyStorageManager: KeyStorageManager
+    fileprivate let exhaustInfoManager: ExhaustInfoManager
+    fileprivate let client: Client
+    fileprivate let mutex = Mutex()
     
-    init(identityCard: VSSCard, exhaustedOneTimeCardTtl: TimeInterval, expiredSessionTtl: TimeInterval, ephemeralCardsReplenisher: EphemeralCardsReplenisher, sessionStorageManager: SessionStorageManager, keyStorageManager: KeyStorageManager, exhaustInfoManager: ExhaustInfoManager, client: Client) {
+    init(identityCard: VSSCard, exhaustedOneTimeCardTtl: TimeInterval, expiredSessionTtl: TimeInterval, longTermKeysTtl: TimeInterval, expiredLongTermCardTtl: TimeInterval, ephemeralCardsReplenisher: EphemeralCardsReplenisher, sessionStorageManager: SessionStorageManager, keyStorageManager: KeyStorageManager, exhaustInfoManager: ExhaustInfoManager, client: Client) {
         self.identityCard = identityCard
         self.exhaustedOneTimeCardTtl = exhaustedOneTimeCardTtl
         self.expiredSessionTtl = expiredSessionTtl
+        self.longTermKeysTtl = longTermKeysTtl
+        self.expiredLongTermCardTtl = expiredLongTermCardTtl
         self.ephemeralCardsReplenisher = ephemeralCardsReplenisher
         self.sessionStorageManager = sessionStorageManager
         self.keyStorageManager = keyStorageManager
@@ -31,86 +35,11 @@ class KeysRotator {
         self.client = client
     }
     
-    private func removeExpiredSessionsAndReturnActualSessionIds() throws -> [Data] {
-        Log.debug("Removing expired sessions.")
+    private func updateExhaustInfo(now: Date, exhaustInfo: ExhaustInfo, exhaustedCardsIds: [String]) throws {
+        var newOtc = exhaustInfo.otc
         
-        let sessionsStates = try self.sessionStorageManager.getAllSessionsStates()
-        
-        let now = Date()
-        
-        var expiredSessionsStates = [String : [Data : SessionState]]()
-        var actualSessionsStatesIds = [Data]()
-        for sessionState in sessionsStates {
-            var expiredSessionsStatesDict = [Data : SessionState]()
-            
-            for sessionStateDict in sessionState.value {
-                if sessionStateDict.value.expirationDate.addingTimeInterval(self.expiredSessionTtl) < now {
-                    expiredSessionsStatesDict[sessionStateDict.key] = sessionStateDict.value
-                }
-                else {
-                    actualSessionsStatesIds.append(sessionStateDict.key)
-                }
-            }
-            
-            expiredSessionsStates[sessionState.key] = expiredSessionsStatesDict
-        }
-        
-        let expiredSessionsDict = [String : [Data]](expiredSessionsStates.map({ ($0.key, [Data]($0.value.keys)) }))
-        
-        if !expiredSessionsDict.isEmpty {
-            Log.debug("Found expired sessions.")
-        }
-        
-        let expiredSessionsIds = expiredSessionsDict.reduce([]) { $0 + $1.value }
-        
-        // FIXME
-        try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: expiredSessionsIds)
-        try self.sessionStorageManager.removeSessionsStates(dict: expiredSessionsDict)
-        
-        return actualSessionsStatesIds
-    }
-    
-    private func removeOrphanedOtcs(now: Date, otKeysIds: [String]) throws -> ([OtcExhaustInfo], [String]) {
-        let exhaustInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
-        
-        let otcExhaustTtl = self.exhaustedOneTimeCardTtl
-        
-        let orphanedOtcIds = exhaustInfo.filter({ $0.exhaustDate.addingTimeInterval(otcExhaustTtl) < now }).map({ $0.cardId })
-        
-        let updatedExhaustInfo: [OtcExhaustInfo]
-        if orphanedOtcIds.count > 0 {
-            Log.error("WARNING: orphaned otcs found: \(orphanedOtcIds)")
-            try self.keyStorageManager.removeOtPrivateKeys(withNames: orphanedOtcIds)
-            updatedExhaustInfo = exhaustInfo.filter({ !orphanedOtcIds.contains($0.cardId) })
-        }
-        else {
-            updatedExhaustInfo = exhaustInfo
-        }
-        
-        let exhaustedCards = Set<String>(exhaustInfo.map({ $0.cardId }))
-        let otCardsToCheck = Array<String>(Set<String>(otKeysIds).subtracting(exhaustedCards))
-        
-        return (updatedExhaustInfo, otCardsToCheck)
-    }
-    
-    private func removeOrhpanedSessionKeys() throws -> [String] {
-        let actualSessionIds = Set<Data>(try self.removeExpiredSessionsAndReturnActualSessionIds())
-        
-        let (otKeysIds, sessionKeysIds) = try self.keyStorageManager.getAllOtCardsAndSessionKeysIds()
-        
-        let orphanedSessionKeysIds = sessionKeysIds.filter({ !actualSessionIds.contains($0) })
-        
-        if orphanedSessionKeysIds.count > 0 {
-            Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
-            try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
-        }
-        
-        return otKeysIds
-    }
-    
-    private func updateExhaustInfo(now: Date, exhaustInfo: [OtcExhaustInfo], exhaustedCardsIds: [String]) throws {
-        var newExhaustInfo = exhaustInfo
-        newExhaustInfo.append(contentsOf: exhaustedCardsIds.map({ OtcExhaustInfo(cardId: $0, exhaustDate: now) }))
+        newOtc.append(contentsOf: exhaustedCardsIds.map({ ExhaustInfoEntry(identifier: $0, exhaustDate: now) }))
+        let newExhaustInfo = ExhaustInfo(otc: newOtc, ltc: exhaustInfo.ltc, sessions: exhaustInfo.sessions)
         
         try self.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo)
     }
@@ -121,11 +50,7 @@ class KeysRotator {
         let now = Date()
         
         do {
-            try self.keyStorageManager.removeExhaustedLtKeys()
-            
-            let otKeysIds = try self.removeOrhpanedSessionKeys()
-            
-            let (updatedExhaustInfo, otCardsToCheck) = try self.removeOrphanedOtcs(now: now, otKeysIds: otKeysIds)
+            let (updatedExhaustInfo, otCardsToCheck) = try self.processExhaustedStuff(now: now)
         
             self.client.validateOneTimeCards(forRecipientWithId: self.identityCard.identifier, cardsIds: otCardsToCheck) { exhaustedCardsIds, error in
                 guard error == nil else {
@@ -225,7 +150,7 @@ class KeysRotator {
             }
             
             if numberOfMissingCards > 0 {
-                let addLtCard = !self.owner.keyStorageManager.hasRelevantLtKey()
+                let addLtCard = !self.owner.keyStorageManager.hasRelevantLtKey(longTermKeyTtl: self.owner.longTermKeysTtl)
                 do {
                     try self.owner.ephemeralCardsReplenisher.addCards(includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
                         if let error = error {
@@ -300,5 +225,117 @@ class KeysRotator {
                 self.finish()
             }
         }
+    }
+}
+
+fileprivate extension KeysRotator {
+    private func removeOrhpanedSessionKeys(sessionKeys: [KeyAttrs], allSessions: [(String, SessionState)]) throws {
+        let allSessionsIds = allSessions.map({ $0.1.sessionId })
+        
+        let orphanedSessionKeysIds = sessionKeys
+            .flatMap({
+                guard let sessionId = Data(base64Encoded: $0.name) else {
+                    return nil
+                }
+                
+                return sessionId
+            })
+            .filter({ return !allSessionsIds.contains($0) })
+        
+        if orphanedSessionKeysIds.count > 0 {
+            Log.error("WARNING: orphaned session keys found: \(orphanedSessionKeysIds.map({ $0.base64EncodedString() }))")
+            try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: orphanedSessionKeysIds)
+        }
+    }
+    
+    private func removeExpiredSessions(now: Date, allSessions: [(String, SessionState)], exhaustInfo: inout ExhaustInfo) throws {
+        Log.debug("Removing expired sessions.")
+        
+        // Remove expired sessions
+        let sessionInfosToRemove = exhaustInfo.sessions.filter({ $0.exhaustDate.addingTimeInterval(self.expiredSessionTtl) < now })
+        let sessionIdsToRemove = sessionInfosToRemove.map({ $0.identifier })
+        
+        // FIXME
+        try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: sessionIdsToRemove)
+        try self.sessionStorageManager.removeSessionsStates(sessionInfosToRemove.map({ ($0.cardId, $0.identifier) }))
+        
+        // Update sessions info
+        let allSessionsUpdated = allSessions.filter({ !sessionIdsToRemove.contains($0.1.sessionId) })
+        
+        // Update exhaust info:
+        var newSessions = exhaustInfo.sessions
+        
+        // Clear removed keys
+        newSessions = newSessions.filter({ !sessionIdsToRemove.contains($0.identifier) })
+        
+        // Add recently expired keys
+        let newSessionsIds = newSessions.map({ $0.identifier })
+        let newExpiredSessions = allSessionsUpdated.filter({ $0.1.isExpired(now: now) && !newSessionsIds.contains($0.1.sessionId) })
+        newSessions.append(contentsOf: newExpiredSessions.map({ SessionExhaustInfo(identifier: $0.1.sessionId, cardId: $0.0, exhaustDate: now) }))
+        
+        // Updated exhaust info
+        exhaustInfo = ExhaustInfo(otc: exhaustInfo.otc, ltc: exhaustInfo.ltc, sessions: newSessions)
+    }
+    
+    private func removeOrphanedOtcs(now: Date, exhaustInfo: inout ExhaustInfo) throws {
+        // Remove ot keys that have been used some time ago
+        let otcIdsToRemove = exhaustInfo.otc
+            .filter({ $0.exhaustDate.addingTimeInterval(self.exhaustedOneTimeCardTtl) < now })
+            .map({ $0.identifier })
+        
+        if otcIdsToRemove.count > 0 {
+            Log.error("WARNING: orphaned otcs found: \(otcIdsToRemove)")
+            try self.keyStorageManager.removeOtPrivateKeys(withNames: otcIdsToRemove)
+        }
+        
+        // Updated exhaust info
+        var newOtKeys = exhaustInfo.otc
+        newOtKeys = newOtKeys.filter({ otcIdsToRemove.contains($0.identifier) })
+        exhaustInfo = ExhaustInfo(otc: newOtKeys, ltc: exhaustInfo.ltc, sessions: exhaustInfo.sessions)
+    }
+    
+    private func removeExpiredLtKeys(now: Date, ltKeys: [KeyAttrs], exhaustInfo: inout ExhaustInfo) throws {
+        // Remove lt keys that have expired some time ago
+        let ltcIdsToRemove = exhaustInfo.ltc
+            .filter({ $0.exhaustDate.addingTimeInterval(self.expiredLongTermCardTtl) < now })
+            .map({ $0.identifier })
+        
+        try self.keyStorageManager.removeLtPrivateKeys(withNames: ltcIdsToRemove)
+        
+        // Updated lt keys info
+        let ltKeysUpdated = ltKeys.filter({ ltcIdsToRemove.contains($0.name) })
+        
+        // Update exhaust info:
+        var newLtKeys = exhaustInfo.ltc
+        
+        // Clear removed keys
+        newLtKeys = newLtKeys.filter({ !ltcIdsToRemove.contains($0.identifier) })
+        
+        // Add lt keys that have expired recently
+        let newLtKeysIds = newLtKeys.map({ $0.identifier })
+        let recentlyExpiredLtKeys = ltKeysUpdated.filter({ $0.creationDate.addingTimeInterval(self.longTermKeysTtl) < now && !newLtKeysIds.contains($0.name) })
+        newLtKeys.append(contentsOf: recentlyExpiredLtKeys.map({ ExhaustInfoEntry(identifier: $0.name, exhaustDate: now) }))
+        
+        // Update exhaust info
+        exhaustInfo = ExhaustInfo(otc: exhaustInfo.otc, ltc: newLtKeys, sessions: exhaustInfo.sessions)
+    }
+    
+    func processExhaustedStuff(now: Date) throws -> (ExhaustInfo, [String]) {
+        var exhaustInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
+        let allSessionStates = try self.sessionStorageManager.getAllSessionsStates()
+        let (sessionKeys, ltKeys, otKeys) = try self.keyStorageManager.getAllKeysAttrs()
+        
+        try self.removeExpiredLtKeys(now: now, ltKeys: ltKeys, exhaustInfo: &exhaustInfo)
+        try self.removeOrphanedOtcs(now: now, exhaustInfo: &exhaustInfo)
+        
+        let newOtKeysIds = exhaustInfo.otc.map({ $0.identifier })
+        let otKeysIdsToCheck = otKeys
+            .filter({ !newOtKeysIds.contains($0.name) })
+            .map({ $0.name })
+        
+        try self.removeExpiredSessions(now: now, allSessions: allSessionStates, exhaustInfo: &exhaustInfo)
+        try self.removeOrhpanedSessionKeys(sessionKeys: sessionKeys, allSessions: allSessionStates)
+        
+        return (exhaustInfo, otKeysIdsToCheck)
     }
 }

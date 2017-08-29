@@ -94,11 +94,26 @@ class VSP004_SessionStorageManagerTests: XCTestCase {
     }
     
     func test004_GetAllSessions() {
-        let sessionStates = try! self.sessionStorageManager.getAllSessionsStates()
+        var savedStates = try! self.sessionStorageManager.getAllSessionsStates()
         
-        XCTAssert(sessionStates.count == 2)
-        XCTAssert(sessionStates[self.recipientCardId1]!.count == 2)
-        XCTAssert(sessionStates[self.recipientCardId2]!.count == 2)
+        var states = [
+            (self.recipientCardId1!, self.sessionState1!),
+            (self.recipientCardId1!, self.sessionState2!),
+            (self.recipientCardId2!, self.sessionState3!),
+            (self.recipientCardId2!, self.sessionState4!)
+        ]
+        
+        savedStates.sort(by: {
+            $0.1.sessionId.base64EncodedString() > $1.1.sessionId.base64EncodedString()
+        })
+        states.sort(by: {
+            $0.1.sessionId.base64EncodedString() > $1.1.sessionId.base64EncodedString()
+        })
+        
+        for elem in zip(states, savedStates) {
+            XCTAssert(elem.0.0 == elem.1.0)
+            XCTAssert(elem.0.1 == elem.1.1)
+        }
     }
     
     func test005_GetNewestSessionState() {
@@ -110,29 +125,26 @@ class VSP004_SessionStorageManagerTests: XCTestCase {
     func test006_RemoveSessionState() {
         try! self.sessionStorageManager.removeSessionState(forCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId)
         
-        let sessionState = try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId)
-        
-        XCTAssert(sessionState == nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId) == nil)
     }
     
     func test006_RemoveSessionStates1() {
-        try! self.sessionStorageManager.removeSessionsStates(dict: [
-            self.recipientCardId1: nil
+        try! self.sessionStorageManager.removeSessionsStates([(self.recipientCardId1, self.sessionState1.sessionId)])
+        
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId) == nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState2.sessionId) != nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState3.sessionId) != nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState4.sessionId) != nil)
+        
+        try! self.sessionStorageManager.removeSessionsStates([
+            (self.recipientCardId1, self.sessionState2.sessionId),
+            (self.recipientCardId2, self.sessionState3.sessionId),
+            (self.recipientCardId2, self.sessionState4.sessionId)
             ])
         
-        let sessionState1 = try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId)
-        let sessionState2 = try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState2.sessionId)
-        
-        try! self.sessionStorageManager.removeSessionsStates(dict: [
-            self.recipientCardId2: [self.sessionState3.sessionId]
-            ])
-        
-        let sessionState3 = try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState3.sessionId)
-        let sessionState4 = try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState4.sessionId)
-        
-        XCTAssert(sessionState1 == nil)
-        XCTAssert(sessionState2 == nil)
-        XCTAssert(sessionState3 == nil)
-        XCTAssert(sessionState4 == self.sessionState4)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId) == nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState2.sessionId) == nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState3.sessionId) == nil)
+        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState4.sessionId) == nil)
     }
 }
