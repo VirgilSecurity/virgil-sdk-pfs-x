@@ -74,11 +74,10 @@ class VSP009_SessionManagerTests: XCTestCase {
         XCTAssert(errorWasThrown)
     }
     
-    private func generateResponderSession(cardId: String) throws -> SecureSession {
+    private func generateResponderSession(cardId: String, otKeyName: String = UUID().uuidString) throws -> SecureSession {
         let privateKey = self.crypto.generateKeyPair().privateKey
         let idEntry = CardEntry(identifier: cardId, publicKeyData: self.crypto.export(self.crypto.extractPublicKey(from: privateKey)))
         
-        let otKeyName = UUID().uuidString
         let ltKeyName = UUID().uuidString
         
         try! self.keyStorageManager.saveKeys(otKeys: [KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: otKeyName)], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltKeyName))
@@ -104,7 +103,17 @@ class VSP009_SessionManagerTests: XCTestCase {
     
     func test002_InitializeResponder() {
         let cardId = UUID().uuidString
-        let session = try! self.generateResponderSession(cardId: cardId)
+        let otKeyName = UUID().uuidString
+        let session = try! self.generateResponderSession(cardId: cardId, otKeyName: otKeyName)
+        
+        var errorWasThrown = false
+        do {
+            let _ = try self.keyStorageManager.getOtPrivateKey(name: otKeyName)
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
         
         let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.sessionId)
         
@@ -131,7 +140,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         XCTAssert(self.sessionManager.activeSession(withParticipantWithCardId: cardId) == nil)
         
-        var errorWasThrown = false
+        errorWasThrown = false
         do {
             let _ = try self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session.sessionId)
         }
