@@ -342,7 +342,6 @@ class VSP010_KeysRotatorTests: XCTestCase {
         let identityRequest = self.utils.instantiateCreateCardRequest(with: keyPair)
         
         self.virgilClient.createCard(with: identityRequest) { card, error in
-            let cardId = card!.identifier
             self.initializeRotator(privateKey: keyPair.privateKey, card: card!, expiredSessionTtl: TimeInterval(exhaustTime))
             self.initializerSessionManager(card: card!, sessionTtl: TimeInterval(expireTime))
             
