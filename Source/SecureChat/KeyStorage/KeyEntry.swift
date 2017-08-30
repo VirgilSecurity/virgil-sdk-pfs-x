@@ -8,11 +8,20 @@
 
 import Foundation
 
+/// Class for representing key entry info
 @objc(VSPKeyEntry) public class KeyEntry: NSObject {
-    let name: String
-    let value: Data
+    /// Key name
+    public let name: String
     
-    init(name: String, value: Data) {
+    /// Key raw value
+    public let value: Data
+    
+    /// Initialized
+    ///
+    /// - Parameters:
+    ///   - name: key name
+    ///   - value: key raw data
+    public init(name: String, value: Data) {
         self.name = name
         self.value = value
         

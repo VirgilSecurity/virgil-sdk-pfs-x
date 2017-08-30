@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Error codes for NSError instances thrown from SecureSession
 @objc(VSPSecureSessionErrorCode) public enum SecureSessionErrorCode: Int {
     case convertingEncryptedMessageWhileDecrypting
     case decryptingMessage

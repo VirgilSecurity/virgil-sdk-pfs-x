@@ -8,11 +8,19 @@
 
 import Foundation
 
+/// Class for representing key attributes info
 @objc(VSPKeyAttrs) public class KeyAttrs: NSObject {
-    let name: String
-    let creationDate: Date
+    /// Key name
+    public let name: String
+    /// Key creation date
+    public let creationDate: Date
     
-    init(name: String, creationDate: Date) {
+    /// Initializer
+    ///
+    /// - Parameters:
+    ///   - name: Key name
+    ///   - creationDate: Key creation date
+    public init(name: String, creationDate: Date) {
         self.name = name
         self.creationDate = creationDate
         
