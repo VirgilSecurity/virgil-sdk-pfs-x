@@ -183,7 +183,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
         self.waitForExpectations(timeout: timeout)
     }
     
-    func test004_RemoveOrhpangedOtc() {
+    func test004_RemoveOrhpanedOtc() {
         let ex = self.expectation(description: "")
         
         let exhaustTime: UInt32 = 10
@@ -361,13 +361,13 @@ class VSP010_KeysRotatorTests: XCTestCase {
                 XCTAssert(try! self.sessionStorageManager.getAllSessionsStates().count == 1)
                 
                 let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
-                let _ = try! self.sessionStorageManager.getSessionState(forRecipientCardId: cardId, sessionId: sessionId)
+                XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) != nil)
                 
                 self.keysRotator.rotateKeys(desiredNumberOfCards: 0) { error in
                     XCTAssert(error == nil)
                     
                     let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
-                    let _ = try! self.sessionStorageManager.getSessionState(forRecipientCardId: cardId, sessionId: sessionId)
+                    XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) != nil)
                     
                     sleep(expireTime)
                     
@@ -375,7 +375,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
                         XCTAssert(error == nil)
                         
                         let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
-                        let _ = try! self.sessionStorageManager.getSessionState(forRecipientCardId: cardId, sessionId: sessionId)
+                        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) != nil)
                         
                         sleep(exhaustTime)
                         
@@ -391,7 +391,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
                             }
                             XCTAssert(errorWasThrown)
                             
-                            XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: cardId, sessionId: sessionId) == nil)
+                            XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) == nil)
                             
                             ex.fulfill()
                         }
@@ -447,6 +447,134 @@ class VSP010_KeysRotatorTests: XCTestCase {
                     XCTAssert(errorWasThrown)
                     
                     ex.fulfill()
+                }
+            }
+        }
+        
+        self.waitForExpectations(timeout: timeout)
+    }
+    
+    func test008_RemoveOrhpanedOtcUsed() {
+        let ex = self.expectation(description: "")
+        
+        let exhaustTime: UInt32 = 10
+        let numberOfRequests = 15
+        let timeout = Double(numberOfRequests) * kEstimatedRequestCompletionTime + Double(exhaustTime)
+        
+        let keyPair = self.crypto.generateKeyPair()
+        
+        let identityRequest = self.utils.instantiateCreateCardRequest(with: keyPair)
+        
+        self.virgilClient.createCard(with: identityRequest) { card, error in
+            self.initializeRotator(privateKey: keyPair.privateKey, card: card!, exhaustedOneTimeCardTtl: TimeInterval(exhaustTime))
+            
+            let cardId = card!.identifier
+            
+            self.keysRotator.rotateKeys(desiredNumberOfCards: 10) { error in
+                XCTAssert(error == nil)
+                
+                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().ot.count == 10)
+                
+                self.client.getRecipientCardsSet(forCardsIds: [cardId]) { cardsSets, error in
+                    XCTAssert(error == nil)
+                    XCTAssert(cardsSets!.count == 1)
+                    
+                    let cardsSet = cardsSets![0]
+                    
+                    let ltId = cardsSet.longTermCard.identifier
+                    let otId = cardsSet.oneTimeCard!.identifier
+                    
+                    let _ = try! self.keyStorageManager.getOtPrivateKey(withName: otId)
+                    let _ = try! self.keyStorageManager.getLtPrivateKey(withName: ltId)
+                    
+                    self.keysRotator.rotateKeys(desiredNumberOfCards: 10) { error in
+                        XCTAssert(error == nil)
+                        
+                        let _ = try! self.keyStorageManager.getOtPrivateKey(withName: otId)
+                        
+                        // Simulate ot key usage
+                        try! self.keyStorageManager.removeOtPrivateKey(withName: otId)
+                        
+                        sleep(exhaustTime)
+                        
+                        self.keysRotator.rotateKeys(desiredNumberOfCards: 10) { error in
+                            XCTAssert(error == nil)
+                            
+                            ex.fulfill()
+                        }
+                    }
+                }
+            }
+        }
+        
+        self.waitForExpectations(timeout: timeout)
+    }
+    
+    func test009_RemoveExhaustedSessionAlreadyRemoved() {
+        let ex = self.expectation(description: "")
+        
+        let expireTime: UInt32 = 10
+        let exhaustTime: UInt32 = 10
+        let numberOfRequests = 12
+        let timeout = Double(numberOfRequests) * kEstimatedRequestCompletionTime + Double(expireTime) + Double(exhaustTime)
+        
+        let keyPair = self.crypto.generateKeyPair()
+        
+        let identityRequest = self.utils.instantiateCreateCardRequest(with: keyPair)
+        
+        self.virgilClient.createCard(with: identityRequest) { card, error in
+            self.initializeRotator(privateKey: keyPair.privateKey, card: card!, expiredSessionTtl: TimeInterval(exhaustTime))
+            self.initializerSessionManager(card: card!, sessionTtl: TimeInterval(expireTime))
+            
+            self.keysRotator.rotateKeys(desiredNumberOfCards: 0) { error in
+                XCTAssert(error == nil)
+                
+                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 0)
+                XCTAssert(try! self.sessionStorageManager.getAllSessionsStates().count == 0)
+                
+                let cardsSet = RecipientCardsSet(longTermCard: self.ltCard, oneTimeCard: self.otCard)
+                
+                let session = try! self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: cardsSet, additionalData: nil)
+                let sessionId = session.identifier
+                
+                XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 1)
+                XCTAssert(try! self.sessionStorageManager.getAllSessionsStates().count == 1)
+                
+                let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
+                XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) != nil)
+                
+                self.keysRotator.rotateKeys(desiredNumberOfCards: 0) { error in
+                    XCTAssert(error == nil)
+                    
+                    let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
+                    XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) != nil)
+                    
+                    sleep(expireTime)
+                    
+                    self.keysRotator.rotateKeys(desiredNumberOfCards: 0) { error in
+                        XCTAssert(error == nil)
+                        
+                        try! self.sessionManager.removeSessions(withParticipantWithCardId: self.card.identifier)
+                        
+                        var errorWasThrown = false
+                        do {
+                            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: sessionId)
+                        }
+                        catch {
+                            errorWasThrown = true
+                        }
+                        XCTAssert(errorWasThrown)
+                        
+                        XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.card.identifier, sessionId: sessionId) == nil)
+                        
+                        sleep(exhaustTime)
+                        
+                        self.keysRotator.rotateKeys(desiredNumberOfCards: 0) { error in
+                            XCTAssert(error == nil)
+                            
+                            ex.fulfill()
+                        }
+                    }
                 }
             }
         }

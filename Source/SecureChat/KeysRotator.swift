@@ -251,8 +251,10 @@ fileprivate extension KeysRotator {
     private func removeExpiredSessions(now: Date, allSessions: [(String, SessionState)], exhaustInfo: inout ExhaustInfo) throws {
         Log.debug("Removing expired sessions.")
         
+        let sessionsIds = allSessions.map({ $0.1.sessionId })
+        
         // Remove expired sessions
-        let sessionInfosToRemove = exhaustInfo.sessions.filter({ $0.exhaustDate.addingTimeInterval(self.expiredSessionTtl) < now })
+        let sessionInfosToRemove = exhaustInfo.sessions.filter({ $0.exhaustDate.addingTimeInterval(self.expiredSessionTtl) < now && sessionsIds.contains($0.identifier) })
         let sessionIdsToRemove = sessionInfosToRemove.map({ $0.identifier })
         
         try self.keyStorageManager.removeSessionKeys(forSessionsWithIds: sessionIdsToRemove)
@@ -276,10 +278,11 @@ fileprivate extension KeysRotator {
         exhaustInfo = ExhaustInfo(otc: exhaustInfo.otc, ltc: exhaustInfo.ltc, sessions: newSessions)
     }
     
-    private func removeOrphanedOtcs(now: Date, exhaustInfo: inout ExhaustInfo) throws {
+    private func removeOrphanedOtcs(now: Date, otKeys: [KeyAttrs], exhaustInfo: inout ExhaustInfo) throws {
+        let otKeysIds = otKeys.map({ $0.name })
         // Remove ot keys that have been used some time ago
         let otcIdsToRemove = exhaustInfo.otc
-            .filter({ $0.exhaustDate.addingTimeInterval(self.exhaustedOneTimeCardTtl) < now })
+            .filter({ $0.exhaustDate.addingTimeInterval(self.exhaustedOneTimeCardTtl) < now && otKeysIds.contains($0.identifier) })
             .map({ $0.identifier })
         
         if otcIdsToRemove.count > 0 {
@@ -325,7 +328,7 @@ fileprivate extension KeysRotator {
         let (sessionKeys, ltKeys, otKeys) = try self.keyStorageManager.getAllKeysAttrs()
         
         try self.removeExpiredLtKeys(now: now, ltKeys: ltKeys, exhaustInfo: &exhaustInfo)
-        try self.removeOrphanedOtcs(now: now, exhaustInfo: &exhaustInfo)
+        try self.removeOrphanedOtcs(now: now, otKeys: otKeys, exhaustInfo: &exhaustInfo)
         
         let newOtKeysIds = exhaustInfo.otc.map({ $0.identifier })
         let otKeysIdsToCheck = otKeys
