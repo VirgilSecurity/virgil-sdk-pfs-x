@@ -9,17 +9,26 @@
 import Foundation
 import VirgilCrypto
 
+/// Error codes for NSError instances thrown from Fingerprint
 @objc(VSPFingerprintErrorCode) public enum FingerpintErrorCode: Int {
     case invalidCardId
     case invalidHashLength
 }
 
+/// Class used to represent fingerprint of collection of card identifiers
 @objc(VSPFingerprint) public class Fingerpint: NSObject {
     private static let Iterations = 4096
     
+    /// Error domain for NSError instances thrown from here
     public static let ErrorDomain = "VSPFingerprintErrorDomain"
     
-    // NOTE: takes ~0.07s on iPhone 6 
+    /// Calculates fingerprint for given card identifiers
+    ///
+    /// NOTE: takes ~0.07s on iPhone 6
+    ///
+    /// - Parameter cardsIds: array of card identifiers
+    /// - Returns: String with fingerpring
+    /// - Throws: NSError instances with corresponding description
     public static func calculateFingerprint(forCardsIds cardsIds: [String]) throws -> String {
         let sortedCardsIds = cardsIds.sorted()
         
