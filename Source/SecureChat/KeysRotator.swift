@@ -80,19 +80,19 @@ class KeysRotator {
         }
     }
     
-    func rotateKeys(desiredNumberOfCards: Int, completion: SecureChat.CompletionHandler?) {
+    func rotateKeys(desiredNumberOfCards: Int, completion: @escaping (Error?) -> ()) {
         guard self.mutex.trylock() else {
             Log.debug("Interrupted concurrent keys' rotation")
             
-            completion?(SecureChat.makeError(withCode: .anotherRotateKeysInProgress, description: "Another rotateKeys call is in progress."))
+            completion(SecureChat.makeError(withCode: .anotherRotateKeysInProgress, description: "Another rotateKeys call is in progress."))
             return
         }
         
         Log.debug("Started keys' rotation")
         
-        let completionWrapper: SecureChat.CompletionHandler = {
+        let completionWrapper: (Error?) -> () = {
             self.mutex.unlock()
-            completion?($0)
+            completion($0)
         }
         
         let cleanupOperation = CleanupOperation(owner: self)
@@ -109,8 +109,8 @@ class KeysRotator {
     }
     
     class CompletionOperation: AsyncOperation {
-        private let completion: SecureChat.CompletionHandler
-        init(completion: @escaping SecureChat.CompletionHandler) {
+        private let completion: (Error?)->()
+        init(completion: @escaping (Error?)->()) {
             self.completion = completion
             
             super.init()

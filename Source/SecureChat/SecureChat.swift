@@ -9,16 +9,24 @@
 import Foundation
 import VirgilSDK
 
+/// Class used to manage SecureSession for specified user
 @objc(VSPSecureChat) public class SecureChat: NSObject {
+    /// Error domain for NSError instances throwed from here
     public static let ErrorDomain = "VSPSecureChatErrorDomain"
     
+    /// User's identity card identifier
     public let identityCardId: String
+    
+    /// Client used for PFS-related queries
     public let client: Client
     
     fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
     fileprivate let sessionManager: SessionManager
     fileprivate let rotator: KeysRotator
     
+    /// Initialized
+    ///
+    /// - Parameter preferences: SecureChatPreferences instance
     public init(preferences: SecureChatPreferences) {
         self.identityCardId = preferences.identityCard.identifier
         self.client = preferences.client
@@ -42,8 +50,12 @@ import VirgilSDK
     }
 }
 
-// MARK: Active session
+// MARK: - Active session
 extension SecureChat {
+    /// Returns latest active session with specified participant, if present
+    ///
+    /// - Parameter cardId: Participant's Virgil Card identifier
+    /// - Returns: SecureSession if session is found, nil otherwise
     public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
         Log.debug("SecureChat:\(self.identityCardId). Searching for active session for: \(cardId)")
         
@@ -51,7 +63,7 @@ extension SecureChat {
     }
 }
 
-// MARK: Session initiation
+// MARK - Session initiation
 extension SecureChat {
     private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
         Log.debug("SecureChat:\(self.identityCardId). Starting new session with cards set with: \(recipientCard.identifier)")
@@ -59,6 +71,12 @@ extension SecureChat {
         return try self.sessionManager.initializeInitiatorSession(withRecipientWithCard: recipientCard, recipientCardsSet: cardsSet, additionalData: additionalData)
     }
     
+    /// Starts new session with given recipient
+    ///
+    /// - Parameters:
+    ///   - recipientCard: Recipient's identity Virgil Card. WARNING: Identity Card should be validated before getting here!
+    ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
+    ///   - completion: Completion handler with initialized SecureSession or Error
     public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
         Log.debug("SecureChat:\(self.identityCardId). Starting new session with: \(recipientCard.identifier)")
         
@@ -97,8 +115,17 @@ extension SecureChat {
         }
     }
 }
-// MARK: Session responding
+
+// MARK - Session responding
 extension SecureChat {
+    /// Loads existing session using with given participant using received  message
+    ///
+    /// - Parameters:
+    ///   - card: Participant's identity Virgil Card. WARNING: Identity Card should be validated before getting here!
+    ///   - message: Received message from this participant
+    ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
+    /// - Returns: Initialized SecureSession
+    /// - Throws: Throws NSError instances with corresponding descriptions
     public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
         Log.debug("SecureChat:\(self.identityCardId). Loading session with: \(card.identifier)")
         
@@ -130,23 +157,56 @@ extension SecureChat {
     }
 }
 
-// MARK: Keys rotation
+// MARK - Keys rotation
 extension SecureChat {
-    // Workaround for Swift bug SR-2444
-    public typealias CompletionHandler = (Error?) -> ()
-    
-    public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
+    /// Periodic Keys processing.
+    ///
+    /// This method:
+    ///   1. Removes expired long-terms keys and adds new if needed
+    ///   2. Removes orphances one-time keys
+    ///   3. Removes expired sessions
+    ///   4. Removes orphaned session keys
+    ///   5. Adds new one-time keys if needed
+    ///
+    /// WARNING:
+    ///   This method is called during initialization.
+    ///   It's up to you to call this method after that periodically, since iOS app can stay in memory for any period of time without restarting.
+    ///   Recommended period: 24h.
+    ///
+    /// - Parameters:
+    ///   - desiredNumberOfCards: desired number of one-time cards
+    ///   - completion: Completion handler with corresponding error if something went wrong
+    public func rotateKeys(desiredNumberOfCards: Int, completion: @escaping (Error?) -> ()) {
         self.rotator.rotateKeys(desiredNumberOfCards: desiredNumberOfCards, completion: completion)
     }
 }
 
+// MARK: - Session removal
 extension SecureChat {
+    /// Removes all sessions with given participant
+    ///
+    /// - Parameter cardId: Participant's identity Virgil Card identifier
+    /// - Throws: NSError with corresponding decription
     public func removeSessions(withParticipantWithCardId cardId: String) throws {
         try self.sessionManager.removeSessions(withParticipantWithCardId: cardId)
     }
+    
+    /// Removes session with given participant and session identifier
+    ///
+    /// - Parameters:
+    ///   - cardId: Participant's identity Virgil Card identifier
+    ///   - sessionId: Session identifier
+    /// - Throws: NSError with corresponding decription
+    public func removeSessions(withParticipantWithCardId cardId: String, sessionId: Data) throws {
+        try self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: sessionId)
+    }
 }
 
+// MARK: - Gentle reset
 extension SecureChat {
+    /// Removes all pfs-related data
+    ///
+    /// - Throws: NSError with corresponding decription
     public func gentleReset() throws {
         try self.sessionManager.gentleReset()
     }
