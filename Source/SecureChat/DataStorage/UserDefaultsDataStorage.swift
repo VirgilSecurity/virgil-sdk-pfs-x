@@ -46,21 +46,21 @@ import Foundation
         super.init()
     }
     
-    /// Loads value for given key
-    ///
-    /// - Parameter key: Leu
-    /// - Returns: Loaded value
-    public func storeValue(_ value: Any?, forKey key: String) throws {
-        self.userDefaults.set(value, forKey: key)
-        self.userDefaults.synchronize()
-    }
-    
     /// Stores value for given key
     ///
     /// - Parameters:
     ///   - value: value to store. NOTE: Value is dictionary which contains instances of array, dictionary, string, data, date classes and is not json serializable by-default
     ///   - key: key
     /// - Throws: NSError instances with corresponding description
+    public func storeValue(_ value: Any?, forKey key: String) throws {
+        self.userDefaults.set(value, forKey: key)
+        self.userDefaults.synchronize()
+    }
+    
+    /// Loads value for given key
+    ///
+    /// - Parameter key: Leu
+    /// - Returns: Loaded value
     public func loadValue(forKey key: String) -> Any? {
         return self.userDefaults.value(forKey: key)
     }

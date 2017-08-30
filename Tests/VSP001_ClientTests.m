@@ -12,6 +12,7 @@
 #import "VSPPfsTestUtils.h"
 @import VirgilSDK;
 @import VirgilSDKPFS;
+#import "VSPInternalClientAPI.h"
 
 static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 

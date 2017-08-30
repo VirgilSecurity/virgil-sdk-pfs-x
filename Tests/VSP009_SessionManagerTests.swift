@@ -39,7 +39,7 @@ class VSP009_SessionManagerTests: XCTestCase {
           
         let session = try! self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: recipientCardsSet, additionalData: nil)
         
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.sessionId)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.identifier)
         
         let eps = 0.5
         
@@ -51,14 +51,14 @@ class VSP009_SessionManagerTests: XCTestCase {
         let expLowerBound = now.addingTimeInterval(self.sessionTtl - eps)
         XCTAssert(session.expirationDate > expLowerBound)
         XCTAssert(session.expirationDate < expUpperBound)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
         
         let activeSession = self.sessionManager.activeSession(withParticipantWithCardId: self.card.identifier)!
         
         XCTAssert(activeSession == session)
         
-        let loadedSession = try! self.sessionManager.loadSession(recipientCardId: self.card.identifier, sessionId: session.sessionId)
+        let loadedSession = try! self.sessionManager.loadSession(recipientCardId: self.card.identifier, sessionId: session.identifier)
         
         XCTAssert(loadedSession == session)
         
@@ -68,7 +68,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         var errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: self.card.identifier, sessionId: session.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: self.card.identifier, sessionId: session.identifier)
         }
         catch {
             errorWasThrown = true
@@ -117,7 +117,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         }
         XCTAssert(errorWasThrown)
         
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.sessionId)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session.identifier)
         
         XCTAssert(session.additionalData.count > 0)
         XCTAssert(session.decryptionKey.count > 0)
@@ -128,14 +128,14 @@ class VSP009_SessionManagerTests: XCTestCase {
         let expLowerBound = now.addingTimeInterval(self.sessionTtl - eps)
         XCTAssert(session.expirationDate > expLowerBound)
         XCTAssert(session.expirationDate < expUpperBound)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
         
         let activeSession = self.sessionManager.activeSession(withParticipantWithCardId: cardId)!
         
         XCTAssert(activeSession == session)
         
-        let loadedSession = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session.sessionId)
+        let loadedSession = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session.identifier)
         
         XCTAssert(loadedSession == session)
         
@@ -145,7 +145,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session.identifier)
         }
         catch {
             errorWasThrown = true
@@ -160,33 +160,33 @@ class VSP009_SessionManagerTests: XCTestCase {
         let session2 = try! self.generateResponderSession(cardId: cardId)
         let session3 = try! self.generateResponderSession(cardId: cardId)
         
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session1.sessionId)
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session2.sessionId)
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session3.sessionId)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session1.identifier)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session2.identifier)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session3.identifier)
         
         let activeSession = self.sessionManager.activeSession(withParticipantWithCardId: cardId)!
         
         XCTAssert(activeSession == session3)
         
-        let loadedSession1 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session1.sessionId)
-        let loadedSession2 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session2.sessionId)
-        let loadedSession3 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session3.sessionId)
+        let loadedSession1 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session1.identifier)
+        let loadedSession2 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session2.identifier)
+        let loadedSession3 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session3.identifier)
         
         XCTAssert(loadedSession1 == session1)
         XCTAssert(loadedSession2 == session2)
         XCTAssert(loadedSession3 == session3)
         
-        try! self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: session3.sessionId)
+        try! self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: session3.identifier)
         
-        let loadedSession21 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session1.sessionId)
-        let loadedSession22 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session2.sessionId)
+        let loadedSession21 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session1.identifier)
+        let loadedSession22 = try! self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session2.identifier)
         
         XCTAssert(loadedSession21 == session1)
         XCTAssert(loadedSession22 == session2)
         
         var errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session3.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: cardId, sessionId: session3.identifier)
         }
         catch {
             errorWasThrown = true
@@ -205,9 +205,9 @@ class VSP009_SessionManagerTests: XCTestCase {
         let session12 = try! self.generateResponderSession(cardId: cardId1)
         let session21 = try! self.generateResponderSession(cardId: cardId2)
         
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session11.sessionId)
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session12.sessionId)
-        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session21.sessionId)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session11.identifier)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session12.identifier)
+        let _ = try! self.keyStorageManager.getSessionKeys(forSessionWithId: session21.identifier)
         
         try! self.sessionManager.gentleReset()
         
@@ -216,7 +216,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         var errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: cardId1, sessionId: session11.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: cardId1, sessionId: session11.identifier)
         }
         catch {
             errorWasThrown = true
@@ -225,7 +225,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: cardId1, sessionId: session12.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: cardId1, sessionId: session12.identifier)
         }
         catch {
             errorWasThrown = true
@@ -234,7 +234,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.sessionManager.loadSession(recipientCardId: cardId2, sessionId: session21.sessionId)
+            let _ = try self.sessionManager.loadSession(recipientCardId: cardId2, sessionId: session21.identifier)
         }
         catch {
             errorWasThrown = true
@@ -243,7 +243,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session11.sessionId)
+            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session11.identifier)
         }
         catch {
             errorWasThrown = true
@@ -252,7 +252,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session12.sessionId)
+            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session12.identifier)
         }
         catch {
             errorWasThrown = true
@@ -261,7 +261,7 @@ class VSP009_SessionManagerTests: XCTestCase {
         
         errorWasThrown = false
         do {
-            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session21.sessionId)
+            let _ = try self.keyStorageManager.getSessionKeys(forSessionWithId: session21.identifier)
         }
         catch {
             errorWasThrown = true

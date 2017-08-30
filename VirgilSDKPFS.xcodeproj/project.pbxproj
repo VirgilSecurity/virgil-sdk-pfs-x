@@ -266,6 +266,7 @@
 		42ACE9E81F55A50600309D83 /* VSPPfsTestUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPPfsTestUtils.h; sourceTree = "<group>"; };
 		42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPPfsTestUtils.m; sourceTree = "<group>"; };
 		42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP011_EphemeralCardsReplenisherTests.swift; sourceTree = "<group>"; };
+		42ACE9F61F56EB0700309D83 /* VSPInternalClientAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPInternalClientAPI.h; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
 		42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatErrorCode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -356,6 +357,7 @@
 				420D152A1EF40F24002A9C22 /* VSPTestUtils.m */,
 				42ACE9E81F55A50600309D83 /* VSPPfsTestUtils.h */,
 				42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */,
+				42ACE9F61F56EB0700309D83 /* VSPInternalClientAPI.h */,
 				420D151E1EF3FBD9002A9C22 /* VSP001_ClientTests.m */,
 				425A024C1EFBF91700D9BBEF /* VSP002_SecureChatTests.m */,
 				429624181F15038900284665 /* VSP003_FingerprintTests.m */,

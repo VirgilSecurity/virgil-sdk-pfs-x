@@ -89,6 +89,6 @@ import VirgilSDK
     ///   - accessToken: Access token for Virgil Services. Can be obtained here https://developer.virgilsecurity.com/account/dashboard/
     /// - Throws: see designated initializer
     convenience public init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, accessToken: String) throws {
-        try self.init(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard, accessToken: accessToken)
+        try self.init(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard, keyStorage: nil, insensitiveDataStorage: nil, pfsUrl: nil, accessToken: accessToken)
     }
 }

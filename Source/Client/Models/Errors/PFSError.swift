@@ -11,7 +11,7 @@ import Foundation
 public let kVSPVirgilPFSServiceErrorDomain = "VSPVirgilPFSServiceErrorDomain"
 
 struct PFSError {
-    let code: ErrorCode?
+    let code: PfsServiceErrorCode?
     
     var message: String {
         guard let code = self.code else {
@@ -38,7 +38,7 @@ struct PFSError {
     }
     
     fileprivate init(code: Int) {
-        guard let code = ErrorCode(rawValue: code) else {
+        guard let code = PfsServiceErrorCode(rawValue: code) else {
             self.code = nil
             return
         }
@@ -67,20 +67,18 @@ extension PFSError: Deserializable {
     }
 }
 
-extension PFSError {
-    enum ErrorCode: Int {
-        case serverInternal                 = 10000
-        case accessToken                    = 20300
-        case cardNotAvailable               = 20500
-        case invalidJson                    = 30000
-        case invalidSnapshot                = 30001
-        case duplicateCardFingerprint       = 30138
-        case signatureValidationFailed      = 30140
-        case globalCardScopeForbidden       = 60000
-        case maximumOtcNumberExceeded       = 60010
-        case exceededNumberOfItemsInRequest = 60011
-        case unsupportedPublicKeyType       = 60100
-    }
+@objc(VSPPfsServiceErrorCode) public enum PfsServiceErrorCode: Int {
+    case serverInternal                 = 10000
+    case accessToken                    = 20300
+    case cardNotAvailable               = 20500
+    case invalidJson                    = 30000
+    case invalidSnapshot                = 30001
+    case duplicateCardFingerprint       = 30138
+    case signatureValidationFailed      = 30140
+    case globalCardScopeForbidden       = 60000
+    case maximumOtcNumberExceeded       = 60010
+    case exceededNumberOfItemsInRequest = 60011
+    case unsupportedPublicKeyType       = 60100
 }
 
 extension PFSError: Error { }

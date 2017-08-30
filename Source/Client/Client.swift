@@ -9,7 +9,7 @@
 import Foundation
 import VirgilSDK
 
-class Client: VSSBaseClient {
+@objc(VSPClient) class Client: VSSBaseClient {
     static let ErrorDomain = "VSPClientErrorDomain"
     
     private(set) var serviceConfig: ServiceConfig

@@ -40,8 +40,8 @@ class VSP008_SessionInitializerTests: XCTestCase {
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         XCTAssert(session.expirationDate == expirationDate)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
     }
     
     func test002_InitializeInitiatorWeak() {
@@ -57,8 +57,8 @@ class VSP008_SessionInitializerTests: XCTestCase {
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         XCTAssert(session.expirationDate == expirationDate)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
     }
     
     func test003_InitializeResponder() {
@@ -80,8 +80,8 @@ class VSP008_SessionInitializerTests: XCTestCase {
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         XCTAssert(session.expirationDate == expirationDate)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
     }
     
     func test004_InitializeResponderWeak() {
@@ -98,8 +98,8 @@ class VSP008_SessionInitializerTests: XCTestCase {
         XCTAssert(session.decryptionKey.count > 0)
         XCTAssert(session.encryptionKey.count > 0)
         XCTAssert(session.expirationDate == expirationDate)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId.count > 0)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier.count > 0)
     }
     
     func test005_InitializeSaved() {
@@ -126,7 +126,7 @@ class VSP008_SessionInitializerTests: XCTestCase {
         XCTAssert(session.decryptionKey == decryptionKey)
         XCTAssert(session.encryptionKey == encryptionKey)
         XCTAssert(session.expirationDate == expirationDate)
-        XCTAssert(session.isExpired == false)
-        XCTAssert(session.sessionId == sessionId)
+        XCTAssert(!session.isExpired(now: Date()))
+        XCTAssert(session.identifier == sessionId)
     }
 }

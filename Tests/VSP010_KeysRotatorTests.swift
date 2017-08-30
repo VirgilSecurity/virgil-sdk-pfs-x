@@ -355,7 +355,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
                 let cardsSet = RecipientCardsSet(longTermCard: self.ltCard, oneTimeCard: self.otCard)
                 
                 let session = try! self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: cardsSet, additionalData: nil)
-                let sessionId = session.sessionId
+                let sessionId = session.identifier
                 
                 XCTAssert(try! self.keyStorageManager.getAllKeysAttrs().session.count == 1)
                 XCTAssert(try! self.sessionStorageManager.getAllSessionsStates().count == 1)
@@ -428,7 +428,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
                 let cardsSet = RecipientCardsSet(longTermCard: self.ltCard, oneTimeCard: self.otCard)
                 
                 let session = try! self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: cardsSet, additionalData: nil)
-                let sessionId = session.sessionId
+                let sessionId = session.identifier
                 
                 let _ = try! self.sessionStorageManager.removeSessionState(forCardId: self.card.identifier, sessionId: sessionId)
                 
