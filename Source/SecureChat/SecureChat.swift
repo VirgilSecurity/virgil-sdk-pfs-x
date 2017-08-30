@@ -63,7 +63,7 @@ extension SecureChat {
     }
 }
 
-// MARK - Session initiation
+// MARK: - Session initiation
 extension SecureChat {
     private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
         Log.debug("SecureChat:\(self.identityCardId). Starting new session with cards set with: \(recipientCard.identifier)")
@@ -116,7 +116,7 @@ extension SecureChat {
     }
 }
 
-// MARK - Session responding
+// MARK: - Session responding
 extension SecureChat {
     /// Loads existing session using with given participant using received  message
     ///
@@ -157,7 +157,7 @@ extension SecureChat {
     }
 }
 
-// MARK - Keys rotation
+// MARK: - Keys rotation
 extension SecureChat {
     /// Periodic Keys processing.
     ///

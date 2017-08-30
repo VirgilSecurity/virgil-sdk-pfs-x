@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Error codes for NSError instances thrown from SecureChat
 @objc(VSPSecureChatErrorCode) public enum SecureChatErrorCode: Int {
     case sessionNotFound
     case addingVerifier

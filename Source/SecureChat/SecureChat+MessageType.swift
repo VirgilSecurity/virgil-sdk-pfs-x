@@ -8,13 +8,19 @@
 
 import Foundation
 
+/// Message types used in PFS
 @objc(VSPMessageType) public enum MessageType: Int {
     case unknown
     case initial
     case regular
 }
 
+// MARK: - Detecting message type
 extension SecureChat {
+    /// Returns message type
+    ///
+    /// - Parameter message: message
+    /// - Returns: message type
     public class func getMessageType(_ message: String) -> MessageType {
         guard let messageData = message.data(using: .utf8) else {
             return .unknown
