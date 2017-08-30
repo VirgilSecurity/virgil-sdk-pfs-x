@@ -11,7 +11,7 @@ import VirgilSDK
 
 /// Class used to manage SecureSession for specified user
 @objc(VSPSecureChat) public class SecureChat: NSObject {
-    /// Error domain for NSError instances throwed from here
+    /// Error domain for NSError instances thrown from here
     public static let ErrorDomain = "VSPSecureChatErrorDomain"
     
     /// User's identity card identifier

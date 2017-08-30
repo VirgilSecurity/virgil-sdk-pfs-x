@@ -12,7 +12,7 @@ import VirgilCrypto
 
 /// Class used to represent Secure Pfs Session between paticipants
 @objc(VSPSecureSession) public class SecureSession: NSObject {
-    /// Error domain for NSError instances throwed from here
+    /// Error domain for NSError instances thrown from here
     static public let ErrorDomain = "VSPSecureSessionErrorDomain"
     
     let expirationDate: Date
