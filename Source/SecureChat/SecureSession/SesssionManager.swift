@@ -41,7 +41,7 @@ class SessionManager {
 
 extension SessionManager {
     fileprivate func saveSession(_ session: SecureSession, creationDate: Date, participantCardId: String) throws {
-        let sessionId = session.sessionId
+        let sessionId = session.identifier
         let encryptionKey = session.encryptionKey
         let decryptionKey = session.decryptionKey
         
@@ -49,7 +49,7 @@ extension SessionManager {
         
         try self.keyStorageManager.saveSessionKeys(sessionKeys, forSessionWithId: sessionId)
         
-        let sessionState = SessionState(creationDate: creationDate, expirationDate: session.expirationDate, sessionId: session.sessionId, additionalData: session.additionalData)
+        let sessionState = SessionState(creationDate: creationDate, expirationDate: session.expirationDate, sessionId: session.identifier, additionalData: session.additionalData)
 
         try self.sessionStorageManager.addSessionState(sessionState, forRecipientCardId: participantCardId)
     }

@@ -10,7 +10,9 @@ import Foundation
 import VirgilSDK
 import VirgilCrypto
 
+/// Class used to represent Secure Pfs Session between paticipants
 @objc(VSPSecureSession) public class SecureSession: NSObject {
+    /// Error domain for NSError instances throwed from here
     static public let ErrorDomain = "VSPSecureSessionErrorDomain"
     
     let expirationDate: Date
@@ -20,7 +22,8 @@ import VirgilCrypto
     fileprivate let pfs = VSCPfs()
     private let pfsSession: VSCPfsSession
     
-    var sessionId: Data { return self.pfsSession.identifier }
+    /// Session identifier
+    public var identifier: Data { return self.pfsSession.identifier }
     var encryptionKey: Data { return self.pfsSession.encryptionSecretKey }
     var decryptionKey: Data { return self.pfsSession.decryptionSecretKey }
     var additionalData: Data { return self.pfsSession.additionalData }
@@ -39,17 +42,18 @@ import VirgilCrypto
     }
 }
 
+// MARK: - isExpired
 extension SecureSession {
-    public func isSessionExpired(relativelyToCurrentDate currentDate: Date) -> Bool {
-        return currentDate > self.expirationDate
-    }
-    
-    public var isExpired: Bool {
-        return self.isSessionExpired(relativelyToCurrentDate: Date())
+    /// Checks if this session is expired
+    ///
+    /// - Parameter now: current date
+    /// - Returns: true if sesion is expired, false otherwise
+    public func isExpired(now: Date) -> Bool {
+        return now > self.expirationDate
     }
 }
 
-// Decryption
+// MARK: - Decryption
 extension SecureSession {
     func decrypt(encryptedMessage: Message) throws -> String {
         guard let message = VSCPfsEncryptedMessage(sessionIdentifier: encryptedMessage.sessionId, salt: encryptedMessage.salt, cipherText: encryptedMessage.cipherText) else {
@@ -67,6 +71,11 @@ extension SecureSession {
         return str
     }
     
+    /// Decrypts message
+    ///
+    /// - Parameter encryptedMessage: encrypted message
+    /// - Returns: decrypted message
+    /// - Throws: NSError instances with corresponding description
     public func decrypt(_ encryptedMessage: String) throws -> String {
         guard let messageData = encryptedMessage.data(using: .utf8) else {
             throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error while converting message to data in SecureSession.")
@@ -88,8 +97,13 @@ extension SecureSession {
     }
 }
 
-// Encryption
+// MARK: - Encryption
 extension SecureSession {
+    /// Encrypts message
+    ///
+    /// - Parameter message: message to encrypt
+    /// - Returns: encrypted message
+    /// - Throws: NSError instances with corresponding description
     public func encrypt(_ message: String) throws -> String {
         // Initiation message
         if let firstMsgGenerator = self.firstMsgGenerator {
@@ -178,6 +192,6 @@ extension SecureSession {
             && self.decryptionKey == other.decryptionKey
             && self.encryptionKey == other.encryptionKey
             && self.expirationDate == other.expirationDate
-            && self.sessionId == other.sessionId
+            && self.identifier == other.identifier
     }
 }

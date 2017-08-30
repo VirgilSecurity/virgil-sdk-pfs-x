@@ -24,7 +24,7 @@ import VirgilSDK
     fileprivate let sessionManager: SessionManager
     fileprivate let rotator: KeysRotator
     
-    /// Initialized
+    /// Initializer
     ///
     /// - Parameter preferences: SecureChatPreferences instance
     public init(preferences: SecureChatPreferences) {
