@@ -75,7 +75,6 @@
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
 		429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
 		429123A31F4CE0AE00103BE0 /* ExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */; };
-		429123A91F4CE96000103BE0 /* Dictionary+Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */; };
 		429123CA1F4D7C2C00103BE0 /* InsensitiveDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */; };
 		429123CC1F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123B91F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift */; };
 		429123CE1F4D7C2C00103BE0 /* KeychainKeyStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123BC1F4D7C2C00103BE0 /* KeychainKeyStorage.swift */; };
@@ -86,7 +85,6 @@
 		429123DB1F4D7C3E00103BE0 /* KeyAttrs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123DA1F4D7C3E00103BE0 /* KeyAttrs.swift */; };
 		429123DF1F4DAA7F00103BE0 /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123DE1F4DAA7F00103BE0 /* Log.swift */; };
 		429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E01F4DAB6B00103BE0 /* KeysRotator.swift */; };
-		429123E31F4DD3EE00103BE0 /* Sequence+Split.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */; };
 		429123E51F4F9BE800103BE0 /* SessionInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E41F4F9BE800103BE0 /* SessionInitializer.swift */; };
 		429123E81F5068C500103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E61F5068B200103BE0 /* VSP004_SessionStorageManagerTests.swift */; };
 		429123EA1F50776E00103BE0 /* SesssionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123E91F50776E00103BE0 /* SesssionManager.swift */; };
@@ -235,7 +233,6 @@
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
 		4291238D1F4C6A9900103BE0 /* TestConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestConfig.plist; sourceTree = "<group>"; };
 		429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExhaustInfo.swift; sourceTree = "<group>"; };
-		429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Dictionary+Pairs.swift"; sourceTree = "<group>"; };
 		429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorage.swift; sourceTree = "<group>"; };
 		429123B91F4D7C2C00103BE0 /* UserDefaultsDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDataStorage.swift; sourceTree = "<group>"; };
 		429123BC1F4D7C2C00103BE0 /* KeychainKeyStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainKeyStorage.swift; sourceTree = "<group>"; };
@@ -246,7 +243,6 @@
 		429123DA1F4D7C3E00103BE0 /* KeyAttrs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyAttrs.swift; sourceTree = "<group>"; };
 		429123DE1F4DAA7F00103BE0 /* Log.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		429123E01F4DAB6B00103BE0 /* KeysRotator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeysRotator.swift; sourceTree = "<group>"; };
-		429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Sequence+Split.swift"; sourceTree = "<group>"; };
 		429123E41F4F9BE800103BE0 /* SessionInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionInitializer.swift; sourceTree = "<group>"; };
 		429123E61F5068B200103BE0 /* VSP004_SessionStorageManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP004_SessionStorageManagerTests.swift; sourceTree = "<group>"; };
 		429123E91F50776E00103BE0 /* SesssionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SesssionManager.swift; sourceTree = "<group>"; };
@@ -504,8 +500,6 @@
 				429123DE1F4DAA7F00103BE0 /* Log.swift */,
 				422CBCBA1F3B3547003D6932 /* AsyncOperation.swift */,
 				422CBCB61F3B17D3003D6932 /* Mutex.swift */,
-				429123A81F4CE96000103BE0 /* Dictionary+Pairs.swift */,
-				429123E21F4DD3EE00103BE0 /* Sequence+Split.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -865,7 +859,6 @@
 				425E082E1EF8231900A74C29 /* RecipientCardsSet.swift in Sources */,
 				425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */,
 				429123CE1F4D7C2C00103BE0 /* KeychainKeyStorage.swift in Sources */,
-				429123A91F4CE96000103BE0 /* Dictionary+Pairs.swift in Sources */,
 				425A02611F05057D00D9BBEF /* ValidateOTCResponse.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
@@ -880,7 +873,6 @@
 				429123F21F5090B700103BE0 /* ExhaustInfoManager.swift in Sources */,
 				429123DB1F4D7C3E00103BE0 /* KeyAttrs.swift in Sources */,
 				42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */,
-				429123E31F4DD3EE00103BE0 /* Sequence+Split.swift in Sources */,
 				429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
