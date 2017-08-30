@@ -230,6 +230,8 @@ class KeysRotator {
 
 fileprivate extension KeysRotator {
     private func removeOrhpanedSessionKeys(sessionKeys: [KeyAttrs], allSessions: [(String, SessionState)]) throws {
+        Log.debug("Removing orphaned session keys.")
+        
         let allSessionsIds = allSessions.map({ $0.1.sessionId })
         
         let orphanedSessionKeysIds = sessionKeys
@@ -279,6 +281,8 @@ fileprivate extension KeysRotator {
     }
     
     private func removeOrphanedOtcs(now: Date, otKeys: [KeyAttrs], exhaustInfo: inout ExhaustInfo) throws {
+        Log.debug("Removing orphaned otcs.")
+        
         let otKeysIds = otKeys.map({ $0.name })
         // Remove ot keys that have been used some time ago
         let otcIdsToRemove = exhaustInfo.otc
@@ -297,6 +301,8 @@ fileprivate extension KeysRotator {
     }
     
     private func removeExpiredLtKeys(now: Date, ltKeys: [KeyAttrs], exhaustInfo: inout ExhaustInfo) throws {
+        Log.debug("Removing expired ltc.")
+        
         // Remove lt keys that have expired some time ago
         let ltcIdsToRemove = exhaustInfo.ltc
             .filter({ $0.exhaustDate.addingTimeInterval(self.expiredLongTermCardTtl) < now })
@@ -323,6 +329,8 @@ fileprivate extension KeysRotator {
     }
     
     func processExhaustedStuff(now: Date) throws -> (ExhaustInfo, [String]) {
+        Log.debug("Processing exhausted stuff.")
+        
         var exhaustInfo = try self.exhaustInfoManager.getKeysExhaustInfo()
         let allSessionStates = try self.sessionStorageManager.getAllSessionsStates()
         let (sessionKeys, ltKeys, otKeys) = try self.keyStorageManager.getAllKeysAttrs()
