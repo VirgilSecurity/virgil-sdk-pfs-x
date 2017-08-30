@@ -195,7 +195,7 @@ extension SecureChat {
     ///   - cardId: Participant's identity Virgil Card identifier
     ///   - sessionId: Session identifier
     /// - Throws: NSError with corresponding decription
-    public func removeSessions(withParticipantWithCardId cardId: String, sessionId: Data) throws {
+    public func removeSession(withParticipantWithCardId cardId: String, sessionId: Data) throws {
         try self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: sessionId)
     }
 }

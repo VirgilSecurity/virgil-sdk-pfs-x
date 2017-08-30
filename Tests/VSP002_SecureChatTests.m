@@ -34,6 +34,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 @property (nonatomic) NSString *message2;
 @property (nonatomic) NSString *message3;
 @property (nonatomic) NSString *message4;
+@property (nonatomic) NSString *message5;
+@property (nonatomic) NSString *message6;
 @property (nonatomic) NSInteger numberOfCards;
 
 @end
@@ -72,6 +74,8 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     self.message2 = @"message2";
     self.message3 = @"message3";
     self.message4 = @"message4";
+    self.message5 = @"message5";
+    self.message6 = @"message6";
     
     self.numberOfCards = 5;
 }
@@ -1544,9 +1548,9 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
 }
 
 - (void)test024_MultipleSessions {
-    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. Security session should be initiated. Security session should be responded. Session should be created. Initiator secure chat should be initialized."];
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. 2 Security sessions should be initiated."];
     
-    NSUInteger numberOfRequests = 9;
+    NSUInteger numberOfRequests = 8;
     NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
     
     VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
@@ -1603,6 +1607,111 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                             NSString *decryptedMessage4 = [responderSession2 decrypt:encryptedMessage4 error:&err];
                             XCTAssert(err == nil);
                             XCTAssert([self.message4 isEqualToString:decryptedMessage4]);
+                            
+                            NSString *encryptedMessage5 = [responderSession1 encrypt:self.message5 error:&err];
+                            XCTAssert(err == nil);
+                            VSPSecureSession  *initiatorSession1 = [self.initiatorSecureChat loadUpSessionWithParticipantWithCard:responderCard message:encryptedMessage5 additionalData:nil error:&err];
+                            XCTAssert(err == nil);
+                            NSString *decryptedMessage5 = [initiatorSession1 decrypt:encryptedMessage5 error:&err];
+                            XCTAssert([self.message5 isEqualToString:decryptedMessage5]);
+                            
+                            NSString *encryptedMessage6 = [responderSession2 encrypt:self.message6 error:&err];
+                            XCTAssert(err == nil);
+                            VSPSecureSession  *initiatorSession2 = [self.initiatorSecureChat loadUpSessionWithParticipantWithCard:responderCard message:encryptedMessage6 additionalData:nil error:&err];
+                            XCTAssert(err == nil);
+                            NSString *decryptedMessage6 = [initiatorSession2 decrypt:encryptedMessage6 error:&err];
+                            XCTAssert([self.message6 isEqualToString:decryptedMessage6]);
+                            
+                            [ex fulfill];
+                        }];
+                    }];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
+- (void)test025_MultipleSessionsRemoveOne {
+    XCTestExpectation *ex = [self expectationWithDescription:@"Identity card should be created. Security session should be created. 2 Security sessions should be initiated. One session should be deleted."];
+    
+    NSUInteger numberOfRequests = 8;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair];
+    VSSCreateCardRequest *responderIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair];
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
+        [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
+            NSError *err;
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityPrivateKey:initiatorKeyPair.privateKey identityCard:initiatorCard accessToken:self.token error:&err];
+            initiatorPreferences.pfsUrl = self.pfsUrl;
+            initiatorPreferences.sessionTtl = 5;
+            XCTAssert(err == nil);
+            
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityPrivateKey:responderKeyPair.privateKey identityCard:responderCard accessToken:self.token error:&err];
+            responderPreferences.sessionTtl = 5;
+            responderPreferences.pfsUrl = self.pfsUrl;
+            XCTAssert(err == nil);
+            
+            self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+            self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
+            
+            [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                [self.responderSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        XCTAssert(error == nil);
+                        
+                        NSString *encryptedMessage1 = [initiatorSession encrypt:self.message1 error:nil];
+                        NSString *encryptedMessage3 = [initiatorSession encrypt:self.message3 error:nil];
+                        
+                        [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                            XCTAssert(error == nil);
+                            
+                            NSString *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:nil];
+                            NSString *encryptedMessage4 = [initiatorSession encrypt:self.message4 error:nil];
+                            
+                            NSError *err;
+                            VSPSecureSession *responderSession1 = [self.responderSecureChat loadUpSessionWithParticipantWithCard:initiatorCard message:encryptedMessage1 additionalData:nil error:&err];
+                            XCTAssert(err == nil);
+                            NSString *decryptedMessage1 = [responderSession1 decrypt:encryptedMessage1 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message1 isEqualToString:decryptedMessage1]);
+                            NSString *decryptedMessage3 = [responderSession1 decrypt:encryptedMessage3 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message3 isEqualToString:decryptedMessage3]);
+                            
+                            VSPSecureSession *responderSession2 = [self.responderSecureChat loadUpSessionWithParticipantWithCard:initiatorCard message:encryptedMessage2 additionalData:nil error:&err];
+                            XCTAssert(err == nil);
+                            NSString *decryptedMessage2 = [responderSession2 decrypt:encryptedMessage2 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message2 isEqualToString:decryptedMessage2]);
+                            NSString *decryptedMessage4 = [responderSession2 decrypt:encryptedMessage4 error:&err];
+                            XCTAssert(err == nil);
+                            XCTAssert([self.message4 isEqualToString:decryptedMessage4]);
+                            
+                            [self.initiatorSecureChat removeSessionWithParticipantWithCardId:responderCard.identifier sessionId:responderSession1.identifier error:&err];
+                            XCTAssert(err == nil);
+                            
+                            NSString *encryptedMessage5 = [responderSession1 encrypt:self.message5 error:&err];
+                            XCTAssert(err == nil);
+                            VSPSecureSession *initiatorSession1 = [self.initiatorSecureChat loadUpSessionWithParticipantWithCard:responderCard message:encryptedMessage5 additionalData:nil error:&err];
+                            XCTAssert(initiatorSession1 == nil && err != nil);
+                            
+                            err = nil;
+                            NSString *encryptedMessage6 = [responderSession2 encrypt:self.message6 error:&err];
+                            XCTAssert(err == nil);
+                            VSPSecureSession  *initiatorSession2 = [self.initiatorSecureChat loadUpSessionWithParticipantWithCard:responderCard message:encryptedMessage6 additionalData:nil error:&err];
+                            XCTAssert(err == nil);
+                            NSString *decryptedMessage6 = [initiatorSession2 decrypt:encryptedMessage6 error:&err];
+                            XCTAssert([self.message6 isEqualToString:decryptedMessage6]);
                             
                             [ex fulfill];
                         }];
