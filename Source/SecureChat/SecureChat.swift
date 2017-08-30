@@ -21,7 +21,7 @@ import VirgilSDK
     
     public init(preferences: SecureChatPreferences) {
         self.identityCardId = preferences.identityCard.identifier
-        self.client = Client(serviceConfig: preferences.serviceConfig)
+        self.client = preferences.client
         
         let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier)
         self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCardId: preferences.identityCard.identifier, client: self.client, keyStorageManager: keyStorageManager)

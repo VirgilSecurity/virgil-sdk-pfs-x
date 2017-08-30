@@ -26,7 +26,8 @@ import VirgilSDK
     /// InsensitiveDataStorage implementation used to store insensitive data (sessions info, ltc/otc/sessions lifetime info) (default is UserDefaultsDataStorage)
     public var insensitiveDataStorage: InsensitiveDataStorage
     
-    public var serviceConfig: ServiceConfig
+    /// Client for PFS-related queries
+    public var client: Client
     
     /// Long-term keys time-to-live in seconds (time during which long-term key is considered relevant and won't be replaced)
     public var longTermKeysTtl: TimeInterval
@@ -51,20 +52,20 @@ import VirgilSDK
     ///   - identityCard: User's identity card. WARNING: Identity Card should be validated before getting here!
     ///   - keyStorage: KeyStorage implementation used to store private/symmetric keys needed for PFS (default is KeychainKeyStorage)
     ///   - insensitiveDataStorage: InsensitiveDataStorage implementation used to store insensitive data (sessions info, ltc/otc/sessions lifetime info) (default is UserDefaultsDataStorage)
-    ///   - serviceConfig: FIXME serviceConfig description
+    ///   - client: Client for PFS-related queries
     ///   - longTermKeysTtl: Long-term keys time-to-live in seconds (time during which long-term key is considered relevant and won't be replaced)
     ///   - expiredLongTermKeysTtl: Expired long-term keys time-to-live in seconds (time during which expired long-term key is not removed)
     ///   - sessionTtl: Session time-to-live in seconds (time during which session is considered relevant and won't be replaced)
     ///   - expiredSessionTtl: Expired session time-to-live in seconds (time during which expired session key is not removed)
     ///   - exhaustedOneTimeKeysTtl: Exhausted one-time keys time-to-live in seconds (time during which one-time is not removed after sdk determined that it was exhausted)
     /// - Throws: Throws error when using default UserDefaultsDataStorage implementation of InsensitiveDataStorage and UserDefaults suite creation has failed
-    public init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, serviceConfig: ServiceConfig, longTermKeysTtl: TimeInterval? = nil, expiredLongTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, expiredSessionTtl: TimeInterval? = nil, exhaustedOneTimeKeysTtl: TimeInterval? = nil) throws {
+    public init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, keyStorage: KeyStorage? = nil, insensitiveDataStorage: InsensitiveDataStorage? = nil, client: Client, longTermKeysTtl: TimeInterval? = nil, expiredLongTermKeysTtl: TimeInterval? = nil, sessionTtl: TimeInterval? = nil, expiredSessionTtl: TimeInterval? = nil, exhaustedOneTimeKeysTtl: TimeInterval? = nil) throws {
         self.crypto = crypto
         self.identityPrivateKey = identityPrivateKey
         self.identityCard = identityCard
         self.keyStorage = keyStorage ?? KeychainKeyStorage(virgilKeyStorage: VSSKeyStorage())
         self.insensitiveDataStorage = try insensitiveDataStorage ?? UserDefaultsDataStorage.makeStorage(forIdentifier: identityCard.identifier)
-        self.serviceConfig = serviceConfig
+        self.client = client
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7
         self.expiredLongTermKeysTtl = expiredLongTermKeysTtl ?? 60*60*24
         self.sessionTtl = sessionTtl ?? 60*60*24*3
@@ -81,6 +82,6 @@ import VirgilSDK
     ///   - accessToken: Access token for Virgil Services. Can be obtained here https://developer.virgilsecurity.com/account/dashboard/
     /// - Throws: see designated initializer
     convenience public init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCard: VSSCard, accessToken: String) throws {
-        try self.init(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard, serviceConfig: ServiceConfig(token: accessToken))
+        try self.init(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard, client: Client(token: accessToken))
     }
 }

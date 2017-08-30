@@ -63,7 +63,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
     private func initializeRotator(privateKey: VSSPrivateKey, card: VSSCard, exhaustedOneTimeCardTtl: TimeInterval = 100, expiredSessionTtl: TimeInterval = 100, longTermKeysTtl: TimeInterval = 100, expiredLongTermCardTtl: TimeInterval = 100) {
         self.keyStorageManager = KeyStorageManager(crypto: crypto, keyStorage: KeychainKeyStorage(), identityCardId: card.identifier)
         
-        let replenisher = EphemeralCardsReplenisher(crypto: crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client, deviceManager: VSSDeviceManager(), keyStorageManager: keyStorageManager)
+        let replenisher = EphemeralCardsReplenisher(crypto: crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client, keyStorageManager: keyStorageManager)
         
         let storage = try! UserDefaultsDataStorage.makeStorage(forIdentifier: card.identifier)
         let sessionStorageManager = SessionStorageManager(cardId: card.identifier, storage: storage)

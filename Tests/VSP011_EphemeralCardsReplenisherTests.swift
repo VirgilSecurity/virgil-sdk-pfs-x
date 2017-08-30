@@ -50,7 +50,7 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
     private func initializerReplenisher(privateKey: VSSPrivateKey, card: VSSCard) {
         self.keyStorageManager = KeyStorageManager(crypto: self.crypto, keyStorage: KeychainKeyStorage(), identityCardId: card.identifier)
         
-        self.cardsReplenisher = EphemeralCardsReplenisher(crypto: self.crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client, deviceManager: VSSDeviceManager(), keyStorageManager: self.keyStorageManager)
+        self.cardsReplenisher = EphemeralCardsReplenisher(crypto: self.crypto, identityPrivateKey: privateKey, identityCardId: card.identifier, client: self.client,keyStorageManager: self.keyStorageManager)
     }
     
     func test001_addCards() {
