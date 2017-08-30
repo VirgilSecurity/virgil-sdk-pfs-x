@@ -268,5 +268,73 @@ class VSP009_SessionManagerTests: XCTestCase {
         }
         XCTAssert(errorWasThrown)
     }
+    
+    func test005_InitializeResponderInvalidEphKeySignature() {
+        let cardId = UUID().uuidString
+        let otKeyName = UUID().uuidString
+        let privateKey = self.crypto.generateKeyPair().privateKey
+        let idEntry = CardEntry(identifier: cardId, publicKeyData: self.crypto.export(self.crypto.extractPublicKey(from: privateKey)))
+        
+        let ltKeyName = UUID().uuidString
+        
+        try! self.keyStorageManager.saveKeys(otKeys: [KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: otKeyName)], ltKey: KeyStorageManager.HelperKeyEntry(privateKey: self.crypto.generateKeyPair().privateKey, name: ltKeyName))
+        
+        let ephPublicKey = self.crypto.export(self.crypto.generateKeyPair().publicKey)
+        let ephPublicKeySignature = try! self.crypto.generateSignature(for: ephPublicKey, with: self.crypto.generateKeyPair().privateKey)
+        
+        var cipherText = Data(count: 16)
+        cipherText.withUnsafeMutableBytes({
+            NSUUID().getBytes($0)
+        })
+        var salt = Data(count: 16)
+        salt.withUnsafeMutableBytes({
+            NSUUID().getBytes($0)
+        })
+        
+        let initiationMessage = InitiationMessage(initiatorIcId: idEntry.identifier, responderIcId: UUID().uuidString, responderLtcId: ltKeyName, responderOtcId: otKeyName, ephPublicKey: ephPublicKey, ephPublicKeySignature: ephPublicKeySignature, salt: salt, cipherText: cipherText)
+        
+        var errorWasThrown = false
+        do {
+            let _ = try self.sessionManager.initializeResponderSession(initiatorCardEntry: idEntry, initiationMessage: initiationMessage, additionalData: nil)
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
+    }
+    
+    func test006_InitializeInitiatorWrongOtCardSignature() {
+        let ltCard = VSSCard( data:"eyJtZXRhIjp7InJlbGF0aW9ucyI6e30sImNyZWF0ZWRfYXQiOiIyMDE3LTA4LTI4VDEzOjIzOjI5KzAzMDAiLCJjYXJkX3ZlcnNpb24iOiI0LjAiLCJzaWducyI6eyI4ZTFhODVhMDRhMmVmNjJhYzM5MGQ2MmFhOWM0Nzg0OGY1YjBjNzRjZWU5YmY4NjcxZDkyOWNjNTg1NGUwYTRhIjoiTUZFd0RRWUpZSVpJQVdVREJBSUNCUUFFUU1jZWhpXC9ZVXFvZlpVbGdJVmdaRjgzc2ZcL2tObzNNZ0wzQlRmNDVlMWx0eWp1RkhBbWEzMGpCWVBEVDVuY1piQ0gxVXNmekJwbU9US1ZKb2laMXV4ZzQ9IiwiNGYzZWMzY2JlMTFlMTRiY2ZiYjYyNjVhYmYwM2M0YTIxZDYwOThkNGFlZGJjMDZmYjY2OGMyZjYyY2M5M2VmOCI6Ik1GRXdEUVlKWUlaSUFXVURCQUlDQlFBRVFEeFJPWFFCV2ZxWjVYdnhlOWRtUlwvWk40akgrNm90eENxWWY3aFcrcDRaN2VVSFhuUytIbDR4MkZibmtFc2xPZDZ0SHRWTGsrRWNvZnBUUWxPNFRad2s9In19LCJjb250ZW50X3NuYXBzaG90IjoiZXlKd2RXSnNhV05mYTJWNUlqb2lUVU52ZDBKUldVUkxNbFozUVhsRlFUVktOMU00VEhCS1pETnZTbEJqWEM5bE5HUkxaMHg0U0hCSWRIRnNZM1JhVTFoTlVITkxhVXBDVlhGclBTSXNJbWxrWlc1MGFYUjVJam9pT0dVeFlUZzFZVEEwWVRKbFpqWXlZV016T1RCa05qSmhZVGxqTkRjNE5EaG1OV0l3WXpjMFkyVmxPV0ptT0RZM01XUTVNamxqWXpVNE5UUmxNR0UwWVNJc0ltbGtaVzUwYVhSNVgzUjVjR1VpT2lKcFpHVnVkR2wwZVY5allYSmtYMmxrSWl3aWMyTnZjR1VpT2lKaGNIQnNhV05oZEdsdmJpSXNJbWx1Wm04aU9uc2laR1YyYVdObFgyNWhiV1VpT2lKUGJHVnJjMkZ1WkhMaWdKbHpJRTFoWTBKdmIyc2dVSEp2SWl3aVpHVjJhV05sSWpvaWFWQm9iMjVsSW4xOSIsImlkIjoiMzBmYmVhZWUzZDgyZjM0NjA5NmZhOTliZTAxMzlmNmRiM2U0NzIxZjViNWM5ZWVlNTE0NmUwYTM0ODk4ODVkOSJ9")!
+        
+        let otCard = VSSCard(data: "eyJtZXRhIjp7InJlbGF0aW9ucyI6e30sImNyZWF0ZWRfYXQiOiIyMDE3LTA4LTI4VDEzOjIzOjI5KzAzMDAiLCJjYXJkX3ZlcnNpb24iOiI0LjAiLCJzaWducyI6eyI4ZTFhODVhMDRhMmVmNjJhYzM5MGQ2MmFhOWM0Nzg0OGY1YjBjNzRjZWU5YmY4NjcxZDkyOWNjNTg1NGUwYTRhIjoiTUZFd0RRWUpZSVpJQVdVREJBSUNCUUFFUUJwVmlWYmhRRDhKbVZUT1JndGsrWHM0ajVqSG13RW1uM1RpL1ZPUC9YWU80WDRFdlpneTlyVWFxZ0trYm8xb1RBUUcvaTBsNHpjM1dyN3QzRUM5OUE0PSIsIjRmM2VjM2NiZTExZTE0YmNmYmI2MjY1YWJmMDNjNGEyMWQ2MDk4ZDRhZWRiYzA2ZmI2NjhjMmY2MmNjOTNlZjgiOiJNRkV3RFFZSllJWklBV1VEQkFJQ0JRQUVRTmdQYndvTUMydGRmTDBcL2FUdmlGZDdoTGI4OGhaNVZjVXdmeTZBb1wvT0lqa3FzYnJKdnROT0RWVGZicXFDUHE1cmlpemxKWjFRbExkK0FCYVBlMUhnND0ifX0sImNvbnRlbnRfc25hcHNob3QiOiJleUp3ZFdKc2FXTmZhMlY1SWpvaVRVTnZkMEpSV1VSTE1sWjNRWGxGUVdwbFVtWmxOMmt4ZVRSWlVHcHlSRGQxYzNjeVN6TlNhMUZEUml0T1YydDFNMFZXTmxCcE9IcHVZMWs5SWl3aWFXUmxiblJwZEhraU9pSTRaVEZoT0RWaE1EUmhNbVZtTmpKaFl6TTVNR1EyTW1GaE9XTTBOemcwT0dZMVlqQmpOelJqWldVNVltWTROamN4WkRreU9XTmpOVGcxTkdVd1lUUmhJaXdpYVdSbGJuUnBkSGxmZEhsd1pTSTZJbWxrWlc1MGFYUjVYMk5oY21SZmFXUWlMQ0p6WTI5d1pTSTZJbUZ3Y0d4cFkyRjBhVzl1SWl3aWFXNW1ieUk2ZXlKa1pYWnBZMlZmYm1GdFpTSTZJazlzWld0ellXNWtjdUtBbVhNZ1RXRmpRbTl2YXlCUWNtOGlMQ0prWlhacFkyVWlPaUpwVUdodmJtVWlmWDA9IiwiaWQiOiJkMGFlZDM2N2E3YzRmYThlZGFkMGQ2MTdmZTYwMDE2M2M0MzMxNmY5MjllNGEwMWVmMTExMGQ5OTFiYzQwMDZlIn0=")!
+        
+        let recipientCardsSet = RecipientCardsSet(longTermCard: ltCard, oneTimeCard: otCard)
+        
+        var errorWasThrown = false
+        do {
+            let _ = try self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: recipientCardsSet, additionalData: nil)
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
+    }
+    
+    func test007_InitializeInitiatorWrongLtCardSignature() {
+        let ltCard = VSSCard( data:"eyJtZXRhIjp7InJlbGF0aW9ucyI6e30sImNyZWF0ZWRfYXQiOiIyMDE3LTA4LTI4VDEzOjIzOjI5KzAzMDAiLCJjYXJkX3ZlcnNpb24iOiI0LjAiLCJzaWducyI6eyI4ZTFhODVhMDRhMmVmNjJhYzM5MGQ2MmFhOWM0Nzg0OGY1YjBjNzRjZWU5YmY4NjcxZDkyOWNjNTg1NGUwYTRhIjoiTUZFd0RRWUpZSVpJQVdVREJBSUNCUUFFUUt5WS9wTnVWNkNacXhOd3NQQ0kzT0J6SXlCYld5TmpTWENVUDdpM2ltT1hhbXF2aGxLb2xUMW8vMm8xODIxYlE1TXlFeW5uSHVCVWMvWERQVk1IV2dBPSIsIjRmM2VjM2NiZTExZTE0YmNmYmI2MjY1YWJmMDNjNGEyMWQ2MDk4ZDRhZWRiYzA2ZmI2NjhjMmY2MmNjOTNlZjgiOiJNRkV3RFFZSllJWklBV1VEQkFJQ0JRQUVRRHhST1hRQldmcVo1WHZ4ZTlkbVJcL1pONGpIKzZvdHhDcVlmN2hXK3A0WjdlVUhYblMrSGw0eDJGYm5rRXNsT2Q2dEh0VkxrK0Vjb2ZwVFFsTzRUWndrPSJ9fSwiY29udGVudF9zbmFwc2hvdCI6ImV5SndkV0pzYVdOZmEyVjVJam9pVFVOdmQwSlJXVVJMTWxaM1FYbEZRVFZLTjFNNFRIQktaRE52U2xCalhDOWxOR1JMWjB4NFNIQklkSEZzWTNSYVUxaE5VSE5MYVVwQ1ZYRnJQU0lzSW1sa1pXNTBhWFI1SWpvaU9HVXhZVGcxWVRBMFlUSmxaall5WVdNek9UQmtOakpoWVRsak5EYzRORGhtTldJd1l6YzBZMlZsT1dKbU9EWTNNV1E1TWpsall6VTROVFJsTUdFMFlTSXNJbWxrWlc1MGFYUjVYM1I1Y0dVaU9pSnBaR1Z1ZEdsMGVWOWpZWEprWDJsa0lpd2ljMk52Y0dVaU9pSmhjSEJzYVdOaGRHbHZiaUlzSW1sdVptOGlPbnNpWkdWMmFXTmxYMjVoYldVaU9pSlBiR1ZyYzJGdVpITGlnSmx6SUUxaFkwSnZiMnNnVUhKdklpd2laR1YyYVdObElqb2lhVkJvYjI1bEluMTkiLCJpZCI6IjMwZmJlYWVlM2Q4MmYzNDYwOTZmYTk5YmUwMTM5ZjZkYjNlNDcyMWY1YjVjOWVlZTUxNDZlMGEzNDg5ODg1ZDkifQ==")!
+        
+        let otCard = VSSCard(data: "eyJtZXRhIjp7InJlbGF0aW9ucyI6e30sImNyZWF0ZWRfYXQiOiIyMDE3LTA4LTI4VDEzOjIzOjI5KzAzMDAiLCJjYXJkX3ZlcnNpb24iOiI0LjAiLCJzaWducyI6eyI4ZTFhODVhMDRhMmVmNjJhYzM5MGQ2MmFhOWM0Nzg0OGY1YjBjNzRjZWU5YmY4NjcxZDkyOWNjNTg1NGUwYTRhIjoiTUZFd0RRWUpZSVpJQVdVREJBSUNCUUFFUU5paGVLTllNR2hKTnMzYzA1ekhuVTBHXC9BMldwY1JqNjNsSm0rVnE5a0lUZXNuSnFrSG04QUM4VW9uc1RZQjJBeHVVYVJaRGNvSjlNenJ2a2o5d0hBbz0iLCI0ZjNlYzNjYmUxMWUxNGJjZmJiNjI2NWFiZjAzYzRhMjFkNjA5OGQ0YWVkYmMwNmZiNjY4YzJmNjJjYzkzZWY4IjoiTUZFd0RRWUpZSVpJQVdVREJBSUNCUUFFUU5nUGJ3b01DMnRkZkwwXC9hVHZpRmQ3aExiODhoWjVWY1V3Znk2QW9cL09Jamtxc2JySnZ0Tk9EVlRmYnFxQ1BxNXJpaXpsSloxUWxMZCtBQmFQZTFIZzQ9In19LCJjb250ZW50X3NuYXBzaG90IjoiZXlKd2RXSnNhV05mYTJWNUlqb2lUVU52ZDBKUldVUkxNbFozUVhsRlFXcGxVbVpsTjJreGVUUlpVR3B5UkRkMWMzY3lTek5TYTFGRFJpdE9WMnQxTTBWV05sQnBPSHB1WTFrOUlpd2lhV1JsYm5ScGRIa2lPaUk0WlRGaE9EVmhNRFJoTW1WbU5qSmhZek01TUdRMk1tRmhPV00wTnpnME9HWTFZakJqTnpSalpXVTVZbVk0TmpjeFpEa3lPV05qTlRnMU5HVXdZVFJoSWl3aWFXUmxiblJwZEhsZmRIbHdaU0k2SW1sa1pXNTBhWFI1WDJOaGNtUmZhV1FpTENKelkyOXdaU0k2SW1Gd2NHeHBZMkYwYVc5dUlpd2lhVzVtYnlJNmV5SmtaWFpwWTJWZmJtRnRaU0k2SWs5c1pXdHpZVzVrY3VLQW1YTWdUV0ZqUW05dmF5QlFjbThpTENKa1pYWnBZMlVpT2lKcFVHaHZibVVpZlgwPSIsImlkIjoiZDBhZWQzNjdhN2M0ZmE4ZWRhZDBkNjE3ZmU2MDAxNjNjNDMzMTZmOTI5ZTRhMDFlZjExMTBkOTkxYmM0MDA2ZSJ9")!
+        
+        let recipientCardsSet = RecipientCardsSet(longTermCard: ltCard, oneTimeCard: otCard)
+        
+        var errorWasThrown = false
+        do {
+            let _ = try self.sessionManager.initializeInitiatorSession(withRecipientWithCard: self.card, recipientCardsSet: recipientCardsSet, additionalData: nil)
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
+    }
 }
 
