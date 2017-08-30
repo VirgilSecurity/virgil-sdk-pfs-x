@@ -14,26 +14,22 @@ class EphemeralCardsReplenisher {
     private let identityPrivateKey: VSSPrivateKey
     private let identityCardId: String
     private let client: Client
-    private let deviceManager: VSSDeviceManagerProtocol
     private let keyStorageManager: KeyStorageManager
     
-    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, deviceManager: VSSDeviceManagerProtocol, keyStorageManager: KeyStorageManager) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, keyStorageManager: KeyStorageManager) {
         self.crypto = crypto
         self.identityPrivateKey = identityPrivateKey
         self.identityCardId = identityCardId
         self.client = client
-        self.deviceManager = deviceManager
         self.keyStorageManager = keyStorageManager
     }
     
     private func generateRequest(withKeyPair keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
         let identity = self.identityCardId
         let identityType = "identity_card_id"
-        let device = self.deviceManager.getDeviceModel()
-        let deviceName = self.deviceManager.getDeviceName()
         
         let publicKeyData = self.crypto.export(keyPair.publicKey)
-        let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil, device: device, deviceName: deviceName)
+        let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil)
         
         let requestSigner = VSSRequestSigner(crypto: self.crypto)
         let cardId = requestSigner.getCardId(forRequest: request)
