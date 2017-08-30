@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc(VSPServiceConfig) public class ServiceConfig: NSObject {
+class ServiceConfig: NSObject {
     public let token: String
     public let ephemeralServiceURL: URL
     

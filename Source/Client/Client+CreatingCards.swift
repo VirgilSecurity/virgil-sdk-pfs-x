@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 extension Client {
-    public func bootstrapCardsSet(forUserWithCardId cardId: String, longTermCardRequest: CreateEphemeralCardRequest, oneTimeCardsRequests: [CreateEphemeralCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
+    func bootstrapCardsSet(forUserWithCardId cardId: String, longTermCardRequest: CreateEphemeralCardRequest, oneTimeCardsRequests: [CreateEphemeralCardRequest], completion: @escaping ((VSSCard?, [VSSCard]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let request = BootstrapCardsRequest(ltc: longTermCardRequest.serialize(), otc: oneTimeCardsRequests.map({ $0.serialize() }))
         let httpRequest = BootstrapCardsHTTPRequest(context: context, recipientId: cardId, request: request)
@@ -30,22 +30,21 @@ extension Client {
             do {
                 let otc = try response.otc.map( { dict -> VSSCard in
                     guard let card = VSSCard(dict: dict) else {
-                        throw NSError(domain: Client.ErrorDomain, code: ClientErrorCode.deserializingVirgilCard.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error deserializing virgil card."])
+                        throw SecureChat.makeError(withCode: .deserializingVirgilCard, description: "Error deserializing virgil card.")
                     }
                     
                     return card
                 })
                 
                 guard let ltc = VSSCard(dict: response.ltc) else {
-                    completion(nil, nil, nil)
-                    return
+                    throw SecureChat.makeError(withCode: .deserializingVirgilCard, description: "Error deserializing virgil card.")
                 }
                 
                 completion(ltc, otc, nil)
                 return
             }
             catch {
-                completion(nil, nil, nil)
+                completion(nil, nil, error)
                 return
             }
         }
@@ -55,7 +54,7 @@ extension Client {
         self.send(httpRequest)
     }
     
-    public func createLongTermCard(forUserWithCardId cardId: String, longTermCardRequest: CreateEphemeralCardRequest, completion: @escaping ((VSSCard?, Error?)->())) {
+    func createLongTermCard(forUserWithCardId cardId: String, longTermCardRequest: CreateEphemeralCardRequest, completion: @escaping ((VSSCard?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = CreateLtcHTTPRequest(context: context, recipientId: cardId, ltc: longTermCardRequest.serialize())
         
@@ -72,7 +71,7 @@ extension Client {
             }
             
             guard let ltc = VSSCard(dict: response.ltc) else {
-                completion(nil, nil)
+                completion(nil, SecureChat.makeError(withCode: .deserializingVirgilCard, description: "Error deserializing virgil card."))
                 return
             }
             
@@ -85,7 +84,7 @@ extension Client {
         self.send(httpRequest)
     }
     
-    public func createOneTimeCards(forUserWithCardId cardId: String, oneTimeCardsRequests: [CreateEphemeralCardRequest], completion: @escaping (([VSSCard]?, Error?)->())) {
+    func createOneTimeCards(forUserWithCardId cardId: String, oneTimeCardsRequests: [CreateEphemeralCardRequest], completion: @escaping (([VSSCard]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = UploadOtcHTTPRequest(context: context, recipientId: cardId, otc: oneTimeCardsRequests.map({ $0.serialize() }))
         
@@ -104,7 +103,7 @@ extension Client {
             do {
                 let otc = try response.otc.map( { dict -> VSSCard in
                     guard let card = VSSCard(dict: dict) else {
-                        throw NSError(domain: Client.ErrorDomain, code: ClientErrorCode.deserializingVirgilCard.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error deserializing virgil card."])
+                        throw SecureChat.makeError(withCode: .deserializingVirgilCard, description: "Error deserializing virgil card.")
                     }
                     
                     return card

@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 extension Client {
-    public func getCardsStatus(forUserWithCardId cardId: String, completion: @escaping ((CardsStatus?, Error?)->())) {
+    func getCardsStatus(forUserWithCardId cardId: String, completion: @escaping ((CardsStatus?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let httpRequest = OtcCountHTTPRequest(context: context, recipientId: cardId)
         

@@ -17,9 +17,7 @@ import VirgilSDK
     /// User's identity card identifier
     public let identityCardId: String
     
-    /// Client used for PFS-related queries
-    public let client: Client
-    
+    fileprivate let client: Client
     fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
     fileprivate let sessionManager: SessionManager
     fileprivate let rotator: KeysRotator

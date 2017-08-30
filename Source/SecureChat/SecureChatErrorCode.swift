@@ -28,4 +28,6 @@ import Foundation
     case corruptedSavedSession
     case anotherRotateKeysInProgress
     case corruptedExhaustInfo
+    case importingVerifier
+    case deserializingVirgilCard
 }
