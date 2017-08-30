@@ -24,15 +24,15 @@ import VirgilSDK
         self.client = Client(serviceConfig: preferences.serviceConfig)
         
         let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier)
-        self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.privateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyStorageManager: keyStorageManager)
+        self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCardId: preferences.identityCard.identifier, client: self.client, deviceManager: preferences.deviceManager, keyStorageManager: keyStorageManager)
         
         let sessionStorageManager = SessionStorageManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
         let exhaustInfoManager = ExhaustInfoManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
-        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.privateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
+        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.identityPrivateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
         
-        self.rotator = KeysRotator(identityCard: preferences.identityCard, exhaustedOneTimeCardTtl: preferences.exhaustedOneTimeCardTtl, expiredSessionTtl: preferences.expiredSessionTtl, longTermKeysTtl: preferences.longTermKeysTtl, expiredLongTermCardTtl: preferences.expiredLongTermCardTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
+        self.rotator = KeysRotator(identityCard: preferences.identityCard, exhaustedOneTimeCardTtl: preferences.exhaustedOneTimeKeysTtl, expiredSessionTtl: preferences.expiredSessionTtl, longTermKeysTtl: preferences.longTermKeysTtl, expiredLongTermCardTtl: preferences.expiredLongTermKeysTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
         
         super.init()
     }
