@@ -125,7 +125,7 @@ class KeysRotator {
         }
         
         override func finish() {
-            self.completion(self.error)
+            self.completion(self.vsp_error)
             
             super.finish()
         }
@@ -143,7 +143,7 @@ class KeysRotator {
             super.execute()
             
             Log.debug("AddNewCardsOperation started.")
-            guard let cardsStatusOperation: CardsStatusOperation = self.findDependency(),
+            guard let cardsStatusOperation: CardsStatusOperation = self.vsp_findDependency(),
                 let numberOfMissingCards = cardsStatusOperation.numberOfMissingCards else {
                     self.fail(withError: SecureChat.makeError(withCode: .oneOrMoreInitializationOperationsFailed, description: "One or more initialization operations failed."))
                     return
