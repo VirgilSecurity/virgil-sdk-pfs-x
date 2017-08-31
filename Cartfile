@@ -1,1 +1,1 @@
-github "VirgilSecurity/virgil-sdk-x" "keychain-extension"
+github "VirgilSecurity/virgil-sdk-x" ~> 4.6.1
