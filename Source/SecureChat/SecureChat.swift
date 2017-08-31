@@ -132,11 +132,13 @@ extension SecureChat {
         }
         
         if let initiationMessage = try? SecureSession.extractInitiationMessage(fromData: messageData) {
-            // Add new one time card
-            try? self.ephemeralCardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
-                guard error == nil else {
-                    Log.error("SecureChat:\(self.identityCardId). WARNING: Error occured while adding new otc in loadUpSession")
-                    return
+            // Add new one time card if we have received strong session
+            if initiationMessage.responderOtcId != nil {
+                try? self.ephemeralCardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
+                    guard error == nil else {
+                        Log.error("SecureChat:\(self.identityCardId). WARNING: Error occured while adding new otc in loadUpSession")
+                        return
+                    }
                 }
             }
             
