@@ -54,7 +54,7 @@ import Foundation
     /// - Throws: NSError instances with corresponding description
     public func storeValue(_ value: Any?, forKey key: String) throws {
         self.userDefaults.set(value, forKey: key)
-        self.userDefaults.synchronize()
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
     }
     
     /// Loads value for given key

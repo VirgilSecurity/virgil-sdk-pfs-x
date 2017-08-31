@@ -27,7 +27,9 @@ class VSP009_SessionManagerTests: XCTestCase {
         let sessionStorageManager = SessionStorageManager(cardId: card.identifier, storage: try! UserDefaultsDataStorage.makeStorage(forIdentifier: card.identifier))
         
         self.sessionTtl = 10
-        self.sessionManager = SessionManager(identityCard: card, identityPrivateKey: self.crypto.generateKeyPair().privateKey, crypto: self.crypto, sessionTtl: self.sessionTtl, keyStorageManager: self.keyStorageManager, sessionStorageManager: sessionStorageManager)
+        let privateKey = self.crypto.generateKeyPair().privateKey
+        let sessionInitializer = SessionInitializer(crypto: self.crypto, identityPrivateKey: privateKey, identityCard: self.card)
+        self.sessionManager = SessionManager(identityCard: self.card, identityPrivateKey: privateKey, crypto: self.crypto, sessionTtl: self.sessionTtl, keyStorageManager: self.keyStorageManager, sessionStorageManager: sessionStorageManager, sessionInitializer: sessionInitializer)
     }
     
     func test001_InitializeInitiator() {

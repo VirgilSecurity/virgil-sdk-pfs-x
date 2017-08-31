@@ -30,4 +30,8 @@ import Foundation
     case corruptedExhaustInfo
     case importingVerifier
     case deserializingVirgilCard
+    
+    case migrationV1_1UnknownSessionState
+    case migrationV1_1InvalidDefaults
+    case migrationV1_1ImportingEphPrivateKey
 }

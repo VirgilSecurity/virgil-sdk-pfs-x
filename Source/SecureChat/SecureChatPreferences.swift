@@ -70,7 +70,7 @@ import VirgilSDK
         self.identityPrivateKey = identityPrivateKey
         self.identityCard = identityCard
         self.keyStorage = keyStorage ?? KeychainKeyStorage(virgilKeyStorage: VSSKeyStorage())
-        self.insensitiveDataStorage = try insensitiveDataStorage ?? UserDefaultsDataStorage.makeStorage(forIdentifier: identityCard.identifier)
+        self.insensitiveDataStorage = try insensitiveDataStorage ?? UserDefaultsDataStorage.makeStorage(forIdentifier: "\(identityCard.identifier)")
         self.pfsUrl = pfsUrl
         self.accessToken = accessToken
         self.longTermKeysTtl = longTermKeysTtl ?? 60*60*24*7

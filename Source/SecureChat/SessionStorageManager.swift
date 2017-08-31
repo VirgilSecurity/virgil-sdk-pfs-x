@@ -189,6 +189,6 @@ extension SessionStorageManager {
 
 extension SessionStorageManager {
     fileprivate func getSessionsEntryKey() -> String {
-        return "VIRGIL.SESSIONS.OWNER=\(self.cardId)"
+        return "VIRGIL.SESSIONSV2.OWNER=\(self.cardId)"
     }
 }

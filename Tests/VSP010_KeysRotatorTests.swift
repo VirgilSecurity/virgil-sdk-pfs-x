@@ -76,7 +76,9 @@ class VSP010_KeysRotatorTests: XCTestCase {
     private func initializerSessionManager(card: VSSCard, sessionTtl: TimeInterval) {
         let sessionStorageManager = SessionStorageManager(cardId: card.identifier, storage: try! UserDefaultsDataStorage.makeStorage(forIdentifier: card.identifier))
         
-        self.sessionManager = SessionManager(identityCard: card, identityPrivateKey: self.crypto.generateKeyPair().privateKey, crypto: self.crypto, sessionTtl: sessionTtl, keyStorageManager: self.keyStorageManager, sessionStorageManager: sessionStorageManager)
+        let privateKey = self.crypto.generateKeyPair().privateKey
+        let sessionInitializer = SessionInitializer(crypto: self.crypto, identityPrivateKey: privateKey, identityCard: card)
+        self.sessionManager = SessionManager(identityCard: card, identityPrivateKey: privateKey, crypto: self.crypto, sessionTtl: sessionTtl, keyStorageManager: self.keyStorageManager, sessionStorageManager: sessionStorageManager, sessionInitializer: sessionInitializer)
     }
     
     func test001_RotateKeys() {

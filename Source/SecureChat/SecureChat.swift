@@ -21,6 +21,9 @@ import VirgilSDK
     fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
     fileprivate let sessionManager: SessionManager
     fileprivate let rotator: KeysRotator
+    fileprivate let insensitiveDataStorage: InsensitiveDataStorage
+    
+    fileprivate let migrationManager: MigrationManager
     
     /// Initializer
     ///
@@ -28,6 +31,7 @@ import VirgilSDK
     public init(preferences: SecureChatPreferences) {
         self.identityCardId = preferences.identityCard.identifier
         self.client = preferences.client
+        self.insensitiveDataStorage = preferences.insensitiveDataStorage
         
         let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier)
         self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCardId: preferences.identityCard.identifier, client: self.client, keyStorageManager: keyStorageManager)
@@ -36,15 +40,94 @@ import VirgilSDK
         
         let exhaustInfoManager = ExhaustInfoManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
         
-        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.identityPrivateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager)
+        let sessionInitializer = SessionInitializer(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCard: preferences.identityCard)
+        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.identityPrivateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager, sessionInitializer: sessionInitializer)
         
         self.rotator = KeysRotator(identityCard: preferences.identityCard, exhaustedOneTimeCardTtl: preferences.exhaustedOneTimeKeysTtl, expiredSessionTtl: preferences.expiredSessionTtl, longTermKeysTtl: preferences.longTermKeysTtl, expiredLongTermCardTtl: preferences.expiredLongTermKeysTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
+        
+        self.migrationManager = MigrationManager(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCard: preferences.identityCard, keyStorage: preferences.keyStorage, keyStorageManager: keyStorageManager, storage: preferences.insensitiveDataStorage, sessionInitializer: sessionInitializer, sessionManager: sessionManager)
         
         super.init()
     }
     
     class func makeError(withCode code: SecureChatErrorCode, description: String) -> NSError {
         return NSError(domain: SecureChat.ErrorDomain, code: code.rawValue, userInfo: [NSLocalizedDescriptionKey: description])
+    }
+}
+
+// MARK: - Initialization
+extension SecureChat {
+    /// Initializes SecureChat
+    ///
+    /// - Parameter migrateAutomatically: allow automatic migration
+    /// - Throws: NSError instances with corresponding description
+    public func initialize(migrateAutomatically: Bool = true) throws {
+        if migrateAutomatically {
+            try self.migrate()
+        }
+    }
+}
+
+// MARK: - Migration
+extension SecureChat {
+    /// Migrates
+    ///
+    /// - Throws: NSError instances with corresponding description
+    public func migrate() throws {
+        let previousVersion = self.getPreviousVersion()
+        
+        try self.migrate(fromVersion: previousVersion)
+        
+        // Update version
+        try self.insensitiveDataStorage.storeValue(Version.currentVersion.rawValue, forKey: self.getVersionKey())
+    }
+    
+    private func migrate(fromVersion previousVersion: Version) throws {
+        let migrationVersions = Version.getSortedVersions(fromVersion: previousVersion)
+        
+        Log.debug("Versions to migrate: \(migrationVersions.map({ $0.rawValue }))")
+        
+        for migrationVersion in migrationVersions {
+            switch migrationVersion {
+            case .v1_0: break
+            case .v1_1: try self.migrationManager.migrateToV1_1()        
+            }
+        }
+    }
+    
+    private func getVersionKey() -> String {
+        return "VIRGIL.OWNER=\(self.identityCardId).VERSION"
+    }
+    
+    /// Returns previous version for this SecureChat
+    ///
+    /// - Returns: previous version
+    public func getPreviousVersion() -> Version {
+        guard let versionStr = self.insensitiveDataStorage.loadValue(forKey: self.getVersionKey()) as? String,
+            let version = Version(rawValue: versionStr) else {
+                return .v1_0
+        }
+        
+        return version
+    }
+    
+    /// Version enum
+    ///
+    /// - v1_0: version 1.0.x
+    /// - v1_1: version 1.1.x
+    public enum Version: String {
+        case v1_0 = "1.0"
+        case v1_1 = "1.1"
+        
+        static func getSortedVersions(fromVersion version: Version) -> [Version] {
+            switch version {
+            case .v1_0: return [.v1_1]
+            case .v1_1: return []
+            }
+        }
+        
+        /// Current version
+        public static let currentVersion = Version.v1_1
     }
 }
 

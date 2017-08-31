@@ -119,6 +119,22 @@
 		42ACE9EC1F55A53700309D83 /* VSPPfsTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */; };
 		42ACE9EF1F55A7E000309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */; };
 		42ACE9F01F55A7E100309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */; };
+		42ACE9FA1F57FA7900309D83 /* VSP012_MigrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9F71F57FA7400309D83 /* VSP012_MigrationTest.swift */; };
+		42ACE9FC1F57FA7A00309D83 /* VSP012_MigrationTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACE9F71F57FA7400309D83 /* VSP012_MigrationTest.swift */; };
+		42ACEA011F5810BC00309D83 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ACEA001F5810BC00309D83 /* MigrationManager.swift */; };
+		42B6CF4B1F58230A0024857B /* MigrationV1_1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF4A1F58230A0024857B /* MigrationV1_1.swift */; };
+		42B6CF4D1F58231C0024857B /* MigrationV1_1+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF4C1F58231C0024857B /* MigrationV1_1+Keys.swift */; };
+		42B6CF4F1F5823590024857B /* MigrationV1_1+ResponderSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF4E1F5823590024857B /* MigrationV1_1+ResponderSession.swift */; };
+		42B6CF511F5823C30024857B /* MigrationV1_1+InitiatorSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF501F5823C30024857B /* MigrationV1_1+InitiatorSession.swift */; };
+		42B6CF531F5823E00024857B /* MigrationV1_1+Sessions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF521F5823E00024857B /* MigrationV1_1+Sessions.swift */; };
+		42B6CF5A1F584E740024857B /* KeyStorageMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF581F584E5E0024857B /* KeyStorageMock.swift */; };
+		42B6CF5B1F584E750024857B /* KeyStorageMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF581F584E5E0024857B /* KeyStorageMock.swift */; };
+		42B6CF5E1F585F770024857B /* OLDKEYSTORAGE.plist in Resources */ = {isa = PBXBuildFile; fileRef = 42B6CF5C1F585F770024857B /* OLDKEYSTORAGE.plist */; };
+		42B6CF5F1F585F770024857B /* OLDKEYSTORAGE.plist in Resources */ = {isa = PBXBuildFile; fileRef = 42B6CF5C1F585F770024857B /* OLDKEYSTORAGE.plist */; };
+		42B6CF631F58676C0024857B /* UserDefaultsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF621F58676C0024857B /* UserDefaultsMock.swift */; };
+		42B6CF641F58676C0024857B /* UserDefaultsMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6CF621F58676C0024857B /* UserDefaultsMock.swift */; };
+		42B6CF661F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist in Resources */ = {isa = PBXBuildFile; fileRef = 42B6CF651F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist */; };
+		42B6CF671F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist in Resources */ = {isa = PBXBuildFile; fileRef = 42B6CF651F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist */; };
 		42E37B7D1F235AA100D2097F /* SecureChat+MessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */; };
 		42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */; };
 /* End PBXBuildFile section */
@@ -267,6 +283,17 @@
 		42ACE9E91F55A53200309D83 /* VSPPfsTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VSPPfsTestUtils.m; sourceTree = "<group>"; };
 		42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP011_EphemeralCardsReplenisherTests.swift; sourceTree = "<group>"; };
 		42ACE9F61F56EB0700309D83 /* VSPInternalClientAPI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VSPInternalClientAPI.h; sourceTree = "<group>"; };
+		42ACE9F71F57FA7400309D83 /* VSP012_MigrationTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VSP012_MigrationTest.swift; sourceTree = "<group>"; };
+		42ACEA001F5810BC00309D83 /* MigrationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
+		42B6CF4A1F58230A0024857B /* MigrationV1_1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MigrationV1_1.swift; sourceTree = "<group>"; };
+		42B6CF4C1F58231C0024857B /* MigrationV1_1+Keys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MigrationV1_1+Keys.swift"; sourceTree = "<group>"; };
+		42B6CF4E1F5823590024857B /* MigrationV1_1+ResponderSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MigrationV1_1+ResponderSession.swift"; sourceTree = "<group>"; };
+		42B6CF501F5823C30024857B /* MigrationV1_1+InitiatorSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MigrationV1_1+InitiatorSession.swift"; sourceTree = "<group>"; };
+		42B6CF521F5823E00024857B /* MigrationV1_1+Sessions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MigrationV1_1+Sessions.swift"; sourceTree = "<group>"; };
+		42B6CF581F584E5E0024857B /* KeyStorageMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStorageMock.swift; sourceTree = "<group>"; };
+		42B6CF5C1F585F770024857B /* OLDKEYSTORAGE.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = OLDKEYSTORAGE.plist; sourceTree = "<group>"; };
+		42B6CF621F58676C0024857B /* UserDefaultsMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsMock.swift; sourceTree = "<group>"; };
+		42B6CF651F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist */ = {isa = PBXFileReference; lastKnownFileType = file.bplist; path = VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist; sourceTree = "<group>"; };
 		42E37B7C1F235AA100D2097F /* SecureChat+MessageType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SecureChat+MessageType.swift"; sourceTree = "<group>"; };
 		42E37B7E1F235AD500D2097F /* SecureChatErrorCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatErrorCode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -351,6 +378,8 @@
 			children = (
 				4291238A1F4C6A9900103BE0 /* Data */,
 				42ACE9E71F55984800309D83 /* BridgingHeader.h */,
+				42B6CF581F584E5E0024857B /* KeyStorageMock.swift */,
+				42B6CF621F58676C0024857B /* UserDefaultsMock.swift */,
 				420D151F1EF3FBD9002A9C22 /* VSPTestsConst.h */,
 				420D15201EF3FBD9002A9C22 /* VSPTestsConst.m */,
 				420D15291EF40F1B002A9C22 /* VSPTestUtils.h */,
@@ -369,6 +398,7 @@
 				42ACE9DB1F5421E800309D83 /* VSP009_SessionManagerTests.swift */,
 				42ACE9E31F55971B00309D83 /* VSP010_KeysRotatorTests.swift */,
 				42ACE9ED1F55A7DC00309D83 /* VSP011_EphemeralCardsReplenisherTests.swift */,
+				42ACE9F71F57FA7400309D83 /* VSP012_MigrationTest.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -542,6 +572,7 @@
 		425A02321EF93B2800D9BBEF /* SecureChat */ = {
 			isa = PBXGroup;
 			children = (
+				42ACE9FF1F5810BC00309D83 /* Migration */,
 				429123B61F4D7C2C00103BE0 /* DataStorage */,
 				429123BB1F4D7C2C00103BE0 /* KeyStorage */,
 				429123C41F4D7C2C00103BE0 /* SecureSession */,
@@ -574,6 +605,8 @@
 		4291238A1F4C6A9900103BE0 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				42B6CF651F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist */,
+				42B6CF5C1F585F770024857B /* OLDKEYSTORAGE.plist */,
 				4291238D1F4C6A9900103BE0 /* TestConfig.plist */,
 				42ACE9C71F540F9B00309D83 /* InitiationMessageExample.txt */,
 				42ACE9CF1F54165F00309D83 /* InitiationWeakMessageExample.txt */,
@@ -611,6 +644,27 @@
 				429123E91F50776E00103BE0 /* SesssionManager.swift */,
 			);
 			path = SecureSession;
+			sourceTree = "<group>";
+		};
+		42ACE9FF1F5810BC00309D83 /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				42B6CF491F58230A0024857B /* V1_1 */,
+				42ACEA001F5810BC00309D83 /* MigrationManager.swift */,
+			);
+			path = Migration;
+			sourceTree = "<group>";
+		};
+		42B6CF491F58230A0024857B /* V1_1 */ = {
+			isa = PBXGroup;
+			children = (
+				42B6CF4A1F58230A0024857B /* MigrationV1_1.swift */,
+				42B6CF4C1F58231C0024857B /* MigrationV1_1+Keys.swift */,
+				42B6CF4E1F5823590024857B /* MigrationV1_1+ResponderSession.swift */,
+				42B6CF501F5823C30024857B /* MigrationV1_1+InitiatorSession.swift */,
+				42B6CF521F5823E00024857B /* MigrationV1_1+Sessions.swift */,
+			);
+			path = V1_1;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -770,6 +824,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				42ACE9CB1F5411F000309D83 /* RegularMessageExample.txt in Resources */,
+				42B6CF661F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist in Resources */,
+				42B6CF5E1F585F770024857B /* OLDKEYSTORAGE.plist in Resources */,
 				42ACE9CC1F5411F000309D83 /* InitiationMessageExample.txt in Resources */,
 				42ACE9D11F54166A00309D83 /* InitiationWeakMessageExample.txt in Resources */,
 				429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */,
@@ -791,6 +847,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				42ACE9CD1F5411F100309D83 /* RegularMessageExample.txt in Resources */,
+				42B6CF671F5867FE0024857B /* VIRGIL.DEFAULTS.4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.plist in Resources */,
+				42B6CF5F1F585F770024857B /* OLDKEYSTORAGE.plist in Resources */,
 				42ACE9CE1F5411F100309D83 /* InitiationMessageExample.txt in Resources */,
 				42ACE9D21F54166A00309D83 /* InitiationWeakMessageExample.txt in Resources */,
 				42ACE9C61F540F8200309D83 /* TestConfig.plist in Resources */,
@@ -851,6 +909,7 @@
 				429123F41F5090B700103BE0 /* SessionStorageManager.swift in Sources */,
 				420D0B8D1EF00F4D002A9C22 /* BootstrapCardsHTTPRequest.swift in Sources */,
 				425A025B1F0504BB00D9BBEF /* Client+Validation.swift in Sources */,
+				42ACEA011F5810BC00309D83 /* MigrationManager.swift in Sources */,
 				420D0B701EEFEC71002A9C22 /* BootstrapCardsResponse.swift in Sources */,
 				420D0B7C1EEFF068002A9C22 /* CredentialsResponse.swift in Sources */,
 				425E082C1EF8081800A74C29 /* Client+GetCredentials.swift in Sources */,
@@ -864,13 +923,16 @@
 				425A02611F05057D00D9BBEF /* ValidateOTCResponse.swift in Sources */,
 				420D14E81EF29BC2002A9C22 /* CreateLtcHTTPRequest.swift in Sources */,
 				420D0B861EF008E4002A9C22 /* PFSError.swift in Sources */,
+				42B6CF531F5823E00024857B /* MigrationV1_1+Sessions.swift in Sources */,
 				429123D71F4D7C2C00103BE0 /* SecureSessionErrorCode.swift in Sources */,
 				420D14F51EF2C6A0002A9C22 /* ServiceConfig.swift in Sources */,
 				420D14EC1EF29CEB002A9C22 /* OtcCountHTTPRequest.swift in Sources */,
+				42B6CF4B1F58230A0024857B /* MigrationV1_1.swift in Sources */,
 				429123D51F4D7C2C00103BE0 /* SecureSession.swift in Sources */,
 				425A025D1F05053600D9BBEF /* ValidateOTCRequest.swift in Sources */,
 				420D0B831EF0086D002A9C22 /* PFSBaseHTTPRequest.swift in Sources */,
 				42E37B7F1F235AD500D2097F /* SecureChatErrorCode.swift in Sources */,
+				42B6CF511F5823C30024857B /* MigrationV1_1+InitiatorSession.swift in Sources */,
 				429623E81F13BD3600284665 /* Fingerprint.swift in Sources */,
 				429123F21F5090B700103BE0 /* ExhaustInfoManager.swift in Sources */,
 				429123DB1F4D7C3E00103BE0 /* KeyAttrs.swift in Sources */,
@@ -878,6 +940,8 @@
 				429123E11F4DAB6B00103BE0 /* KeysRotator.swift in Sources */,
 				425E082A1EF8077E00A74C29 /* Client+CreatingCards.swift in Sources */,
 				422CBCBB1F3B3547003D6932 /* AsyncOperation.swift in Sources */,
+				42B6CF4F1F5823590024857B /* MigrationV1_1+ResponderSession.swift in Sources */,
+				42B6CF4D1F58231C0024857B /* MigrationV1_1+Keys.swift in Sources */,
 				420D0B591EEFE29A002A9C22 /* BootstrapCardsRequest.swift in Sources */,
 				429123EA1F50776E00103BE0 /* SesssionManager.swift in Sources */,
 				420D14E41EF28B33002A9C22 /* Client.swift in Sources */,
@@ -906,7 +970,9 @@
 				429123FC1F5226FB00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
 				420D152C1EF40F4F002A9C22 /* VSPTestUtils.m in Sources */,
 				429123E81F5068C500103BE0 /* VSP004_SessionStorageManagerTests.swift in Sources */,
+				42ACE9FC1F57FA7A00309D83 /* VSP012_MigrationTest.swift in Sources */,
 				42ACE9D91F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
+				42B6CF5A1F584E740024857B /* KeyStorageMock.swift in Sources */,
 				42ACE9EF1F55A7E000309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */,
 				42ACE9C41F540F3600309D83 /* VSP007_CompatibilityTests.swift in Sources */,
 				425A024E1EFBF91A00D9BBEF /* VSP002_SecureChatTests.m in Sources */,
@@ -914,6 +980,7 @@
 				420D15241EF3FBE8002A9C22 /* VSP001_ClientTests.m in Sources */,
 				4296241A1F1503A500284665 /* VSP003_FingerprintTests.m in Sources */,
 				42ACE9EB1F55A53600309D83 /* VSPPfsTestUtils.m in Sources */,
+				42B6CF631F58676C0024857B /* UserDefaultsMock.swift in Sources */,
 				42ACE9E51F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -934,6 +1001,7 @@
 			files = (
 				429124011F5228A300103BE0 /* VSP006_KeyStorageManagerTests.swift in Sources */,
 				429123FD1F5226FC00103BE0 /* VSP005_ExhaustInfoManagerTests.swift in Sources */,
+				42B6CF5B1F584E750024857B /* KeyStorageMock.swift in Sources */,
 				424A021C1F34642A00D17D0C /* VirgilSDKPFSAppTests.m in Sources */,
 				424A02291F34643600D17D0C /* VSP002_SecureChatTests.m in Sources */,
 				42ACE9F01F55A7E100309D83 /* VSP011_EphemeralCardsReplenisherTests.swift in Sources */,
@@ -942,6 +1010,8 @@
 				42ACE9DA1F541CE900309D83 /* VSP008_SessionInitializerTests.swift in Sources */,
 				42ACE9E61F55972100309D83 /* VSP010_KeysRotatorTests.swift in Sources */,
 				424A02281F34643600D17D0C /* VSP001_ClientTests.m in Sources */,
+				42ACE9FA1F57FA7900309D83 /* VSP012_MigrationTest.swift in Sources */,
+				42B6CF641F58676C0024857B /* UserDefaultsMock.swift in Sources */,
 				42ACE9DE1F54220000309D83 /* VSP009_SessionManagerTests.swift in Sources */,
 				424A022A1F34643600D17D0C /* VSP003_FingerprintTests.m in Sources */,
 				42ACE9EC1F55A53700309D83 /* VSPPfsTestUtils.m in Sources */,
@@ -1101,6 +1171,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1.1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1125,6 +1196,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
+				CURRENT_PROJECT_VERSION = 1.1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1240,7 +1312,6 @@
 		424A02221F34642A00D17D0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = A59V7K656Y;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1259,7 +1330,6 @@
 		424A02231F34642A00D17D0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = A59V7K656Y;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

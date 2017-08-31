@@ -17,14 +17,14 @@ class SessionManager {
     fileprivate let sessionStorageManager: SessionStorageManager
     fileprivate let sessionInitializer: SessionInitializer
     
-    init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyStorageManager: KeyStorageManager, sessionStorageManager: SessionStorageManager) {
+    init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyStorageManager: KeyStorageManager, sessionStorageManager: SessionStorageManager, sessionInitializer: SessionInitializer) {
         self.identityCard = identityCard
         self.identityPrivateKey = identityPrivateKey
         self.crypto = crypto
         self.sessionTtl = sessionTtl
         self.keyStorageManager = keyStorageManager
         self.sessionStorageManager = sessionStorageManager
-        self.sessionInitializer = SessionInitializer(crypto: crypto, identityPrivateKey: identityPrivateKey, identityCard: identityCard)
+        self.sessionInitializer = sessionInitializer
     }
     
     func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
@@ -40,7 +40,7 @@ class SessionManager {
 }
 
 extension SessionManager {
-    fileprivate func saveSession(_ session: SecureSession, creationDate: Date, participantCardId: String) throws {
+    func saveSession(_ session: SecureSession, creationDate: Date, participantCardId: String) throws {
         let sessionId = session.identifier
         let encryptionKey = session.encryptionKey
         let decryptionKey = session.decryptionKey
