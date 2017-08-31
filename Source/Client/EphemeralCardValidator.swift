@@ -9,15 +9,9 @@
 import Foundation
 import VirgilSDK
 
-@objc(VSPEphemeralCardValidatorErrorCode) public enum EphemeralCardValidatorErrorCode: Int {
-    case importingPublicKey
-}
-
 class EphemeralCardValidator {
     let crypto: VSSCryptoProtocol
     private var verifiers: [String: VSSPublicKey] = [:]
-    
-    static let ErrorDomain = "EphemeralCardValidatorErrorDomain"
     
     init(crypto: VSSCryptoProtocol) {
         self.crypto = crypto
@@ -25,7 +19,7 @@ class EphemeralCardValidator {
     
     func addVerifier(withId verifierId: String, publicKeyData: Data) throws {
         guard let publicKey = self.crypto.importPublicKey(from: publicKeyData) else {
-            throw NSError(domain: EphemeralCardValidator.ErrorDomain, code: EphemeralCardValidatorErrorCode.importingPublicKey.rawValue, userInfo: [NSLocalizedDescriptionKey: "Error importing verifier public key."])
+            throw SecureChat.makeError(withCode: .importingVerifier, description: "Error importing verifier public key.")
         }
         
         self.verifiers[verifierId] = publicKey

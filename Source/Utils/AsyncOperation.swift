@@ -9,16 +9,17 @@
 import Foundation
 
 protocol FailableOperation: class {
-    var isFailed: Bool { get }
+    var vsp_isFailed: Bool { get }
+    var vsp_error: Error? { get }
 }
 
 extension Operation: FailableOperation {
-    open var isFailed: Bool { return false }
-    open var error: Error? { return .none }
+    open var vsp_isFailed: Bool { return false }
+    open var vsp_error: Error? { return .none }
 }
 
 extension Operation {
-    func findDependency<T: Operation>() -> T? {
+    func vsp_findDependency<T: Operation>() -> T? {
         for dependency in self.dependencies {
             if let typeDependency = dependency as? T {
                 return typeDependency
@@ -59,8 +60,8 @@ class AsyncOperation: Operation {
         }
         
         for dependency in self.dependencies {
-            guard !dependency.isFailed else {
-                self.fail(withError: dependency.error)
+            guard !dependency.vsp_isFailed else {
+                self.fail(withError: dependency.vsp_error)
                 return
             }
         }
@@ -80,7 +81,7 @@ class AsyncOperation: Operation {
         self._finished = true
     }
     
-    override var isFailed: Bool { return self._failed }
+    override var vsp_isFailed: Bool { return self._failed }
     private var _failed = false
     
     func fail() {
@@ -96,5 +97,5 @@ class AsyncOperation: Operation {
     }
     
     private var _error: Error?
-    override var error: Error? { return self._error }
+    override var vsp_error: Error? { return self._error }
 }

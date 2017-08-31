@@ -8,11 +8,11 @@
 
 import Foundation
 
-@objc(VSPServiceConfig) public class ServiceConfig: NSObject {
-    public let token: String
-    public let ephemeralServiceURL: URL
+@objc(VSPServiceConfig) class ServiceConfig: NSObject {
+    let token: String
+    let ephemeralServiceURL: URL
     
-    public init(token: String, ephemeralServiceURL: URL? = nil) {
+    init(token: String, ephemeralServiceURL: URL? = nil) {
         self.token = token
         self.ephemeralServiceURL = ephemeralServiceURL ?? URL(string: "https://pfs.virgilsecurity.com/v1/")!
         

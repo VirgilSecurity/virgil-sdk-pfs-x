@@ -20,30 +20,6 @@
     return self;
 }
 
-- (VSPCreateEphemeralCardRequest *)instantiateEphemeralCreateCardRequestsWithKeyPair:(VSSKeyPair *)keyPair identityCardId:(NSString *)identityCardId identityPrivateKey:(VSSPrivateKey *)identityPrivateKey {
-    VSSKeyPair *kp = keyPair != nil ? keyPair : [self.crypto generateKeyPair];
-    NSData *exportedPublicKey = [self.crypto exportPublicKey:kp.publicKey];
-    
-    NSString *identityValue = [[NSUUID alloc] init].UUIDString;
-    NSString *identityType = self.consts.applicationIdentityType;
-    VSPCreateEphemeralCardRequest * request = [VSPCreateEphemeralCardRequest createEphemeralCardRequestWithIdentity:identityValue identityType:identityType publicKeyData:exportedPublicKey];
-    
-    VSSRequestSigner *signer = [[VSSRequestSigner alloc] initWithCrypto:self.crypto];
-    
-    [signer authoritySignRequest:request forAppId:identityCardId withPrivateKey:identityPrivateKey error:nil];
-    
-    return request;
-}
-
-- (NSArray<VSPCreateEphemeralCardRequest *> *)instantiateMultipleEphemeralCreateCardRequestsForNumber:(NSUInteger)number identityCardId:(NSString *)identityCardId identityPrivateKey:(VSSPrivateKey *)identityPrivateKey {
-    NSMutableArray<VSPCreateEphemeralCardRequest *> *arr = [[NSMutableArray alloc] initWithCapacity:number];
-    for (int i = 0; i < number; i++) {
-        [arr addObject:[self instantiateEphemeralCreateCardRequestsWithKeyPair:nil identityCardId:identityCardId identityPrivateKey:identityPrivateKey]];
-    }
-    
-    return arr;
-}
-
 - (VSSCreateUserCardRequest *)instantiateCreateCardRequestWithKeyPair:(VSSKeyPair *)keyPair {
     VSSKeyPair *kp = keyPair != nil ? keyPair : [self.crypto generateKeyPair];
     NSData *exportedPublicKey = [self.crypto exportPublicKey:kp.publicKey];

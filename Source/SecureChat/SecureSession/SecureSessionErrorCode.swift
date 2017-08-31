@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Error codes for NSError instances thrown from SecureSession
 @objc(VSPSecureSessionErrorCode) public enum SecureSessionErrorCode: Int {
     case convertingEncryptedMessageWhileDecrypting
     case decryptingMessage
@@ -19,25 +20,12 @@ import Foundation
     case decryptShouldBeOverridden
     case extractingInitiationMessage
     case extractingMessage
-
-    case sessionStillNotInitializedWhileEncryptingInInitiatorSession
-    case convertingInitiationMessageToDataWhileEncrypting
-    case encryptingInitiationMessage
     case convertingEncryptedInitiationMessageToUtf8Data
-    case sessionStillNotInitializedWhileDecryptingInInitiatorSession
-    case convertingEncryptedMessageToDataWhileDecryptingInInitiatorSession
     case convertingInitiatorKeysDuringInitiatorInitialization
     case instantiationInitiatorPrivateInfo
     case convertingResponderKeysDuringInitiatorInitialization
     case instantiationResponderPublicInfo
     case initiatingInitiatorSession
-
-    case sessionStillNotInitializedWhileEncryptingInResponderSession
-    case sessionStillNotInitializedWhileDecryptingInResponderSession
-    case sessionIdIsMissing
-    case convertingEncryptedMessageToDataWhileDecryptingInResponderSession
-    case sessionStillNotInitializedWhileDecryptingInResponderSessionNotInitiationMessage
-    case unknownMessageFormatWhileDecryptingInResponderSession
     case importingInitiatorPublicKeyFromIdentityCard
     case validatingInitiatorSignature
     case initiatorIdentityCardIdDoesntMatch
@@ -46,4 +34,5 @@ import Foundation
     case convertingInitiatorKeysDuringResponderInitialization
     case instantiatingInitiatorPublicInfo
     case initiatingResponderSession
+    case recoveringInitiatedSession
 }

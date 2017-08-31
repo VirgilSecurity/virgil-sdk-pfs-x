@@ -1,26 +1,28 @@
 //
-//  ResponderSessionState.swift
+//  MigrationV1_1+Sessions.swift
 //  VirgilSDKPFS
 //
-//  Created by Oleksandr Deundiak on 6/23/17.
+//  Created by Oleksandr Deundiak on 8/31/17.
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
 import Foundation
 
-struct ResponderSessionState: SessionState {
-    let creationDate: Date
-    let expirationDate: Date
-    let sessionId: Data
-    let additionalData: Data?
-    let ephPublicKeyData: Data
-    let recipientIdentityCardId: String
-    let recipientIdentityPublicKey: Data
-    let recipientLongTermCardId: String
-    let recipientOneTimeCardId: String?
+extension MigrationV1_1 {
+    struct ResponderSessionState {
+        let creationDate: Date
+        let expirationDate: Date
+        let sessionId: Data
+        let additionalData: Data?
+        let ephPublicKeyData: Data
+        let recipientIdentityCardId: String
+        let recipientIdentityPublicKey: Data
+        let recipientLongTermCardId: String
+        let recipientOneTimeCardId: String?
+    }
 }
 
-extension ResponderSessionState: Serializable {
+extension MigrationV1_1.ResponderSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSMutableDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
@@ -44,7 +46,7 @@ extension ResponderSessionState: Serializable {
     }
 }
 
-extension ResponderSessionState: Deserializable {
+extension MigrationV1_1.ResponderSessionState: Deserializable {
     init?(dictionary: Any) {
         guard let dict = dictionary as? [AnyHashable: Any] else {
             return nil
@@ -68,7 +70,7 @@ extension ResponderSessionState: Deserializable {
     }
 }
 
-extension ResponderSessionState {
+extension MigrationV1_1.ResponderSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creation_date"
         case expirationDate = "expiration_date"

@@ -9,26 +9,22 @@
 import Foundation
 import VirgilSDK
 
-@objc(VSPClientErrorCode) public enum ClientErrorCode: Int {
-    case deserializingVirgilCard
-}
-
-@objc(VSPClient) public class Client: VSSBaseClient {
-    public static let ErrorDomain = "VSPClientErrorDomain"
+@objc(VSPClient) class Client: VSSBaseClient {
+    static let ErrorDomain = "VSPClientErrorDomain"
     
-    public private(set) var serviceConfig: ServiceConfig
+    private(set) var serviceConfig: ServiceConfig
     
-    public init(serviceConfig: ServiceConfig) {
+    init(serviceConfig: ServiceConfig) {
         self.serviceConfig = serviceConfig
         
         super.init()
     }
     
-    public convenience init(token: String) {
+    convenience init(token: String) {
         self.init(serviceConfig: ServiceConfig(token: token))
     }
     
-    public override func send(_ request: VSSHTTPRequest) {
+    override func send(_ request: VSSHTTPRequest) {
         if !self.serviceConfig.token.isEmpty {
             request.setRequestHeaders(["Authorization": String(format: "VIRGIL %@", self.serviceConfig.token)])
         }

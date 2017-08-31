@@ -8,9 +8,9 @@
 
 import Foundation
 
-@objc(VSPCardsStatus) public final class CardsStatus: NSObject {
-    public let active: Int
-    public let exhausted: Int
+@objc(VSPCardsStatus) final class CardsStatus: NSObject {
+    let active: Int
+    let exhausted: Int
     
     init(active: Int, exhausted: Int) {
         self.active = active

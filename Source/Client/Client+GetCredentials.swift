@@ -10,7 +10,7 @@ import Foundation
 import VirgilSDK
 
 extension Client {
-    public func getRecipientCardsSet(forCardsIds cardsIds: [String], completion: @escaping (([RecipientCardsSet]?, Error?)->())) {
+    func getRecipientCardsSet(forCardsIds cardsIds: [String], completion: @escaping (([RecipientCardsSet]?, Error?)->())) {
         let context = VSSHTTPRequestContext(serviceUrl: self.serviceConfig.ephemeralServiceURL)
         let request = CredentialsRequest(cardsIds: cardsIds)
         let httpRequest = CredentialsHTTPRequest(context: context, credentialsRequest: request)
@@ -22,9 +22,10 @@ extension Client {
             }
             
             let request = request as! CredentialsHTTPRequest
-            guard let response = request.credentialsResponse else {
-                completion(nil, nil)
-                return
+            guard let response = request.credentialsResponse,
+                response.credentials.count > 0 else {
+                    completion(nil, nil)
+                    return
             }
             
             var credentials: [RecipientCardsSet] = []

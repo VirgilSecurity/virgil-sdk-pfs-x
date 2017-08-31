@@ -9,31 +9,45 @@
 import Foundation
 import VirgilSDK
 
+/// Class used to manage SecureSession for specified user
 @objc(VSPSecureChat) public class SecureChat: NSObject {
+    /// Error domain for NSError instances thrown from here
     public static let ErrorDomain = "VSPSecureChatErrorDomain"
     
-    public let preferences: SecureChatPreferences
-    public let client: Client
+    /// User's identity card identifier
+    public let identityCardId: String
     
-    fileprivate let keyHelper: SecureChatKeyHelper
-    fileprivate let cardsHelper: SecureChatCardsHelper
-    fileprivate let sessionHelper: SecureChatSessionHelper
+    fileprivate let client: Client
+    fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
+    fileprivate let sessionManager: SessionManager
+    fileprivate let rotator: KeysRotator
+    fileprivate let insensitiveDataStorage: InsensitiveDataStorage
     
-    fileprivate var rotateKeysMutex = Mutex()
+    fileprivate let migrationManager: MigrationManager
     
+    /// Initializer
+    ///
+    /// - Parameter preferences: SecureChatPreferences instance
     public init(preferences: SecureChatPreferences) {
-        self.preferences = preferences
-        self.client = Client(serviceConfig: self.preferences.serviceConfig)
+        self.identityCardId = preferences.identityCard.identifier
+        self.client = preferences.client
+        self.insensitiveDataStorage = preferences.insensitiveDataStorage
         
-        self.keyHelper = SecureChatKeyHelper(crypto: self.preferences.crypto, keyStorage: self.preferences.keyStorage, identityCardId: self.preferences.identityCard.identifier, longTermKeyTtl: self.preferences.longTermKeysTtl)
-        self.cardsHelper = SecureChatCardsHelper(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, client: self.client, deviceManager: self.preferences.deviceManager, keyHelper: self.keyHelper)
-        self.sessionHelper = SecureChatSessionHelper(cardId: self.preferences.identityCard.identifier)
+        let keyStorageManager = KeyStorageManager(crypto: preferences.crypto, keyStorage: preferences.keyStorage, identityCardId: preferences.identityCard.identifier)
+        self.ephemeralCardsReplenisher = EphemeralCardsReplenisher(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCardId: preferences.identityCard.identifier, client: self.client, keyStorageManager: keyStorageManager)
+        
+        let sessionStorageManager = SessionStorageManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
+        
+        let exhaustInfoManager = ExhaustInfoManager(cardId: preferences.identityCard.identifier, storage: preferences.insensitiveDataStorage)
+        
+        let sessionInitializer = SessionInitializer(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCard: preferences.identityCard)
+        self.sessionManager = SessionManager(identityCard: preferences.identityCard, identityPrivateKey: preferences.identityPrivateKey, crypto: preferences.crypto, sessionTtl: preferences.sessionTtl, keyStorageManager: keyStorageManager, sessionStorageManager: sessionStorageManager, sessionInitializer: sessionInitializer)
+        
+        self.rotator = KeysRotator(identityCard: preferences.identityCard, exhaustedOneTimeCardTtl: preferences.exhaustedOneTimeKeysTtl, expiredSessionTtl: preferences.expiredSessionTtl, longTermKeysTtl: preferences.longTermKeysTtl, expiredLongTermCardTtl: preferences.expiredLongTermKeysTtl, ephemeralCardsReplenisher: self.ephemeralCardsReplenisher, sessionStorageManager: sessionStorageManager, keyStorageManager: keyStorageManager, exhaustInfoManager: exhaustInfoManager, client: self.client)
+        
+        self.migrationManager = MigrationManager(crypto: preferences.crypto, identityPrivateKey: preferences.identityPrivateKey, identityCard: preferences.identityCard, keyStorage: preferences.keyStorage, keyStorageManager: keyStorageManager, storage: preferences.insensitiveDataStorage, sessionInitializer: sessionInitializer, sessionManager: sessionManager)
         
         super.init()
-    }
-    
-    fileprivate func isSessionStateExpired(now: Date, sessionState: SessionState) -> Bool {
-        return (now > sessionState.expirationDate)
     }
     
     class func makeError(withCode code: SecureChatErrorCode, description: String) -> NSError {
@@ -41,111 +55,118 @@ import VirgilSDK
     }
 }
 
-// MARK: Active session
+// MARK: - Initialization
 extension SecureChat {
-    public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
-        guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: cardId) else {
-            return nil
+    /// Initializes SecureChat
+    ///
+    /// - Parameter migrateAutomatically: allow automatic migration
+    /// - Throws: NSError instances with corresponding description
+    public func initialize(migrateAutomatically: Bool = true) throws {
+        if migrateAutomatically {
+            try self.migrate()
         }
-        
-        guard !self.isSessionStateExpired(now: Date(), sessionState: sessionState) else {
-            do {
-                try self.removeSession(withParticipantWithCardId: cardId)
-            }
-            catch {
-                NSLog("WARNING: Error occured while removing expired session in activeSession")
-            }
-            return nil
-        }
-        
-        let secureSession = try? self.recoverSession(myIdentityCard: self.preferences.identityCard, sessionState: sessionState)
-    
-        return secureSession
     }
 }
 
-// MARK: Session initiation
+// MARK: - Migration
 extension SecureChat {
-    private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
-        let identityCardId = recipientCard.identifier
-        let identityPublicKeyData = recipientCard.publicKeyData
-        let longTermPublicKeyData = cardsSet.longTermCard.publicKeyData
-        let oneTimePublicKeyData = cardsSet.oneTimeCard?.publicKeyData
+    /// Migrates
+    ///
+    /// - Throws: NSError instances with corresponding description
+    public func migrate() throws {
+        let previousVersion = self.getPreviousVersion()
         
-        let ephKeyPair = self.preferences.crypto.generateKeyPair()
-        let ephPrivateKey = ephKeyPair.privateKey
+        try self.migrate(fromVersion: previousVersion)
         
-        let ephKeyName: String
-        do {
-            ephKeyName = try self.keyHelper.persistEphPrivateKey(ephPrivateKey, name: identityCardId)
-        }
-        catch {
-            throw SecureChat.makeError(withCode: .savingEphemeralKey, description: "Error while saving ephemeral key. Underlying error: \(error.localizedDescription)")
-        }
-        
-        let validator = EphemeralCardValidator(crypto: self.preferences.crypto)
-
-        do {
-            try validator.addVerifier(withId: identityCardId, publicKeyData: identityPublicKeyData)
-        }
-        catch {
-            throw SecureChat.makeError(withCode: .addingVerifier, description: "Error while adding verifier. Underlying error: \(error.localizedDescription)")
-        }
-        
-        guard validator.validate(cardResponse: cardsSet.longTermCard.cardResponse) else {
-            throw SecureChat.makeError(withCode: .longTermCardValidation, description: "Responder LongTerm card validation failed")
-        }
-        
-        if let oneTimeCard = cardsSet.oneTimeCard {
-            guard validator.validate(cardResponse: oneTimeCard.cardResponse) else {
-                throw SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Responder OneTime card validation failed.")
-            }
-        }
-        
-        let identityCardEntry = SecureSession.CardEntry(identifier: identityCardId, publicKeyData: identityPublicKeyData)
-        let ltCardEntry = SecureSession.CardEntry(identifier: cardsSet.longTermCard.identifier, publicKeyData: longTermPublicKeyData)
-        
-        let otCardEntry: SecureSession.CardEntry?
-        if let oneTimeCard = cardsSet.oneTimeCard, let oneTimePublicKeyData = oneTimePublicKeyData {
-            otCardEntry = SecureSession.CardEntry(identifier: oneTimeCard.identifier, publicKeyData: oneTimePublicKeyData)
-        }
-        else {
-            otCardEntry = nil
-        }
-        
-        let date = Date()
-        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: self.preferences.identityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: false, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
-     
-        return secureSession
+        // Update version
+        try self.insensitiveDataStorage.storeValue(Version.currentVersion.rawValue, forKey: self.getVersionKey())
     }
     
-    public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
-        // Check for existing session state
-        let sessionState: SessionState?
-        do {
-            sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: recipientCard.identifier)
+    private func migrate(fromVersion previousVersion: Version) throws {
+        let migrationVersions = Version.getSortedVersions(fromVersion: previousVersion)
+        
+        Log.debug("Versions to migrate: \(migrationVersions.map({ $0.rawValue }))")
+        
+        for migrationVersion in migrationVersions {
+            switch migrationVersion {
+            case .v1_0: break
+            case .v1_1: try self.migrationManager.migrateToV1_1()        
+            }
         }
-        catch {
-            completion(nil, SecureChat.makeError(withCode: .checkingForExistingSession, description: "Error checking for existing session. Underlying error: \(error.localizedDescription)"))
-            return
+    }
+    
+    private func getVersionKey() -> String {
+        return "VIRGIL.OWNER=\(self.identityCardId).VERSION"
+    }
+    
+    /// Returns previous version for this SecureChat
+    ///
+    /// - Returns: previous version
+    public func getPreviousVersion() -> Version {
+        guard let versionStr = self.insensitiveDataStorage.loadValue(forKey: self.getVersionKey()) as? String,
+            let version = Version(rawValue: versionStr) else {
+                return .v1_0
         }
         
-        // If we have existing session
-        if let sessionState = sessionState {
-            // If session is not expired - return error
-            guard self.isSessionStateExpired(now: Date(), sessionState: sessionState) else {
-                completion(nil, SecureChat.makeError(withCode: .foundActiveSession, description: "Found active session for given recipient. Try to loadUpSession:, if that fails try to remove session."))
-                return
+        return version
+    }
+    
+    /// Version enum
+    ///
+    /// - v1_0: version 1.0.x
+    /// - v1_1: version 1.1.x
+    public enum Version: String {
+        case v1_0 = "1.0"
+        case v1_1 = "1.1"
+        
+        static func getSortedVersions(fromVersion version: Version) -> [Version] {
+            switch version {
+            case .v1_0: return [.v1_1]
+            case .v1_1: return []
             }
-            
-            // If session is expired, just remove old session and create new one
-            do {
-                try self.removeSession(withParticipantWithCardId: recipientCard.identifier)
-            }
-            catch {
-                completion(nil, SecureChat.makeError(withCode: .removingExpiredSession, description: "Error removing expired session while creating new. Underlying error: \(error.localizedDescription)"))
-                return
-            }
+        }
+        
+        /// Current version
+        public static let currentVersion = Version.v1_1
+    }
+}
+
+// MARK: - Active session
+extension SecureChat {
+    /// Returns latest active session with specified participant, if present
+    ///
+    /// - Parameter cardId: Participant's Virgil Card identifier
+    /// - Returns: SecureSession if session is found, nil otherwise
+    public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
+        Log.debug("SecureChat:\(self.identityCardId). Searching for active session for: \(cardId)")
+        
+        return self.sessionManager.activeSession(withParticipantWithCardId: cardId)
+    }
+}
+
+// MARK: - Session initiation
+extension SecureChat {
+    private func startNewSession(withRecipientWithCard recipientCard: VSSCard, recipientCardsSet cardsSet: RecipientCardsSet, additionalData: Data?) throws -> SecureSession {
+        Log.debug("SecureChat:\(self.identityCardId). Starting new session with cards set with: \(recipientCard.identifier)")
+        
+        return try self.sessionManager.initializeInitiatorSession(withRecipientWithCard: recipientCard, recipientCardsSet: cardsSet, additionalData: additionalData)
+    }
+    
+    /// Starts new session with given recipient
+    ///
+    /// - Parameters:
+    ///   - recipientCard: Recipient's identity Virgil Card. WARNING: Identity Card should be validated before getting here!
+    ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
+    ///   - completion: Completion handler with initialized SecureSession or Error
+    public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
+        Log.debug("SecureChat:\(self.identityCardId). Starting new session with: \(recipientCard.identifier)")
+        
+        do {
+            try self.sessionManager.checkExistingSessionOnStart(recipientCardId: recipientCard.identifier)
+        }
+        catch {
+            completion(nil, error)
+            return
         }
         
         // Get recipient's credentials
@@ -175,42 +196,43 @@ extension SecureChat {
         }
     }
 }
-// MARK: Session responding
+
+// MARK: - Session responding
 extension SecureChat {
+    /// Loads existing session using with given participant using received  message
+    ///
+    /// - Parameters:
+    ///   - card: Participant's identity Virgil Card. WARNING: Identity Card should be validated before getting here!
+    ///   - message: Received message from this participant
+    ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
+    /// - Returns: Initialized SecureSession
+    /// - Throws: Throws NSError instances with corresponding descriptions
     public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
+        Log.debug("SecureChat:\(self.identityCardId). Loading session with: \(card.identifier)")
+        
         guard let messageData = message.data(using: .utf8) else {
             throw SecureChat.makeError(withCode: .invalidMessageString, description: "Invalid message string.")
         }
         
-        if let initiationMessage = try? SecureSession.extractInitiationMessage(messageData) {
-            // Added new one time card
-            try? self.cardsHelper.addCards(forIdentityCard: self.preferences.identityCard, includeLtcCard: false, numberOfOtcCards: 1) { error in
-                guard error == nil else {
-                    NSLog("WARNING: Error occured while adding new otc in loadUpSession")
-                    return
+        if let initiationMessage = try? SecureSession.extractInitiationMessage(fromData: messageData) {
+            // Add new one time card if we have received strong session
+            if initiationMessage.responderOtcId != nil {
+                try? self.ephemeralCardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: 1) { error in
+                    guard error == nil else {
+                        Log.error("SecureChat:\(self.identityCardId). WARNING: Error occured while adding new otc in loadUpSession")
+                        return
+                    }
                 }
             }
             
-            let cardEntry = SecureSession.CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
+            let cardEntry = CardEntry(identifier: card.identifier, publicKeyData: card.publicKeyData)
             
-            let date = Date()
-            let secureSession = SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: cardEntry, creationDate: date, expirationDate: date.addingTimeInterval(self.preferences.sessionTtl))
-            
-            let _ = try secureSession.decrypt(initiationMessage)
-            
-            return secureSession
+            return try self.sessionManager.initializeResponderSession(initiatorCardEntry: cardEntry, initiationMessage: initiationMessage, additionalData: additionalData)
         }
-        else if let message = try? SecureSession.extractMessage(messageData) {
+        else if let message = try? SecureSession.extractMessage(fromData: messageData) {
             let sessionId = message.sessionId
             
-            guard case let sessionState?? = try? self.sessionHelper.getSessionState(forRecipientCardId: card.identifier),
-                sessionState.sessionId == sessionId else {
-                throw SecureChat.makeError(withCode: .sessionNotFound, description: "Session not found.")
-            }
-            
-            let session = try self.recoverSession(myIdentityCard: self.preferences.identityCard, sessionState: sessionState)
-            
-            return session
+            return try self.sessionManager.loadSession(recipientCardId: card.identifier, sessionId: sessionId)
         }
         else {
             throw SecureChat.makeError(withCode: .unknownMessageStructure, description: "Unknown message structure.")
@@ -218,392 +240,57 @@ extension SecureChat {
     }
 }
 
-// MARK: Session recovering
+// MARK: - Keys rotation
 extension SecureChat {
-    fileprivate func recoverSession(myIdentityCard: VSSCard, sessionState: SessionState) throws -> SecureSession {
-        if let sessionState = sessionState as? InitiatorSessionState {
-            return try self.recoverInitiatorSession(myIdentityCard: myIdentityCard, initiatorSessionState: sessionState)
-        }
-        else if let sessionState = sessionState as? ResponderSessionState {
-            return try self.recoverResponderSession(myIdentityCard: myIdentityCard, responderSessionState: sessionState)
-        }
-        else {
-            throw SecureChat.makeError(withCode: .unknownSessionState, description: "Unknown session state.")
-        }
-    }
-    
-    private func recoverInitiatorSession(myIdentityCard: VSSCard, initiatorSessionState: InitiatorSessionState) throws -> SecureSession {
-        let ephKeyName = initiatorSessionState.ephKeyName
-        let ephPrivateKey: VSSPrivateKey
-        do {
-            ephPrivateKey = try self.keyHelper.getEphPrivateKey(withKeyEntryName: ephKeyName)
-        }
-        catch {
-            throw SecureChat.makeError(withCode: .gettingEphemeralKeyFromStorage, description: "Error getting ephemeral key from storage. Underlying error: \(error.localizedDescription)")
-        }
-        
-        let identityCardEntry = SecureSession.CardEntry(identifier: initiatorSessionState.recipientCardId, publicKeyData: initiatorSessionState.recipientPublicKey)
-        let ltCardEntry = SecureSession.CardEntry(identifier: initiatorSessionState.recipientLongTermCardId, publicKeyData: initiatorSessionState.recipientLongTermPublicKey)
-        let otCardEntry: SecureSession.CardEntry?
-        if let recOtId = initiatorSessionState.recipientOneTimeCardId, let recOtPub = initiatorSessionState.recipientOneTimePublicKey {
-            otCardEntry = SecureSession.CardEntry(identifier: recOtId, publicKeyData: recOtPub)
-        }
-        else {
-            otCardEntry = nil
-        }
-        let additionalData = initiatorSessionState.additionalData
-        
-        let secureSession = try SecureSessionInitiator(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, myIdCard: myIdentityCard, ephPrivateKey: ephPrivateKey, ephPrivateKeyName: ephKeyName, recipientIdCard: identityCardEntry, recipientLtCard: ltCardEntry, recipientOtCard: otCardEntry, wasRecovered: true, creationDate: initiatorSessionState.creationDate, expirationDate: initiatorSessionState.expirationDate)
-        
-        return secureSession
-    }
-    
-    private func recoverResponderSession(myIdentityCard: VSSCard, responderSessionState: ResponderSessionState) throws -> SecureSession {
-        let initiatorCardEntry = SecureSession.CardEntry(identifier: responderSessionState.recipientIdentityCardId, publicKeyData: responderSessionState.recipientIdentityPublicKey)
-        let additionalData = responderSessionState.additionalData
-        
-        let secureSession = try SecureSessionResponder(crypto: self.preferences.crypto, myPrivateKey: self.preferences.privateKey, sessionHelper: self.sessionHelper, additionalData: additionalData, secureChatKeyHelper: self.keyHelper, initiatorCardEntry: initiatorCardEntry, ephPublicKeyData: responderSessionState.ephPublicKeyData, receiverLtcId: responderSessionState.recipientLongTermCardId, receiverOtcId: responderSessionState.recipientOneTimeCardId, creationDate: responderSessionState.creationDate, expirationDate: responderSessionState.expirationDate)
-        
-        return secureSession
+    /// Periodic Keys processing.
+    ///
+    /// This method:
+    ///   1. Removes expired long-terms keys and adds new if needed
+    ///   2. Removes orphances one-time keys
+    ///   3. Removes expired sessions
+    ///   4. Removes orphaned session keys
+    ///   5. Adds new one-time keys if needed
+    ///
+    /// WARNING:
+    ///   This method is called during initialization.
+    ///   It's up to you to call this method after that periodically, since iOS app can stay in memory for any period of time without restarting.
+    ///   Recommended period: 24h.
+    ///
+    /// - Parameters:
+    ///   - desiredNumberOfCards: desired number of one-time cards
+    ///   - completion: Completion handler with corresponding error if something went wrong
+    public func rotateKeys(desiredNumberOfCards: Int, completion: @escaping (Error?) -> ()) {
+        self.rotator.rotateKeys(desiredNumberOfCards: desiredNumberOfCards, completion: completion)
     }
 }
 
-// MARK: Session removal
+// MARK: - Session removal
 extension SecureChat {
+    /// Removes all sessions with given participant
+    ///
+    /// - Parameter cardId: Participant's identity Virgil Card identifier
+    /// - Throws: NSError with corresponding decription
+    public func removeSessions(withParticipantWithCardId cardId: String) throws {
+        try self.sessionManager.removeSessions(withParticipantWithCardId: cardId)
+    }
+    
+    /// Removes session with given participant and session identifier
+    ///
+    /// - Parameters:
+    ///   - cardId: Participant's identity Virgil Card identifier
+    ///   - sessionId: Session identifier
+    /// - Throws: NSError with corresponding decription
+    public func removeSession(withParticipantWithCardId cardId: String, sessionId: Data) throws {
+        try self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: sessionId)
+    }
+}
+
+// MARK: - Gentle reset
+extension SecureChat {
+    /// Removes all pfs-related data
+    ///
+    /// - Throws: NSError with corresponding decription
     public func gentleReset() throws {
-        let sessionStates = try self.sessionHelper.getAllSessionsStates()
-        
-        for sessionState in sessionStates {
-            if let cardId = self.sessionHelper.getCardId(fromSessionName: sessionState.key) {
-                try? self.removeSession(withParticipantWithCardId: cardId)
-            }
-        }
-    
-        self.removeAllKeys()
-    }
-    
-    private func removeAllKeys() {
-        self.keyHelper.gentleReset()
-    }
-    
-    public func removeSession(withParticipantWithCardId cardId: String) throws {
-        if let sessionState = try self.sessionHelper.getSessionState(forRecipientCardId: cardId) {
-            var err: Error?
-            do {
-                try self.removeSessionKeys(usingSessionState: sessionState)
-            }
-            catch {
-                err = error
-            }
-            try self.sessionHelper.removeSessionsStates(withCardsIds: [cardId])
-            if let err = err {
-                throw err
-            }
-        }
-        else {
-            try self.removeSessionKeys(forUnknownSessionWithParticipantWithCardId: cardId)
-        }
-    }
-    
-    private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {
-        var ephErr, otErr: Error?
-        if self.keyHelper.ephKeyExists(ephName: cardId) {
-            do {
-                try self.keyHelper.removeEphPrivateKey(withName: cardId)
-            }
-            catch {
-                ephErr = error
-            }
-        }
-        if self.keyHelper.otKeyExists(otName: cardId) {
-            do {
-                try self.keyHelper.removeOneTimePrivateKey(withName: cardId)
-            }
-            catch {
-                otErr = error
-            }
-        }
-        
-        if let ephErr = ephErr, let otErr = otErr {
-            throw SecureChat.makeError(withCode: .removingEphAndOtKeys, description: "Error while removing both eph and ot keys: \(ephErr.localizedDescription); \(otErr.localizedDescription)")
-        }
-        
-        if let ephErr = ephErr {
-            throw SecureChat.makeError(withCode: .removingEphKey, description: "Error while removing eph key: \(ephErr.localizedDescription)")
-        }
-        if let otErr = otErr {
-            throw SecureChat.makeError(withCode: .removingOtKey, description: "Error while removing ot key: \(otErr.localizedDescription)")
-        }
-    }
-    
-    private func removeSessionKeys(usingSessionState sessionState: SessionState) throws {
-        if let sessionState = sessionState as? InitiatorSessionState {
-            return try self.removeSessionKeys(usingInitiatorSessionState: sessionState)
-        }
-        else if let sessionState = sessionState as? ResponderSessionState {
-            return try self.removeSessionKeys(usingResponderSessionState: sessionState)
-        }
-        else {
-            throw SecureChat.makeError(withCode: .unknownSessionState, description: "Unknown session state.")
-        }
-    }
-    
-    private func removeSessionKeys(usingInitiatorSessionState sessionState: InitiatorSessionState) throws {
-        try self.keyHelper.removeEphPrivateKey(withKeyEntryName: sessionState.ephKeyName)
-    }
-    
-    private func removeSessionKeys(usingResponderSessionState sessionState: ResponderSessionState) throws {
-        guard let otCardId = sessionState.recipientOneTimeCardId else {
-            // Nothing to remove
-            return
-        }
-        
-        try self.keyHelper.removeOneTimePrivateKey(withName: otCardId)
-    }
-}
-
-// MARK: Initialization
-extension SecureChat {
-    // Workaround for Swift bug SR-2444
-    public typealias CompletionHandler = (Error?) -> ()
-    
-    private func removeExpiredSessionsStates() throws -> (Set<String>, Set<String>, Set<String>, Set<String>) {
-        let sessionsStates = try self.sessionHelper.getAllSessionsStates()
-        
-        let date = Date()
-        
-        var relevantEphKeys = Set<String>()
-        var relevantLtCards = Set<String>()
-        var relevantOtCards = Set<String>()
-        var expiredOtCards  = Set<String>()
-        
-        var expiredSessionsStates = [String]()
-        
-        for sessionState in sessionsStates {
-            if self.isSessionStateExpired(now: date, sessionState: sessionState.value) {
-                expiredSessionsStates.append(sessionState.key)
-                
-                // collect expired one time cards
-                if let expiredResSession = sessionState.value as? ResponderSessionState {
-                    if let expiredOtCardId = expiredResSession.recipientOneTimeCardId {
-                        expiredOtCards.insert(expiredOtCardId)
-                    }
-                }
-            }
-            else {
-                if let initiatorSession = sessionState.value as? InitiatorSessionState {
-                    relevantEphKeys.insert(initiatorSession.ephKeyName)
-                }
-                else if let responderSession = sessionState.value as? ResponderSessionState {
-                    relevantLtCards.insert(responderSession.recipientLongTermCardId)
-                    if let recOtId = responderSession.recipientOneTimeCardId {
-                        relevantOtCards.insert(recOtId)
-                    }
-                }
-            }
-        }
-        
-        try self.sessionHelper.removeSessionsStates(withNames: expiredSessionsStates)
-        
-        return (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards)
-    }
-    
-    private static let SecondsInDay: TimeInterval = 24 * 60 * 60
-    private func cleanup(completion: @escaping (Error?)->()) {
-        let relevantEphKeys: Set<String>
-        let relevantLtCards: Set<String>
-        let relevantOtCards: Set<String>
-        let expiredOtCards: Set<String>
-        do {
-            (relevantEphKeys, relevantLtCards, relevantOtCards, expiredOtCards) = try self.removeExpiredSessionsStates()
-        }
-        catch {
-            completion(error)
-            return
-        }
-        
-        let otKeys: [String]
-        do {
-            otKeys = try self.keyHelper.getAllOtCardsIds()
-        }
-        catch {
-            completion(error)
-            return
-        }
-        
-        // select all active one time cards
-        let activeOtCards = Set<String>(otKeys).subtracting(Set<String>(expiredOtCards))
-        
-        do {
-            try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: activeOtCards)
-        }
-        catch {
-            completion(error)
-            return
-        }
-                        
-        completion(nil)
-        
-//        self.client.validateOneTimeCards(forRecipientWithId: self.preferences.identityCard.identifier, cardsIds: otKeys) { exhaustedCardsIds, error in
-//            guard error == nil else {
-//                completion(error)
-//                return
-//            }
-//            
-//            guard let exhaustedCardsIds = exhaustedCardsIds else {
-//                completion(SecureChat.makeError(withCode: .oneTimeCardValidation, description: "Error validation OTC."))
-//                return
-//            }
-//            
-//            let relevantOtCards = Set<String>(otKeys).subtracting(Set<String>(exhaustedCardsIds)).union(relevantOtCards)
-//            
-//            do {
-//                try self.keyHelper.removeOldKeys(relevantEphKeys: relevantEphKeys, relevantLtCards: relevantLtCards, relevantOtCards: relevantOtCards)
-//            }
-//            catch {
-//                completion(error)
-//                return
-//            }
-//            
-//            completion(nil)
-//        }
-    }
-    
-    public func rotateKeys(desiredNumberOfCards: Int, completion: CompletionHandler? = nil) {
-        guard self.rotateKeysMutex.trylock() else {
-            completion?(SecureChat.makeError(withCode: .anotherRotateKeysInProgress, description: "Another rotateKeys call is in progress."))
-            return
-        }
-        
-        let completionWrapper: CompletionHandler = {
-            self.rotateKeysMutex.unlock()
-            completion?($0)
-        }
-        
-        let addNewKeysOperation = AddNewCardsOperation(owner: self)
-        let cleanupOperation = CleanupOperation(owner: self)
-        let cardsStatusOperation = CardsStatusOperation(owner: self, desiredNumberOfCards: desiredNumberOfCards)
-        let completionOperation = CompletionOperation(completion: completionWrapper)
-        
-        addNewKeysOperation.addDependency(cardsStatusOperation)
-        addNewKeysOperation.addDependency(cleanupOperation)
-        completionOperation.addDependency(addNewKeysOperation)
-        
-        let queue = OperationQueue()
-        queue.addOperations([cardsStatusOperation, cleanupOperation, addNewKeysOperation, completionOperation], waitUntilFinished: false)
-    }
-    
-    class CompletionOperation: AsyncOperation {
-        private let completion: CompletionHandler
-        init(completion: @escaping CompletionHandler) {
-            self.completion = completion
-            
-            super.init()
-        }
-        
-        override func execute() {
-            super.execute()
-            
-            self.finish()
-        }
-        
-        override func finish() {
-            self.completion(self.error)
-            
-            super.finish()
-        }
-    }
-    
-    class AddNewCardsOperation: AsyncOperation {
-        private let owner: SecureChat
-        init(owner: SecureChat) {
-            self.owner = owner
-            
-            super.init()
-        }
-        
-        override func execute() {
-            super.execute()
-            
-            guard let cardsStatusOperation: CardsStatusOperation = self.findDependency(),
-                let numberOfMissingCards = cardsStatusOperation.numberOfMissingCards else {
-                    self.fail(withError: SecureChat.makeError(withCode: .oneOrMoreInitializationOperationsFailed, description: "One or more initialization operations failed."))
-                    return
-            }
-            
-            if numberOfMissingCards > 0 {
-                let addLtCard = !self.owner.keyHelper.hasRelevantLtKey()
-                do {
-                    try self.owner.cardsHelper.addCards(forIdentityCard: self.owner.preferences.identityCard, includeLtcCard: addLtCard, numberOfOtcCards: numberOfMissingCards) { error in
-                        if let error = error {
-                            self.fail(withError: error)
-                            return
-                        }
-                        
-                        self.finish()
-                    }
-                }
-                catch {
-                    self.fail(withError: error)
-                }
-            }
-            else {
-                self.finish()
-            }
-        }
-    }
-    
-    class CardsStatusOperation: AsyncOperation {
-        private let owner: SecureChat
-        private let desiredNumberOfCards: Int
-        init(owner: SecureChat, desiredNumberOfCards: Int) {
-            self.owner = owner
-            self.desiredNumberOfCards = desiredNumberOfCards
-            
-            super.init()
-        }
-        
-        var numberOfMissingCards: Int?
-        
-        override func execute() {
-            super.execute()
-            
-            self.owner.client.getCardsStatus(forUserWithCardId: self.owner.preferences.identityCard.identifier) { status, error in
-                if let error = error {
-                    self.fail(withError: error)
-                    return
-                }
-                    
-                if let status = status {
-                    self.numberOfMissingCards = max(self.desiredNumberOfCards - status.active, 0)
-                    self.finish()
-                }
-                else {
-                    self.fail(withError: SecureChat.makeError(withCode: .obtainingCardsStatus, description: "Error obtaining cards status."))
-                }
-            }
-        }
-    }
-    
-    class CleanupOperation: AsyncOperation {
-        private let owner: SecureChat
-        init(owner: SecureChat) {
-            self.owner = owner
-            
-            super.init()
-        }
-        
-        override func execute() {
-            super.execute()
-            
-            self.owner.cleanup() { error in
-                if let error = error {
-                    self.fail(withError: error)
-                    return
-                }
-                
-                self.finish()
-            }
-        }
+        try self.sessionManager.gentleReset()
     }
 }

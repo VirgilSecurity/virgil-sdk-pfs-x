@@ -1,29 +1,31 @@
 //
-//  InitiatorSessionState.swift
+//  MigrationV1_1+InitiatorSession.swift
 //  VirgilSDKPFS
 //
-//  Created by Oleksandr Deundiak on 6/22/17.
+//  Created by Oleksandr Deundiak on 8/31/17.
 //  Copyright © 2017 VirgilSecurity. All rights reserved.
 //
 
 import Foundation
-import VirgilSDK
 
-struct InitiatorSessionState: SessionState {
-    let creationDate: Date
-    let expirationDate: Date
-    let sessionId: Data
-    let additionalData: Data?
-    let ephKeyName: String
-    let recipientCardId: String
-    let recipientPublicKey: Data
-    let recipientLongTermCardId: String
-    let recipientLongTermPublicKey: Data
-    let recipientOneTimeCardId: String?
-    let recipientOneTimePublicKey: Data?
+extension MigrationV1_1 {
+    struct InitiatorSessionState {
+        let creationDate: Date
+        let expirationDate: Date
+        let sessionId: Data
+        let additionalData: Data?
+        let ephKeyName: String
+        let recipientCardId: String
+        let recipientPublicKey: Data
+        let recipientLongTermCardId: String
+        let recipientLongTermPublicKey: Data
+        let recipientOneTimeCardId: String?
+        let recipientOneTimePublicKey: Data?
+    }
 }
 
-extension InitiatorSessionState: Serializable {
+
+extension MigrationV1_1.InitiatorSessionState: Serializable {
     func serialize() -> NSObject {
         let dict: NSMutableDictionary = [
             Keys.creationDate.rawValue: self.creationDate,
@@ -35,7 +37,7 @@ extension InitiatorSessionState: Serializable {
             Keys.recipientLongTermCardId.rawValue: self.recipientLongTermCardId,
             Keys.recipientLongTermPublicKey.rawValue: self.recipientLongTermPublicKey,
             
-        ]
+            ]
         
         if let ad = self.additionalData {
             dict[Keys.additionalData.rawValue] = ad
@@ -50,7 +52,7 @@ extension InitiatorSessionState: Serializable {
     }
 }
 
-extension InitiatorSessionState: Deserializable {
+extension MigrationV1_1.InitiatorSessionState: Deserializable {
     init?(dictionary: Any) {
         guard let dict = dictionary as? [AnyHashable: Any] else {
             return nil
@@ -76,7 +78,7 @@ extension InitiatorSessionState: Deserializable {
     }
 }
 
-extension InitiatorSessionState {
+extension MigrationV1_1.InitiatorSessionState {
     fileprivate enum Keys: String {
         case creationDate = "creation_date"
         case expirationDate = "expiration_date"

@@ -8,34 +8,30 @@
 
 import Foundation
 
+/// Error codes for NSError instances thrown from SecureChat
 @objc(VSPSecureChatErrorCode) public enum SecureChatErrorCode: Int {
     case sessionNotFound
-    case savingEphemeralKey
     case addingVerifier
     case longTermCardValidation
     case oneTimeCardValidation
     case checkingForExistingSession
-    case foundActiveSession
-    case removingExpiredSession
     case obtainingRecipientCardsSet
     case recipientSetEmpty
     case invalidMessageString
     case unknownMessageStructure
-    case unknownSessionState
-    case gettingEphemeralKeyFromStorage
-    case removingEphAndOtKeys
-    case removingEphKey
     case removingOtKey
     case oneOrMoreInitializationOperationsFailed
     case obtainingCardsStatus
     case bootstrapingEphemeralCards
     case addingOneTimeEphemeralCards
-    case longTermKeyNotFoundAndNewKeyNowSpecified
-    case tryingToRemoveKeysWithoutServiceEntry
     case loadingPrivateKey
-    case creatingUserDefaults
     case corruptedSavedSession
     case anotherRotateKeysInProgress
-    case encodingServiceInfo
-    case decodingServiceInfo
+    case corruptedExhaustInfo
+    case importingVerifier
+    case deserializingVirgilCard
+    
+    case migrationV1_1UnknownSessionState
+    case migrationV1_1InvalidDefaults
+    case migrationV1_1ImportingEphPrivateKey
 }

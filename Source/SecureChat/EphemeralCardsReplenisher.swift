@@ -1,5 +1,5 @@
 //
-//  SecureChatCardsHelper.swift
+//  EphemeralCardsReplenisher.swift
 //  VirgilSDKPFS
 //
 //  Created by Oleksandr Deundiak on 6/22/17.
@@ -9,39 +9,39 @@
 import Foundation
 import VirgilSDK
 
-class SecureChatCardsHelper {
+class EphemeralCardsReplenisher {
     private let crypto: VSSCryptoProtocol
-    private let myPrivateKey: VSSPrivateKey
+    private let identityPrivateKey: VSSPrivateKey
+    private let identityCardId: String
     private let client: Client
-    private let deviceManager: VSSDeviceManagerProtocol
-    private let keyHelper: SecureChatKeyHelper
+    private let keyStorageManager: KeyStorageManager
     
-    init(crypto: VSSCryptoProtocol, myPrivateKey: VSSPrivateKey, client: Client, deviceManager: VSSDeviceManagerProtocol, keyHelper: SecureChatKeyHelper) {
+    init(crypto: VSSCryptoProtocol, identityPrivateKey: VSSPrivateKey, identityCardId: String, client: Client, keyStorageManager: KeyStorageManager) {
         self.crypto = crypto
-        self.myPrivateKey = myPrivateKey
+        self.identityPrivateKey = identityPrivateKey
+        self.identityCardId = identityCardId
         self.client = client
-        self.deviceManager = deviceManager
-        self.keyHelper = keyHelper
+        self.keyStorageManager = keyStorageManager
     }
     
-    private func generateRequest(forIdentityCard identityCard: VSSCard, keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
-        let identity = identityCard.identity
-        let identityType = identityCard.identityType
-        let device = self.deviceManager.getDeviceModel()
-        let deviceName = self.deviceManager.getDeviceName()
+    private func generateRequest(withKeyPair keyPair: VSSKeyPair, isLtc: Bool) throws -> (CreateEphemeralCardRequest, String) {
+        let identity = self.identityCardId
+        let identityType = "identity_card_id"
         
         let publicKeyData = self.crypto.export(keyPair.publicKey)
-        let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil, device: device, deviceName: deviceName)
+        let request = CreateEphemeralCardRequest(identity: identity, identityType: identityType, publicKeyData: publicKeyData, data: nil)
         
         let requestSigner = VSSRequestSigner(crypto: self.crypto)
         let cardId = requestSigner.getCardId(forRequest: request)
-        try requestSigner.authoritySign(request, forAppId: identityCard.identifier, with: self.myPrivateKey)
+        try requestSigner.authoritySign(request, forAppId: self.identityCardId, with: self.identityPrivateKey)
         
         return (request, cardId)
     }
     
-    func addCards(forIdentityCard identityCard: VSSCard, includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
-        var otcKeys: [SecureChatKeyHelper.KeyEntry] = []
+    func addCards(includeLtcCard: Bool, numberOfOtcCards: Int, completion: @escaping (Error?)->()) throws {
+        Log.debug("Adding \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard)")
+        
+        var otcKeys: [KeyStorageManager.HelperKeyEntry] = []
         otcKeys.reserveCapacity(numberOfOtcCards)
         
         var otcCardsRequests: [CreateEphemeralCardRequest] = []
@@ -49,35 +49,42 @@ class SecureChatCardsHelper {
         for _ in 0..<numberOfOtcCards {
             let keyPair = self.crypto.generateKeyPair()
             
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: false)
+            let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
-            let keyEntry = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            let keyEntry = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, name: cardId)
             otcKeys.append(keyEntry)
         }
         
-        let ltcKey: SecureChatKeyHelper.KeyEntry?
+        let ltcKey: KeyStorageManager.HelperKeyEntry?
         let ltcCardRequest: CreateEphemeralCardRequest?
         if includeLtcCard {
             let keyPair = self.crypto.generateKeyPair()
-            let (request, cardId) = try self.generateRequest(forIdentityCard: identityCard, keyPair: keyPair, isLtc: true)
+            let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: true)
             ltcCardRequest = request
             
-            ltcKey = SecureChatKeyHelper.KeyEntry(privateKey: keyPair.privateKey, keyName: cardId)
+            ltcKey = KeyStorageManager.HelperKeyEntry(privateKey: keyPair.privateKey, name: cardId)
         }
         else {
             ltcKey = nil
             ltcCardRequest = nil
         }
         
-        try self.keyHelper.persistKeys(keys: otcKeys, ltKey: ltcKey)
+        try self.keyStorageManager.saveKeys(otKeys: otcKeys, ltKey: ltcKey)
         
         let callback = { (error: Error?) in
+            if let error = error {
+                Log.debug("Error adding \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard). Error: \(error.localizedDescription)")
+            }
+            else {
+                Log.debug("Successfully added \(numberOfOtcCards) cards for: \(self.identityCardId), include lt: \(includeLtcCard)")
+            }
+            
             completion(error)
         }
         
         if let ltcCardRequest = ltcCardRequest {
-            self.client.bootstrapCardsSet(forUserWithCardId: identityCard.identifier, longTermCardRequest: ltcCardRequest, oneTimeCardsRequests: otcCardsRequests) { ltcCard, otcCards, error in
+            self.client.bootstrapCardsSet(forUserWithCardId: self.identityCardId, longTermCardRequest: ltcCardRequest, oneTimeCardsRequests: otcCardsRequests) { ltcCard, otcCards, error in
                 guard error == nil else {
                     callback(error!)
                     return
@@ -92,7 +99,7 @@ class SecureChatCardsHelper {
             }
         }
         else if otcCardsRequests.count > 0 {
-            self.client.createOneTimeCards(forUserWithCardId: identityCard.identifier, oneTimeCardsRequests: otcCardsRequests) { otcCards, error in
+            self.client.createOneTimeCards(forUserWithCardId: self.identityCardId, oneTimeCardsRequests: otcCardsRequests) { otcCards, error in
                 guard error == nil else {
                     callback(error!)
                     return
