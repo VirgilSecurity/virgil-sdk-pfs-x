@@ -72,6 +72,32 @@ class VSP012_MigrationTest: XCTestCase {
         
         let migration = try! MigrationV1_1(crypto: self.crypto, identityPrivateKey: self.privateKey, identityCard: self.card, keyStorage: self.keyStorage, keyStorageManager: keyStorageManager, storage: self.storage, sessionInitializer: sessionInitializer, sessionManager: sessionManager, defaultsClassType: UserDefaultsMock.self)
         
+        let _ = try! self.keyStorage.loadKeyEntry(withName: "VIRGIL.OWNER=4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.EPH_KEY.48555e24b90b95b6a2c5a5717795cbfeb0b4cde871540633854455ab095b0a49")
+        let _ = try! keyStorageManager.getOtPrivateKey(withName: "d10a2f2bc2457953e832113a0cbf5c4c37238129306194e977aad75774041b34")
+    
         try! migration.migrate()
+        
+        let sessionId1 = Data(base64Encoded: "zifjUsvULWPSudDxktKM47mt9sHBr+h5BEips6tvQBk=")!
+        let _ = try! sessionManager.loadSession(recipientCardId: "762b3dea1aa7bad0541f87d1ddee835cb57c9a0999415fedc49b9dca9ef8e874", sessionId: sessionId1)
+        
+        let sessionId2 = Data(base64Encoded: "dgYll7LLwnAaBDd9Zcrcmv5Gx40MMaEyG1Ckwzvgx3E=")!
+        let _ = try! sessionManager.loadSession(recipientCardId: "48555e24b90b95b6a2c5a5717795cbfeb0b4cde871540633854455ab095b0a49", sessionId: sessionId2)
+        
+        var errorWasThrown = false
+        do {
+            let _ = try self.keyStorage.loadKeyEntry(withName: "VIRGIL.OWNER=4320c95dd4b0aabd8ea73b303d4c3aa0db503069b0e5b67e7d45bdf54b2b63f7.EPH_KEY.48555e24b90b95b6a2c5a5717795cbfeb0b4cde871540633854455ab095b0a49")
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
+        
+        do {
+            let _ = try keyStorageManager.getOtPrivateKey(withName: "d10a2f2bc2457953e832113a0cbf5c4c37238129306194e977aad75774041b34")
+        }
+        catch {
+            errorWasThrown = true
+        }
+        XCTAssert(errorWasThrown)
     }
 }
