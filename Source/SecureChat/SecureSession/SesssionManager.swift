@@ -17,6 +17,9 @@ class SessionManager {
     fileprivate let sessionStorageManager: SessionStorageManager
     fileprivate let sessionInitializer: SessionInitializer
     
+    fileprivate var loadUpCache: [Data : SecureSession] = [:]
+    fileprivate var activeSessionCache: [String : SecureSession] = [:]
+    
     init(identityCard: VSSCard, identityPrivateKey: VSSPrivateKey, crypto: VSSCryptoProtocol, sessionTtl: TimeInterval, keyStorageManager: KeyStorageManager, sessionStorageManager: SessionStorageManager, sessionInitializer: SessionInitializer) {
         self.identityCard = identityCard
         self.identityPrivateKey = identityPrivateKey
@@ -28,14 +31,44 @@ class SessionManager {
     }
     
     func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
+        let now = Date()
+        
+        if let session = self.activeSessionCache[cardId],
+            !session.isExpired(now: now) {
+                return session
+        }
+        
         guard case let sessionState?? = try? self.sessionStorageManager.getNewestSessionState(forRecipientCardId: cardId),
-            !sessionState.isExpired() else {
+            !sessionState.isExpired(now: now) else {
                 return nil
         }
         
-        let secureSession = try? self.recoverSession(myIdentityCard: self.identityCard, sessionState: sessionState)
-        
-        return secureSession
+        if let session = self.loadUpCache[sessionState.sessionId] {
+            self.activeSessionCache[cardId] = session
+            return session
+        }
+        else {
+            do {
+                let session = try self.recoverSession(myIdentityCard: self.identityCard, sessionState: sessionState)
+                
+                // Put session in caches
+                self.activeSessionCache[cardId] = session
+                self.loadUpCache[session.identifier] = session
+                
+                return session
+            }
+            catch {
+                Log.error("Error while recovering session: \(error.localizedDescription)")
+                return nil
+            }
+        }
+    }
+}
+
+extension SessionManager {
+    func wipeCache() {
+        self.loadUpCache = [:]
+        self.activeSessionCache = [:]
     }
 }
 
@@ -57,22 +90,31 @@ extension SessionManager {
 
 extension SessionManager {
     func checkExistingSessionOnStart(recipientCardId: String) throws  {
-        let sessionState: SessionState?
+        if self.activeSessionCache[recipientCardId] != nil {
+            Log.error("Found active cached session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
+            return
+        }
+        
         do {
-            sessionState = try self.sessionStorageManager.getNewestSessionState(forRecipientCardId: recipientCardId)
+            let sessionState = try self.sessionStorageManager.getNewestSessionState(forRecipientCardId: recipientCardId)
+            
+            if let sessionState = sessionState, !sessionState.isExpired() {
+                Log.error("Found active session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
+            }
         }
         catch {
             throw SecureChat.makeError(withCode: .checkingForExistingSession, description: "Error checking for existing session. Underlying error: \(error.localizedDescription)")
-        }
-        
-        if let sessionState = sessionState, !sessionState.isExpired() {
-            Log.error("Found active session for \(recipientCardId). Try to loadUpSession:, if that fails try to remove session.")
         }
     }
 }
 
 extension SessionManager {
     func loadSession(recipientCardId: String, sessionId: Data) throws -> SecureSession {
+         // Look for cached value
+        if let session = self.loadUpCache[sessionId] {
+            return session
+        }
+        
         guard case let sessionState?? = try? self.sessionStorageManager.getSessionState(forRecipientCardId: recipientCardId, sessionId: sessionId),
             sessionState.sessionId == sessionId else {
                 throw SecureChat.makeError(withCode: .sessionNotFound, description: "Session not found.")
@@ -80,11 +122,18 @@ extension SessionManager {
         
         let session = try self.recoverSession(myIdentityCard: self.identityCard, sessionState: sessionState)
         
+        self.loadUpCache[sessionId] = session
+        
         return session
     }
 }
 
 extension SessionManager {
+    private func addNewSessionToCache(session: SecureSession, cardId: String) {
+        self.loadUpCache[session.identifier] = session
+        self.activeSessionCache[cardId] = session
+    }
+    
     func initializeResponderSession(initiatorCardEntry: CardEntry, initiationMessage: InitiationMessage, additionalData: Data?) throws -> SecureSession {
         guard let initiatorPublicKey = self.crypto.importPublicKey(from: initiatorCardEntry.publicKeyData) else {
             throw SecureSession.makeError(withCode: .importingInitiatorPublicKeyFromIdentityCard, description: "Error importing initiator public key from identity card.")
@@ -118,6 +167,8 @@ extension SessionManager {
         let secureSession = try self.sessionInitializer.initializeResponderSession(initiatorCardEntry: initiatorCardEntry, privateKey: self.identityPrivateKey, ltPrivateKey: ltPrivateKey, otPrivateKey: otPrivateKey, ephPublicKey: initiationMessage.ephPublicKey, additionalData: additionalData, expirationDate: expirationDate)
         
         try self.saveSession(secureSession, creationDate: creationDate, participantCardId: initiatorCardEntry.identifier)
+        
+        self.addNewSessionToCache(session: secureSession, cardId: initiatorCardEntry.identifier)
         
         return secureSession
     }
@@ -172,6 +223,8 @@ extension SessionManager {
         
         try self.saveSession(secureSession, creationDate: creationDate, participantCardId: recipientCard.identifier)
         
+        self.addNewSessionToCache(session: secureSession, cardId: identityCardEntry.identifier)
+        
         return secureSession
     }
 }
@@ -224,6 +277,8 @@ extension SessionManager {
             if let err = err {
                 throw err
             }
+            
+            self.removeSessionFromCache(cardId: cardId, sessionId: sessionId)
         }
     }
     
@@ -232,6 +287,16 @@ extension SessionManager {
         
         try self.removeSessionKeys(forSessionId: sessionId)
         try self.sessionStorageManager.removeSessionState(forCardId: cardId, sessionId: sessionId)
+        
+        self.removeSessionFromCache(cardId: cardId, sessionId: sessionId)
+    }
+    
+    func removeSessionFromCache(cardId: String, sessionId: Data) {
+        if let session = self.activeSessionCache[cardId],
+            session.identifier == sessionId {
+            self.activeSessionCache.removeValue(forKey: cardId)
+        }
+        self.loadUpCache.removeValue(forKey: sessionId)
     }
     
     private func removeSessionKeys(forUnknownSessionWithParticipantWithCardId cardId: String) throws {

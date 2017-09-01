@@ -1727,4 +1727,70 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
     }];
 }
 
+- (void)test026_Cache {
+    XCTestExpectation *ex = [self expectationWithDescription:@""];
+    
+    NSUInteger numberOfRequests = 8;
+    NSTimeInterval timeout = numberOfRequests * kEstimatedRequestCompletionTime;
+    
+    VSSKeyPair *initiatorKeyPair = [self.crypto generateKeyPair];
+    VSSKeyPair *responderKeyPair = [self.crypto generateKeyPair];
+    
+    VSSCreateCardRequest *initiatorIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:initiatorKeyPair];
+    VSSCreateCardRequest *responderIdentityRequest = [self.utils instantiateCreateCardRequestWithKeyPair:responderKeyPair];
+    
+    [self.virgilClient createCardWithRequest:initiatorIdentityRequest completion:^(VSSCard *initiatorCard, NSError *error) {
+        [self.virgilClient createCardWithRequest:responderIdentityRequest completion:^(VSSCard *responderCard, NSError *error) {
+            NSError *err;
+            VSPSecureChatPreferences *initiatorPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityPrivateKey:initiatorKeyPair.privateKey identityCard:initiatorCard accessToken:self.token error:&err];
+            initiatorPreferences.pfsUrl = self.pfsUrl;
+            XCTAssert(err == nil);
+            
+            VSPSecureChatPreferences *responderPreferences = [[VSPSecureChatPreferences alloc] initWithCrypto:self.crypto identityPrivateKey:responderKeyPair.privateKey identityCard:responderCard accessToken:self.token error:&err];
+            responderPreferences.pfsUrl = self.pfsUrl;
+            XCTAssert(err == nil);
+            
+            self.initiatorSecureChat = [[VSPSecureChat alloc] initWithPreferences:initiatorPreferences];
+            self.responderSecureChat = [[VSPSecureChat alloc] initWithPreferences:responderPreferences];
+            
+            [self.initiatorSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                [self.responderSecureChat rotateKeysWithDesiredNumberOfCards:self.numberOfCards completion:^(NSError *error) {
+                    [self.initiatorSecureChat startNewSessionWithRecipientWithCard:responderCard additionalData:nil completion:^(VSPSecureSession *initiatorSession, NSError *error) {
+                        XCTAssert(initiatorSession != nil && error == nil);
+                        
+                        XCTAssert(initiatorSession == [self.initiatorSecureChat activeSessionWithParticipantWithCardId:responderCard.identifier]);
+                        
+                        NSError *err;
+                        NSString *encryptedMessage = [initiatorSession encrypt:self.message1 error:&err];
+                        XCTAssert(err == nil);
+                        XCTAssert(encryptedMessage.length > 0);
+                        
+                        NSString *encryptedMessage2 = [initiatorSession encrypt:self.message2 error:&err];
+                        XCTAssert(err == nil);
+                        XCTAssert(encryptedMessage.length > 0);
+                        
+                        VSPSecureSession *responderSession = [self.responderSecureChat loadUpSessionWithParticipantWithCard:initiatorCard message:encryptedMessage additionalData:nil error:&err];
+                        
+                        XCTAssert(responderSession != nil && err == nil);
+                        
+                        XCTAssert(responderSession == [self.responderSecureChat activeSessionWithParticipantWithCardId:initiatorCard.identifier]);
+                        XCTAssert(responderSession == [self.responderSecureChat loadUpSessionWithParticipantWithCard:initiatorCard message:encryptedMessage2 additionalData:nil error:&err]);
+                        
+                        NSString *decryptedMessage = [responderSession decrypt:encryptedMessage error:&err];
+                        XCTAssert(err == nil);
+                        XCTAssert([self.message1 isEqualToString:decryptedMessage]);
+                        
+                        [ex fulfill];
+                    }];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:timeout handler:^(NSError *error) {
+        if (error != nil)
+            XCTFail(@"Expectation failed: %@", error);
+    }];
+}
+
 @end

@@ -131,6 +131,14 @@ extension SecureChat {
     }
 }
 
+// MARK: - Cache
+extension SecureChat {
+    /// Wipes cache used for loadUp and activeSession functions
+    public func wipeCache() {
+        self.sessionManager.wipeCache()
+    }
+}
+
 // MARK: - Active session
 extension SecureChat {
     /// Returns latest active session with specified participant, if present
