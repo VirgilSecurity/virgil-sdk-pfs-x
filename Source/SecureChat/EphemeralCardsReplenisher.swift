@@ -46,9 +46,10 @@ class EphemeralCardsReplenisher {
         
         var otcCardsRequests: [CreateEphemeralCardRequest] = []
         otcCardsRequests.reserveCapacity(numberOfOtcCards)
-        for _ in 0..<numberOfOtcCards {
-            let keyPair = self.crypto.generateKeyPair()
-            
+        
+        let keyPairs = self.crypto.generateMultipleKeyPairs(UInt(numberOfOtcCards))
+        
+        for keyPair in keyPairs {
             let (request, cardId) = try self.generateRequest(withKeyPair: keyPair, isLtc: false)
             otcCardsRequests.append(request)
             
