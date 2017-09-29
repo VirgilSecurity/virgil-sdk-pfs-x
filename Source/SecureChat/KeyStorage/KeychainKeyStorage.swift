@@ -20,7 +20,7 @@ import Foundation
     /// Initializer
     ///
     /// - Parameter virgilKeyStorage: configured VSSKeyStorage from VirgilSDK
-    public init(virgilKeyStorage: VSSKeyStorage) {
+    @objc public init(virgilKeyStorage: VSSKeyStorage) {
         self.virgilKeyStorage = virgilKeyStorage
         
         super.init()

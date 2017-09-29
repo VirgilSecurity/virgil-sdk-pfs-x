@@ -13,7 +13,7 @@ import Foundation
     private let userDefaults: UserDefaults
     
     /// Error domain for NSError instances thrown from here
-    public static let ErrorDomain = "VSPUserDefaultsDataStorageErrorDomain"
+    @objc public static let ErrorDomain = "VSPUserDefaultsDataStorageErrorDomain"
     
     private static let SuiteNameFormat = "VIRGIL.DEFAULTS.%@"
     
@@ -26,7 +26,7 @@ import Foundation
     /// - Parameter identifier: identifier for storage (e.g. card identifier)
     /// - Returns: initialized storage
     /// - Throws: NSError instances with corresponding error description
-    public class func makeStorage(forIdentifier identifier: String) throws -> UserDefaultsDataStorage {
+    @objc public class func makeStorage(forIdentifier identifier: String) throws -> UserDefaultsDataStorage {
         let suiteName = self.getSuiteName(forIdentifier: identifier)
         
         guard let storage = UserDefaultsDataStorage(suiteName: suiteName) else {

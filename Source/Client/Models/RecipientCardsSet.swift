@@ -10,10 +10,10 @@ import Foundation
 import VirgilSDK
 
 @objc(VSPRecipientCardsSet) final class RecipientCardsSet: NSObject {
-    let longTermCard: VSSCard
-    let oneTimeCard: VSSCard?
+    @objc let longTermCard: VSSCard
+    @objc let oneTimeCard: VSSCard?
     
-    init(longTermCard: VSSCard, oneTimeCard: VSSCard?) {
+    @objc init(longTermCard: VSSCard, oneTimeCard: VSSCard?) {
         self.longTermCard = longTermCard
         self.oneTimeCard = oneTimeCard
         

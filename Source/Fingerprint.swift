@@ -20,7 +20,7 @@ import VirgilCrypto
     private static let Iterations = 4096
     
     /// Error domain for NSError instances thrown from here
-    public static let ErrorDomain = "VSPFingerprintErrorDomain"
+    @objc public static let ErrorDomain = "VSPFingerprintErrorDomain"
     
     /// Calculates fingerprint for given card identifiers
     ///
@@ -29,7 +29,7 @@ import VirgilCrypto
     /// - Parameter cardsIds: array of card identifiers
     /// - Returns: String with fingerpring
     /// - Throws: NSError instances with corresponding description
-    public static func calculateFingerprint(forCardsIds cardsIds: [String]) throws -> String {
+    @objc public static func calculateFingerprint(forCardsIds cardsIds: [String]) throws -> String {
         let sortedCardsIds = cardsIds.sorted()
         
         let hash = VSCHash(algorithm: .SHA384)
@@ -44,7 +44,7 @@ import VirgilCrypto
         var previousHash = Data()
         for _ in 0..<Fingerpint.Iterations {
             let data = cardsData + previousHash
-            previousHash = hash!.hash(data)
+            previousHash = hash.hash(data)
         }
         
         return try self.hashToStr(hash: previousHash)

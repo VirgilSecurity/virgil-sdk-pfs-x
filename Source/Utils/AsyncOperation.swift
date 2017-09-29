@@ -14,8 +14,8 @@ protocol FailableOperation: class {
 }
 
 extension Operation: FailableOperation {
-    open var vsp_isFailed: Bool { return false }
-    open var vsp_error: Error? { return .none }
+    @objc open var vsp_isFailed: Bool { return false }
+    @objc open var vsp_error: Error? { return .none }
 }
 
 extension Operation {
@@ -81,7 +81,7 @@ class AsyncOperation: Operation {
         self._finished = true
     }
     
-    override var vsp_isFailed: Bool { return self._failed }
+    @objc override var vsp_isFailed: Bool { return self._failed }
     private var _failed = false
     
     func fail() {
@@ -97,5 +97,5 @@ class AsyncOperation: Operation {
     }
     
     private var _error: Error?
-    override var vsp_error: Error? { return self._error }
+    @objc override var vsp_error: Error? { return self._error }
 }

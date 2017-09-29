@@ -37,7 +37,7 @@ extension SessionStorageManager {
                 return state
             })
             .max(by: {
-                return $0.0.creationDate < $0.1.creationDate
+                return $0.creationDate < $1.creationDate
             })
     }
     

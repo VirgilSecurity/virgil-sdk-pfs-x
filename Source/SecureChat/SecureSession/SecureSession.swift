@@ -13,7 +13,7 @@ import VirgilCrypto
 /// Class used to represent Secure Pfs Session between paticipants
 @objc(VSPSecureSession) public class SecureSession: NSObject {
     /// Error domain for NSError instances thrown from here
-    static public let ErrorDomain = "VSPSecureSessionErrorDomain"
+    @objc static public let ErrorDomain = "VSPSecureSessionErrorDomain"
     
     let expirationDate: Date
     
@@ -23,7 +23,7 @@ import VirgilCrypto
     private let pfsSession: VSCPfsSession
     
     /// Session identifier
-    public var identifier: Data { return self.pfsSession.identifier }
+    @objc public var identifier: Data { return self.pfsSession.identifier }
     var encryptionKey: Data { return self.pfsSession.encryptionSecretKey }
     var decryptionKey: Data { return self.pfsSession.decryptionSecretKey }
     var additionalData: Data { return self.pfsSession.additionalData }
@@ -48,7 +48,7 @@ extension SecureSession {
     ///
     /// - Parameter now: current date
     /// - Returns: true if sesion is expired, false otherwise
-    public func isExpired(now: Date) -> Bool {
+    @objc public func isExpired(now: Date) -> Bool {
         return now > self.expirationDate
     }
 }
@@ -76,7 +76,7 @@ extension SecureSession {
     /// - Parameter encryptedMessage: encrypted message
     /// - Returns: decrypted message
     /// - Throws: NSError instances with corresponding description
-    public func decrypt(_ encryptedMessage: String) throws -> String {
+    @objc public func decrypt(_ encryptedMessage: String) throws -> String {
         guard let messageData = encryptedMessage.data(using: .utf8) else {
             throw SecureSession.makeError(withCode: .convertingMessageToUtf8Data, description: "Error while converting message to data in SecureSession.")
         }
@@ -104,7 +104,7 @@ extension SecureSession {
     /// - Parameter message: message to encrypt
     /// - Returns: encrypted message
     /// - Throws: NSError instances with corresponding description
-    public func encrypt(_ message: String) throws -> String {
+    @objc public func encrypt(_ message: String) throws -> String {
         // Initiation message
         if let firstMsgGenerator = self.firstMsgGenerator {
             let encryptedMessage = try firstMsgGenerator(self, message)
@@ -139,7 +139,7 @@ extension SecureSession {
 }
 
 extension SecureSession {
-    func encryptInitiationMessage(_ message: String, ephPublicKeyData: Data, ephPublicKeySignature: Data, initiatorIcId: String, responderIcId: String, responderLtcId: String, responderOtcId: String?) throws -> String {
+    @objc func encryptInitiationMessage(_ message: String, ephPublicKeyData: Data, ephPublicKeySignature: Data, initiatorIcId: String, responderIcId: String, responderLtcId: String, responderOtcId: String?) throws -> String {
         guard let messageData = message.data(using: .utf8) else {
             throw SecureSession.makeError(withCode: .convertingMessageToDataWhileEncrypting, description: "Error converting message to data while encrypting.")
         }

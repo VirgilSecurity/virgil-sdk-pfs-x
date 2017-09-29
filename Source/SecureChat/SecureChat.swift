@@ -12,10 +12,10 @@ import VirgilSDK
 /// Class used to manage SecureSession for specified user
 @objc(VSPSecureChat) public class SecureChat: NSObject {
     /// Error domain for NSError instances thrown from here
-    public static let ErrorDomain = "VSPSecureChatErrorDomain"
+    @objc public static let ErrorDomain = "VSPSecureChatErrorDomain"
     
     /// User's identity card identifier
-    public let identityCardId: String
+    @objc public let identityCardId: String
     
     fileprivate let client: Client
     fileprivate let ephemeralCardsReplenisher: EphemeralCardsReplenisher
@@ -28,7 +28,7 @@ import VirgilSDK
     /// Initializer
     ///
     /// - Parameter preferences: SecureChatPreferences instance
-    public init(preferences: SecureChatPreferences) {
+    @objc public init(preferences: SecureChatPreferences) {
         self.identityCardId = preferences.identityCard.identifier
         self.client = preferences.client
         self.insensitiveDataStorage = preferences.insensitiveDataStorage
@@ -50,7 +50,7 @@ import VirgilSDK
         super.init()
     }
     
-    class func makeError(withCode code: SecureChatErrorCode, description: String) -> NSError {
+    @objc class func makeError(withCode code: SecureChatErrorCode, description: String) -> NSError {
         return NSError(domain: SecureChat.ErrorDomain, code: code.rawValue, userInfo: [NSLocalizedDescriptionKey: description])
     }
 }
@@ -61,7 +61,7 @@ extension SecureChat {
     ///
     /// - Parameter migrateAutomatically: allow automatic migration
     /// - Throws: NSError instances with corresponding description
-    public func initialize(migrateAutomatically: Bool = true) throws {
+    @objc public func initialize(migrateAutomatically: Bool = true) throws {
         if migrateAutomatically {
             try self.migrate()
         }
@@ -73,7 +73,7 @@ extension SecureChat {
     /// Migrates
     ///
     /// - Throws: NSError instances with corresponding description
-    public func migrate() throws {
+    @objc public func migrate() throws {
         let previousVersion = self.getPreviousVersion()
         
         try self.migrate(fromVersion: previousVersion)
@@ -134,7 +134,7 @@ extension SecureChat {
 // MARK: - Cache
 extension SecureChat {
     /// Wipes cache used for loadUp and activeSession functions
-    public func wipeCache() {
+    @objc public func wipeCache() {
         self.sessionManager.wipeCache()
     }
 }
@@ -145,7 +145,7 @@ extension SecureChat {
     ///
     /// - Parameter cardId: Participant's Virgil Card identifier
     /// - Returns: SecureSession if session is found, nil otherwise
-    public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
+    @objc public func activeSession(withParticipantWithCardId cardId: String) -> SecureSession? {
         Log.debug("SecureChat:\(self.identityCardId). Searching for active session for: \(cardId)")
         
         return self.sessionManager.activeSession(withParticipantWithCardId: cardId)
@@ -166,7 +166,7 @@ extension SecureChat {
     ///   - recipientCard: Recipient's identity Virgil Card. WARNING: Identity Card should be validated before getting here!
     ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
     ///   - completion: Completion handler with initialized SecureSession or Error
-    public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
+    @objc public func startNewSession(withRecipientWithCard recipientCard: VSSCard, additionalData: Data? = nil, completion: @escaping (SecureSession?, Error?)->()) {
         Log.debug("SecureChat:\(self.identityCardId). Starting new session with: \(recipientCard.identifier)")
         
         do {
@@ -215,7 +215,7 @@ extension SecureChat {
     ///   - additionalData: Data for additional authorization (e.g. concatenated usernames). AdditionalData should be equal on both participant sides. AdditionalData should be constracted on both sides independently and should NOT be transmitted for security reasons.
     /// - Returns: Initialized SecureSession
     /// - Throws: Throws NSError instances with corresponding descriptions
-    public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
+    @objc public func loadUpSession(withParticipantWithCard card: VSSCard, message: String, additionalData: Data? = nil) throws -> SecureSession {
         Log.debug("SecureChat:\(self.identityCardId). Loading session with: \(card.identifier)")
         
         guard let messageData = message.data(using: .utf8) else {
@@ -267,7 +267,7 @@ extension SecureChat {
     /// - Parameters:
     ///   - desiredNumberOfCards: desired number of one-time cards
     ///   - completion: Completion handler with corresponding error if something went wrong
-    public func rotateKeys(desiredNumberOfCards: Int, completion: @escaping (Error?) -> ()) {
+    @objc public func rotateKeys(desiredNumberOfCards: Int, completion: @escaping (Error?) -> ()) {
         self.rotator.rotateKeys(desiredNumberOfCards: desiredNumberOfCards, completion: completion)
     }
 }
@@ -278,7 +278,7 @@ extension SecureChat {
     ///
     /// - Parameter cardId: Participant's identity Virgil Card identifier
     /// - Throws: NSError with corresponding decription
-    public func removeSessions(withParticipantWithCardId cardId: String) throws {
+    @objc public func removeSessions(withParticipantWithCardId cardId: String) throws {
         try self.sessionManager.removeSessions(withParticipantWithCardId: cardId)
     }
     
@@ -288,7 +288,7 @@ extension SecureChat {
     ///   - cardId: Participant's identity Virgil Card identifier
     ///   - sessionId: Session identifier
     /// - Throws: NSError with corresponding decription
-    public func removeSession(withParticipantWithCardId cardId: String, sessionId: Data) throws {
+    @objc public func removeSession(withParticipantWithCardId cardId: String, sessionId: Data) throws {
         try self.sessionManager.removeSession(withParticipantWithCardId: cardId, sessionId: sessionId)
     }
 }
@@ -298,7 +298,7 @@ extension SecureChat {
     /// Removes all pfs-related data
     ///
     /// - Throws: NSError with corresponding decription
-    public func gentleReset() throws {
+    @objc public func gentleReset() throws {
         try self.sessionManager.gentleReset()
     }
 }

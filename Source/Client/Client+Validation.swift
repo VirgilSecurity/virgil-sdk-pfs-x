@@ -9,7 +9,7 @@
 import Foundation
 
 extension Client {
-    func validateOneTimeCards(forRecipientWithId recipientId: String, cardsIds: [String], completion: @escaping (([String]?, Error?)->())) {
+    @objc func validateOneTimeCards(forRecipientWithId recipientId: String, cardsIds: [String], completion: @escaping (([String]?, Error?)->())) {
         guard cardsIds.count > 0 else {
             completion([], nil)
             return

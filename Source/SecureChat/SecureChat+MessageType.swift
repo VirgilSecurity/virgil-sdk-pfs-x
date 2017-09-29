@@ -21,7 +21,7 @@ extension SecureChat {
     ///
     /// - Parameter message: message
     /// - Returns: message type
-    public class func getMessageType(_ message: String) -> MessageType {
+    @objc public class func getMessageType(_ message: String) -> MessageType {
         guard let messageData = message.data(using: .utf8) else {
             return .unknown
         }
