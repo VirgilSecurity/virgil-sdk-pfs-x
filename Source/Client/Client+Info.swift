@@ -26,7 +26,7 @@ extension Client {
                 return
             }
             
-            completion(CardsStatus(active: response.active, exhausted: response.exhausted), nil)
+            completion(CardsStatus(active: response.active), nil)
         }
         
         httpRequest.completionHandler = handler

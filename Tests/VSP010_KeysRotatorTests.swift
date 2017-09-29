@@ -153,7 +153,6 @@ class VSP010_KeysRotatorTests: XCTestCase {
                     XCTAssert(error == nil)
                     
                     XCTAssert(status!.active == 10)
-                    XCTAssert(status!.exhausted == 0)
                     
                     self.keysRotator.rotateKeys(desiredNumberOfCards: 10) { error in
                         XCTAssert(error == nil)
@@ -162,7 +161,6 @@ class VSP010_KeysRotatorTests: XCTestCase {
                             XCTAssert(error == nil)
                             
                             XCTAssert(status!.active == 10)
-                            XCTAssert(status!.exhausted == 0)
                             
                             self.keysRotator.rotateKeys(desiredNumberOfCards: 100) { error in
                                 XCTAssert(error == nil)
@@ -171,7 +169,6 @@ class VSP010_KeysRotatorTests: XCTestCase {
                                     XCTAssert(error == nil)
                                     
                                     XCTAssert(status!.active == 100)
-                                    XCTAssert(status!.exhausted == 0)
                                     
                                     ex.fulfill()
                                 }
@@ -246,7 +243,6 @@ class VSP010_KeysRotatorTests: XCTestCase {
                                     XCTAssert(error == nil)
                                     
                                     XCTAssert(status!.active == 10)
-                                    XCTAssert(status!.exhausted == 0)
                                     
                                     ex.fulfill()
                                 }

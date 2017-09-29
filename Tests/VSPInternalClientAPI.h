@@ -25,7 +25,6 @@ SWIFT_CLASS_NAMED("ServiceConfig")
 SWIFT_CLASS_NAMED("CardsStatus")
 @interface VSPCardsStatus : NSObject
 @property (nonatomic, readonly) NSInteger active;
-@property (nonatomic, readonly) NSInteger exhausted;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 @end
 

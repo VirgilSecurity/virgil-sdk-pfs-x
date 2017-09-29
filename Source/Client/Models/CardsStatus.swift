@@ -10,10 +10,8 @@ import Foundation
 
 @objc(VSPCardsStatus) final class CardsStatus: NSObject {
     @objc let active: Int
-    @objc let exhausted: Int
     
-    init(active: Int, exhausted: Int) {
+    init(active: Int) {
         self.active = active
-        self.exhausted = exhausted
     }
 }

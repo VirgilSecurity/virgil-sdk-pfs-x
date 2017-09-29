@@ -10,11 +10,9 @@ import Foundation
 
 final class OtcCountResponse: NSObject, Deserializable {
     let active: Int
-    let exhausted: Int
     
-    fileprivate init(active: Int, exhausted: Int) {
+    fileprivate init(active: Int) {
         self.active = active
-        self.exhausted = exhausted
     }
     
     required convenience init?(dictionary: Any) {
@@ -22,11 +20,10 @@ final class OtcCountResponse: NSObject, Deserializable {
             return nil
         }
         
-        guard let active = dictionary["active"] as? NSNumber,
-            let exhausted = dictionary["exhausted"] as? NSNumber else {
+        guard let active = dictionary["active"] as? NSNumber else {
                 return nil
         }
         
-        self.init(active: active.intValue, exhausted: exhausted.intValue)
+        self.init(active: active.intValue)
     }
 }

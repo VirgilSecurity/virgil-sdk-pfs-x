@@ -84,7 +84,6 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
                     XCTAssert(error == nil)
                     
                     XCTAssert(status!.active == desiredNumber1)
-                    XCTAssert(status!.exhausted == 0)
                     
                     try! self.cardsReplenisher.addCards(includeLtcCard: true, numberOfOtcCards: desiredNumber2) { error in
                         XCTAssert(error == nil)
@@ -95,7 +94,6 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
                             XCTAssert(error == nil)
                             
                             XCTAssert(status!.active == desiredNumber1 + desiredNumber2)
-                            XCTAssert(status!.exhausted == 0)
                             
                             try! self.cardsReplenisher.addCards(includeLtcCard: false, numberOfOtcCards: desiredNumber3) { error in
                                 XCTAssert(error == nil)
@@ -106,7 +104,6 @@ class VSP011_EphemeralCardsReplenisherTests: XCTestCase {
                                     XCTAssert(error == nil)
                                     
                                     XCTAssert(status!.active == desiredNumber1 + desiredNumber2 + desiredNumber3)
-                                    XCTAssert(status!.exhausted == 0)
                                     
                                     ex.fulfill()
                                 }
