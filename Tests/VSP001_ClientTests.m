@@ -263,7 +263,7 @@ static const NSTimeInterval kEstimatedRequestCompletionTime = 8.;
                     XCTAssert(cardsInfo != nil);
                     
                     XCTAssert(cardsInfo.active == self.numberOfCards - 1);
-                    XCTAssert(cardsInfo.exhausted == 1);
+                    XCTAssert(cardsInfo.exhausted == 0);
                     
                     [ex fulfill];
                 }];

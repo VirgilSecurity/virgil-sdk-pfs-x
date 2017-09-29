@@ -246,7 +246,7 @@ class VSP010_KeysRotatorTests: XCTestCase {
                                     XCTAssert(error == nil)
                                     
                                     XCTAssert(status!.active == 10)
-                                    XCTAssert(status!.exhausted == 1)
+                                    XCTAssert(status!.exhausted == 0)
                                     
                                     ex.fulfill()
                                 }
