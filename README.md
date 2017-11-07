@@ -206,7 +206,7 @@ after Virgil Card creation it is necessary to sign and publish it with Applicati
 ```swift
 // import card
 aliceCard = virgil.cards.importVirgilCard(fromData: cardData)!
-```
+
 // publish the Virgil Card at Virgil Services
 // використовуй доступний Вірджіл СДК для серверної сторони для підписання і публікації
     //...
