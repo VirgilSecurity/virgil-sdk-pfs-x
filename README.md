@@ -67,16 +67,22 @@ If you have no Virgil Card yet, you can easily create it with our [guide](#regis
 To begin communicating with PFS technology, every user must run the initialization:
 
 ```swift
+// initialize Virgil crypto instance
+// enter User's credentials to create OTC and LTC Cards
 let secureChatPreferences = SecureChatPreferences (
     crypto: "[CRYPTO]", // (e.g. VSSCrypto())
     identityPrivateKey: bobKey.privateKey,
     identityCard: bobCard.card!,
     accessToken: "[YOUR_ACCESS_TOKEN_HERE]")
 
+// this class performs all PFS-technology logic: creates LTC and OTL Cards, publishes them, etc.
 self.secureChat = SecureChat(preferences: secureChatPreferences)
 
 try self.secureChat.initialize()
 
+// the method is periodically called to:
+// - check availability of user's OTC Cards on the service
+// - add new Cards till their quantity reaches the number (100) noted in current method
 self.secureChat.rotateKeys(desiredNumberOfCards: 100) { error in
     //...
 }
@@ -97,7 +103,7 @@ func sendMessage(forReceiver receiver: User, message: String) {
                 return
             }
 
-            // get an active session by recipient's card id
+            // get an active session by recipient's Card ID
             self.sendMessage(forReceiver: receiver,
                 usingSession: session, message: message)
         }
