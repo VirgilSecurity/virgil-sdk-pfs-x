@@ -172,29 +172,37 @@ For each session you can use new OTC and delete it after session is finished.
 
 To create user's Identity Virgil Cards, use the following code:
 
-```cs
-// generate a new Virgil Key for Alice
+```swift
+// generate a new Virgil Key
 let aliceKey = virgil.keys.generateKey()
 
-// save the Alice's Virgil Key into the storage at her device
+// save the Virgil Key into storage
 try! aliceKey.store(withName: @"[KEY_NAME]",
   password: @"[KEY_PASSWORD]")
 
-// create Alice's Virgil Card
+// create identity for Alice
+let aliceIdentity = virgil.identities.
+  createUserIdentity(withValue: "alice", type: "name")
+
+// create a Virgil Card
 var aliceCard = try! virgil.cards.
   createCard(with: aliceIdentity, ownerKey:aliceKey)
-
+  
 // export a Virgil Card to string
 let exportedCard = aliceCard.exportData()
+
+// transmit the Virgil Card to the server and receive response
+let cardData = TransmitToServer(exportedCard)
 ```
-after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
 
-```cs
-// import Alice's Virgil Card from string
+after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side. 
+
+```swift
+// import card
 aliceCard = virgil.cards.importVirgilCard(fromData: cardData)!
-
+```
 // publish the Virgil Card at Virgil Services
-virgil.cards.publish(importedCard) { error in
+// використовуй доступний Вірджіл СДК для серверної сторони для підписання і публікації
     //...
 }
 ```
@@ -210,7 +218,6 @@ Virgil Security has a powerful set of APIs and the documentation to help you get
   * [PFS Encrypted Сommunication](/docs/get-started/pfs-encrypted-communication.md)
 * [Configuration](/docs/guides/configuration)
   * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
-  * [Set Up Server Side](/docs/guides/configuration/server.md)
 
 To find more examples how to use Virgil Cards, take a look at [.NET SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
 
