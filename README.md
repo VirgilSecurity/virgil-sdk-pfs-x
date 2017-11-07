@@ -46,7 +46,7 @@ Be sure that you have already registered at the [Dev Portal](https://developer.v
 To initialize the PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
 The Access Token helps to authenticate client's requests.
 
-```
+```swift
 let virgil = VSSVirgilApi(token: "[YOUR_ACCESS_TOKEN_HERE]")
 ```
 
@@ -66,7 +66,7 @@ If you have no Virgil Card yet, you can easily create it with our [guide](#regis
 
 To begin communicating with PFS technology, every user must run the initialization:
 
-```
+```swift
 let secureChatPreferences = SecureChatPreferences (
     crypto: "[CRYPTO]", // (e.g. VSSCrypto())
     identityPrivateKey: bobKey.privateKey,
@@ -84,7 +84,7 @@ self.secureChat.rotateKeys(desiredNumberOfCards: 100) { error in
 
 Then Sender establishes a secure PFS conversation with Receiver, encrypts and sends the message:
 
-```
+```swift
 func sendMessage(forReceiver receiver: User, message: String) {
     guard let session = self.chat.activeSession(
         withParticipantWithCardId: receiver.card.identifier) else {
@@ -128,7 +128,7 @@ func sendMessage(forReceiver receiver: User,
 
 Receiver decrypts the incoming message using the conversation he has just created:
 
-```
+```swift
 func messageReceived(fromSenderWithName senderName: String, message: String) {
     guard let sender = self.users.first(where: { $0.name == senderName }) else {
         // User not found
