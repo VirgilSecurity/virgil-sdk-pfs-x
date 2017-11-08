@@ -201,20 +201,17 @@ let exportedCard = aliceCard.exportData()
 let cardData = TransmitToServer(exportedCard)
 ```
 
-When Virgil Card created, sign and publish it with Application Private Virgil Key at the server side:
+When Virgil Card created, sign and publish it with Application Private Virgil Key at the server side.
 
-```swift
-// import card
-aliceCard = virgil.cards.importVirgilCard(fromData: cardData)!
-
-// publish the Virgil Card at Virgil Services
-// to sign and publish Virgil Cards, use available Virgil SDK for server side
-    //...
-}
-```
-Now, you have user's Virgil Cards and ready to initialize a PFS Chat. During initialization you create OTC and LTC Cards.
-
-Find more examples in our [guide](/docs/swift/get-started/pfs-encrypted-communication.md).
+SWIFT is not supported for publishing Virgil Cards on Virgil Services.
+We recommend using one of the next SDKs:
+* [RUBY](https://github.com/VirgilSecurity/virgil-sdk-ruby/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-ruby/blob/v4/docs/guides/configuration/server.md#-approve--publish-cards)  
+* [PHP](https://github.com/VirgilSecurity/virgil-sdk-php/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-php/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
+* [GO](https://github.com/VirgilSecurity/virgil-crypto-go/tree/v4): [approve & publish users guide](https://github.com/go-virgil/virgil/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
+* [JAVASCRIPT](https://github.com/VirgilSecurity/virgil-sdk-javascript/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-javascript/blob/v4/docs/guides/configuration/server.md#-approve--publish-cards)  
+* [JAVA](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
+* [PYTHON](https://github.com/VirgilSecurity/virgil-sdk-python/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-python/blob/v4/documentation/guides/configuration/server.md#-approve--publish-cards)  
+* [C#/.NET](https://github.com/VirgilSecurity/virgil-sdk-net/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-net/blob/v4/documentation/guides/configuration/server.md#-approve--publish-cards)
 
 ## Documentation
 
