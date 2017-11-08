@@ -6,7 +6,7 @@
 
 [Perfect Forward Secrecy](https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy) (PFS) for Encrypted Communication allows you to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
-Virgil __SWIFT PFS SDK__ contains dependent Virgil [.NET/C# SDK](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4) package.
+Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4) package.
 
 
 To initialize and use Virgil PFS SDK, you need to have [Developer Account](https://developer.virgilsecurity.com/account/signin).
@@ -50,7 +50,7 @@ The Access Token helps to authenticate client's requests.
 let virgil = VSSVirgilApi(token: "[YOUR_ACCESS_TOKEN_HERE]")
 ```
 
-Virgil .NET/C# PFS SDK is suitable only for Client Side. If you need .NET/C# SDK for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4).
+Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4).
 
 In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**.
 
@@ -193,7 +193,7 @@ let aliceIdentity = virgil.identities.
 // create a Virgil Card
 var aliceCard = try! virgil.cards.
   createCard(with: aliceIdentity, ownerKey:aliceKey)
-  
+
 // export a Virgil Card to string
 let exportedCard = aliceCard.exportData()
 
@@ -201,14 +201,14 @@ let exportedCard = aliceCard.exportData()
 let cardData = TransmitToServer(exportedCard)
 ```
 
-after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side. 
+after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
 
 ```swift
 // import card
 aliceCard = virgil.cards.importVirgilCard(fromData: cardData)!
 
 // publish the Virgil Card at Virgil Services
-// використовуй доступний Вірджіл СДК для серверної сторони для підписання і публікації
+// to sign and publish Virgil Cards, use available Virgil SDK for server side
     //...
 }
 ```
@@ -225,7 +225,7 @@ Virgil Security has a powerful set of APIs and the documentation to help you get
 * [Configuration](/docs/guides/configuration)
   * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
 
-To find more examples how to use Virgil Cards, take a look at [.NET SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
+To find more examples how to use Virgil Cards, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
 
 ## License
 
