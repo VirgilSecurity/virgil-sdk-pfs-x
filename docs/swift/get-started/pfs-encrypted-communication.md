@@ -20,7 +20,7 @@ SWIFT is not supported on the server side. We recommend you to use one of the ne
 
 
 ## <a name="head2"></a> Set Up Clients
-Set up the client side. After users register at your Application Server, provide them with an access token that authenticates users for further operations and transmit their Virgil Cards to the server. Configure the client side using the [Setup Guide](/docs/objectivec/guides/configuration/client.md).
+Set up the client side. After users register at your Application Server, provide them with an access token that authenticates users for further operations and transmit their Virgil Cards to the server. Configure the client side using the [Setup Guide](/docs/swift/guides/configuration/client.md).
 
 
 ## <a name="head3"></a> Register Users
@@ -28,7 +28,7 @@ Now you need to register the users who will participate in encrypted communicati
 
 To sign and encrypt a message, each user must have his own tools, which allow him to perform cryptographic operations. These tools must contain the necessary information to identify users. In Virgil Security, such tools are the Virgil Key and the Virgil Card.
 
-![Virgil Card](/docs/objectivec/img/Card_introduct.png "Create Virgil Card")
+![Virgil Card](/docs/swift/img/Card_introduct.png "Create Virgil Card")
 
 When we have already set up the Virgil SDK on the server and client sides, we can finally create Virgil Cards for the users and transmit the Cards to your Server for further publication on Virgil Services.
 
@@ -60,7 +60,7 @@ var aliceCard = try! virgil.cards.
 
 **Note**: Recently created users' Virgil Cards are visible only for application users because they are related to the Application.
 
-Read more about Virgil Cards and their types [here](/docs/objectivec/guides/virgil-card/creating-card.md).
+Read more about Virgil Cards and their types [here](/docs/swift/guides/virgil-card/creating-card.md).
 
 
 ### Transmit the Cards to Your Server
