@@ -20,7 +20,7 @@ SWIFT is not supported on the server side. We recommend you to use one of the ne
 
 
 ## <a name="head2"></a> Set Up Clients
-Set up the client side. After users register at your Application Server, provide them with an access token that authenticates users for further operations and transmit their Virgil Cards to the server. Configure the client side using the [Setup Guide](/docs/swift/guides/configuration/client.md).
+Set up the client side. After users register at your Application Server, provide them with an access token that authenticates users for further operations and transmit their Virgil Cards to the server. Configure the client side using the [Setup Guide](/docs/swift/guides/configuration/client-pfs.md).
 
 
 ## <a name="head3"></a> Register Users
