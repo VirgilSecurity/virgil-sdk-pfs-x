@@ -163,7 +163,7 @@ func receiveMessage(fromSender sender: User, message: String) {
 
 With the open session, which works in both directions, Sender and Receiver can continue PFS-encrypted communication.
 
-__Next:__ Take a look at our [Get Started](/docs/get-started/pfs-encrypted-communication.md) guide to see the whole scenario of the PFS-encrypted communication.
+Take a look at our [Get Started](/docs/swift/get-started/pfs-encrypted-communication.md) guide to see the whole scenario of the PFS-encrypted communication.
 
 
 ## Register Users
@@ -214,16 +214,16 @@ aliceCard = virgil.cards.importVirgilCard(fromData: cardData)!
 ```
 Now, you have user's Virgil Cards and ready to initialize a PFS Chat. During initialization you create OTC and LTC Cards.
 
-Find more examples in our [guide](/docs/get-started/pfs-encrypted-communication.md).
+Find more examples in our [guide](/docs/swift/get-started/pfs-encrypted-communication.md).
 
 ## Documentation
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
 * [Get Started]()
-  * [PFS Encrypted Сommunication](/docs/get-started/pfs-encrypted-communication.md)
-* [Configuration](/docs/guides/configuration)
-  * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
+  * [PFS Encrypted Сommunication](/docs/swift/get-started/pfs-encrypted-communication.md)
+* [Configuration](/docs/swift/guides/configuration)
+  * [Set Up PFS Client Side](/docs/swift/guides/configuration/client-pfs.md)
 
 To find more examples how to use Virgil Cards, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
 
