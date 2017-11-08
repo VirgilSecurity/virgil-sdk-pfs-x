@@ -220,7 +220,7 @@ Find more examples in our [guide](/docs/swift/get-started/pfs-encrypted-communic
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
-* [Get Started]()
+* [Get Started](/docs/swift/get-started)
   * [PFS Encrypted Сommunication](/docs/swift/get-started/pfs-encrypted-communication.md)
 * [Configuration](/docs/swift/guides/configuration)
   * [Set Up PFS Client Side](/docs/swift/guides/configuration/client-pfs.md)
@@ -229,7 +229,7 @@ To find more examples how to use Virgil Cards, take a look at [SWIFT SDK documen
 
 ## License
 
-This library is released under the [3-clause BSD License](LICENSE.md).
+This library is released under the [3-clause BSD License](LICENSE).
 
 ## Support
 
