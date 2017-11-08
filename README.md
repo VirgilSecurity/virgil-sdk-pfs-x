@@ -22,7 +22,7 @@ $ brew install carthage
 ```
 To integrate VirgilSDKPFS into your Xcode project using Carthage, perform following steps:
 * Create an empty file with name Cartfile in your project's root folder, that lists the frameworks you’d like to use in your project.
-* Add the following line to your Cartfile
+* Add the following line to your Cartfile:
 ```
 github "VirgilSecurity/virgil-sdk-pfs-x" "master"
 ```
@@ -43,7 +43,7 @@ $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
 
 Be sure that you have already registered at the [Dev Portal](https://developer.virgilsecurity.com/account/signin) and created your application.
 
-To initialize the PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
+To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
 The Access Token helps to authenticate client's requests.
 
 ```swift
@@ -201,7 +201,7 @@ let exportedCard = aliceCard.exportData()
 let cardData = TransmitToServer(exportedCard)
 ```
 
-after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
+When Virgil Card created, sign and publish it with Application Private Virgil Key at the server side:
 
 ```swift
 // import card
