@@ -10,7 +10,7 @@
 
 <a href="https://developer.virgilsecurity.com/docs"><img width="230px" src="https://cdn.virgilsecurity.com/assets/images/github/logos/virgil-logo-red.png" align="left" hspace="10" vspace="6"></a> [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
 
-The Virgil PFS SDK allows developers to set up communication with the [Virgil PFS Service](_pfs_service) and and add the [Perfect Forward Secrecy](_pfs_reference_api) (PFS) technologies to their existing digital solutions to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
+The Virgil PFS SDK allows developers to get up and running with the [Virgil PFS Service](_pfs_service) and add the [Perfect Forward Secrecy](_pfs_reference_api) (PFS) technologies to their digital solutions to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
 Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](_sdk_x) package.
 
@@ -22,7 +22,7 @@ Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](_sdk_x) package.
 
 ## Installation
 
-> Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](_sdk_x).
+> Virgil SWIFT PFS SDK is suitable only for Client Side.
 
 The Virgil PFS is provided as a package.
 Carthage is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
@@ -52,7 +52,7 @@ $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
 
 ## Initialization
 
-> Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](_sdk_x).
+> Virgil SWIFT PFS SDK is suitable only for Client Side. 
 
 Be sure that you have already registered at the [Developer Dashboard](_dashboard) and created your application.
 
@@ -215,12 +215,10 @@ We recommend using one of the supported languages with this [guide](https://deve
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
-* [Reference API](_reference_api)
-  * [PFS Encrypted Сommunication](_pfs_reference_api)
-* [Use Case](_use_cases)
-  * [Perfect Forwad Secrecy](_use_case_pfs)
+* [PFS Encrypted Сommunication](_pfs_reference_api)
+* [Perfect Forwad Secrecy](_use_case_pfs)
 
-To find more examples how to use Virgil Products, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
+To find more examples how to use Virgil Products, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md).
 
 ## License
 
