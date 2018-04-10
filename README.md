@@ -1,17 +1,28 @@
 # Virgil SWIFT PFS SDK
 
-[Installation](#installation) | [Initialization](#initialization) | [Chat Example](#chat-example) | [Register Users](#register-users) | [Documentation](#documentation) | [Support](#support)
+[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-pfs-x.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-pfs-x)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
 
-[Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
+[Introduction](#introduction) | [SDK Features](#sdk-features) | [Installation](#installation) | [Initialization](#initialization) | [Chat Example](#chat-example) | [Register Users](#register-users) | [Docs](#docs) | [Support](#support)
 
-[Perfect Forward Secrecy](https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy) (PFS) for Encrypted Communication allows you to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
+## Introduction
 
-Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4) package.
+<a href="https://developer.virgilsecurity.com/docs"><img width="230px" src="https://cdn.virgilsecurity.com/assets/images/github/logos/virgil-logo-red.png" align="left" hspace="10" vspace="6"></a> [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
 
+The Virgil PFS SDK allows developers to set up communication with the [Virgil PFS Service](_pfs_service) and and add the [Perfect Forward Secrecy](_pfs_reference_api) (PFS) technologies to their existing digital solutions to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
-To initialize and use Virgil PFS SDK, you need to have [Developer Account](https://developer.virgilsecurity.com/account/signin).
+Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](_sdk_x) package.
+
+# SDK Features
+- communicate with [Virgil PFS Service][_pfs_service]
+- manage users' OTC and LTC cards
+- use Virgil [Crypto library][_virgil_crypto]
+
 
 ## Installation
+
+> Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](_sdk_x).
 
 The Virgil PFS is provided as a package.
 Carthage is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
@@ -41,27 +52,21 @@ $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
 
 ## Initialization
 
-Be sure that you have already registered at the [Dev Portal](https://developer.virgilsecurity.com/account/signin) and created your application.
+> Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](_sdk_x).
 
-To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
+Be sure that you have already registered at the [Developer Dashboard](_dashboard) and created your application.
+
+To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dashboard](_dashboard).
 The Access Token helps to authenticate client's requests.
 
 ```swift
 let virgil = VSSVirgilApi(token: "[YOUR_ACCESS_TOKEN_HERE]")
 ```
 
-Virgil SWIFT PFS SDK is suitable only for Client Side. If you need SWIFT SDK for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4).
-
-In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**.
-
-The Virgil Card contains user's Public Key and all information necessary to identify the user.
-Click [here](#register-users) to see more details on how to create user's Virgil Card.
-
-
 
 ## Chat Example
 
-Before chat initialization, every user must have created Virgil Card.
+Before chat initialization, each user must have a Virgil Card on Virgil Card Service.
 If you have no Virgil Card yet, you can easily create it with our [guide](#register-users).
 
 To begin communicating with PFS technology, every user must run the initialization:
@@ -163,12 +168,12 @@ func receiveMessage(fromSender sender: User, message: String) {
 
 With the open session, which works in both directions, Sender and Receiver can continue PFS-encrypted communication.
 
-Take a look at our [Get Started](/docs/swift/get-started/pfs-encrypted-communication.md) guide to see the whole scenario of the PFS-encrypted communication.
+Take a look at our [Use Case](_use_case_pfs) to see the whole scenario of the PFS-encrypted communication.
 
 
 ## Register Users
 
-In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**.
+In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**, which contains a Public Key and user's identity.
 
 Using Identity Cards, we generate special Cards that have their own life-time:
 * **One-time Card (OTC)**
@@ -204,32 +209,38 @@ let cardData = TransmitToServer(exportedCard)
 When Virgil Card created, sign and publish it with Application Private Virgil Key at the server side.
 
 SWIFT is not supported for publishing Virgil Cards on Virgil Services.
-We recommend using one of the next SDKs:
-* [RUBY](https://github.com/VirgilSecurity/virgil-sdk-ruby/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-ruby/blob/v4/docs/guides/configuration/server.md#-approve--publish-cards)  
-* [PHP](https://github.com/VirgilSecurity/virgil-sdk-php/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-php/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
-* [GO](https://github.com/VirgilSecurity/virgil-crypto-go/tree/v4): [approve & publish users guide](https://github.com/go-virgil/virgil/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
-* [JAVASCRIPT](https://github.com/VirgilSecurity/virgil-sdk-javascript/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-javascript/blob/v4/docs/guides/configuration/server.md#-approve--publish-cards)  
-* [JAVA](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/docs/guides/configuration/server-configuration.md#-approve--publish-cards)  
-* [PYTHON](https://github.com/VirgilSecurity/virgil-sdk-python/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-python/blob/v4/documentation/guides/configuration/server.md#-approve--publish-cards)  
-* [C#/.NET](https://github.com/VirgilSecurity/virgil-sdk-net/tree/v4): [approve & publish users guide](https://github.com/VirgilSecurity/virgil-sdk-net/blob/v4/documentation/guides/configuration/server.md#-approve--publish-cards)
+We recommend using one of the supported languages with this [guide](https://developer.virgilsecurity.com/docs/go/how-to/public-key-management/v4/create-card).
 
-## Documentation
+## Docs
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
-* [Get Started](/docs/swift/get-started)
-  * [PFS Encrypted Сommunication](/docs/swift/get-started/pfs-encrypted-communication.md)
-* [Configuration](/docs/swift/guides/configuration)
-  * [Set Up PFS Client Side](/docs/swift/guides/configuration/client-pfs.md)
+* [Reference API](_reference_api)
+  * [PFS Encrypted Сommunication](_pfs_reference_api)
+* [Use Case](_use_cases)
+  * [Perfect Forwad Secrecy](_use_case_pfs)
 
-To find more examples how to use Virgil Cards, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
+To find more examples how to use Virgil Products, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md)
 
 ## License
 
-This library is released under the [3-clause BSD License](LICENSE).
+This library is released under the [3-clause BSD License](LICENSE.md).
 
 ## Support
+Our developer support team is here to help you. Find out more information on our [Help Center](https://help.virgilsecurity.com/).
 
-Our developer support team is here to help you. You can find us on [Twitter](https://twitter.com/virgilsecurity) and [email][support].
+You can find us on [Twitter](https://twitter.com/VirgilSecurity) or send us email support@VirgilSecurity.com.
 
-[support]: mailto:support@virgilsecurity.com
+Also, get extra help from our support team on [Slack](https://virgilsecurity.slack.com/join/shared_invite/enQtMjg4MDE4ODM3ODA4LTc2OWQwOTQ3YjNhNTQ0ZjJiZDc2NjkzYjYxNTI0YzhmNTY2ZDliMGJjYWQ5YmZiOGU5ZWEzNmJiMWZhYWVmYTM).
+
+
+[_pfs_service]: https://developer.virgilsecurity.com/docs/api-reference/pfs-service/v4
+[_sdk_x]: https://github.com/VirgilSecurity/virgil-sdk-x/tree/v4
+
+[_dashboard]: https://dashboard.virgilsecurity.com/
+[_virgil_crypto]: https://github.com/VirgilSecurity/virgil-crypto
+[_reference_api]: https://developer.virgilsecurity.com/docs/api-reference
+[_pfs_reference_api]: https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy
+[_use_cases]: https://developer.virgilsecurity.com/docs/use-cases
+[_use_case_pfs]:https://developer.virgilsecurity.com/docs/swift/use-cases/v4/perfect-forward-secrecy
+
