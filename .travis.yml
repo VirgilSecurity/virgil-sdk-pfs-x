@@ -21,7 +21,7 @@ before_install:
   - xcodebuild -showsdks
 
 script:
-  - carthage update --platform "$CARTHAGE_PLATFORM_NAME";
+  - carthage bootstrap --no-use-binaries --platform "$CARTHAGE_PLATFORM_NAME";
   # Build Framework
   - xcodebuild -verbose -project "$PROJECT" -scheme "$SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Release clean build | xcpretty;
   # Build Framework in Release and Run Tests if specified
