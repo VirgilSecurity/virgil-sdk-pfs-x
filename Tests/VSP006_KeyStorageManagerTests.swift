@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import VirgilCrypto
 @testable import VirgilSDKPFS
 import XCTest
 
