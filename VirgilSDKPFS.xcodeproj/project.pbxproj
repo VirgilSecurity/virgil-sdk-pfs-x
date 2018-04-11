@@ -57,6 +57,7 @@
 		425E08301EF8248500A74C29 /* Client+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E082F1EF8248500A74C29 /* Client+Info.swift */; };
 		425E08321EF824E300A74C29 /* CardsStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08311EF824E300A74C29 /* CardsStatus.swift */; };
 		425E08341EF9255F00A74C29 /* CredentialsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 425E08331EF9255F00A74C29 /* CredentialsRequest.swift */; };
+		4267C615207E32F0007EAEB2 /* VSCCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4267C614207E32F0007EAEB2 /* VSCCrypto.framework */; };
 		429123931F4C6D5800103BE0 /* TestConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4291238D1F4C6A9900103BE0 /* TestConfig.plist */; };
 		429123A31F4CE0AE00103BE0 /* ExhaustInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */; };
 		429123CA1F4D7C2C00103BE0 /* InsensitiveDataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */; };
@@ -166,8 +167,6 @@
 		424A020C1F3463CE00D17D0C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		424A020F1F3463CE00D17D0C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		424A02111F3463CE00D17D0C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		424A021B1F34642A00D17D0C /* VirgilSDKPFSAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VirgilSDKPFSAppTests.m; sourceTree = "<group>"; };
-		424A021D1F34642A00D17D0C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		424A02301F34658F00D17D0C /* VirgilSDKPFS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VirgilSDKPFS.framework; path = Carthage/Build/iOS/VirgilSDKPFS.framework; sourceTree = "<group>"; };
 		425A02331EF93B3900D9BBEF /* SecureChatPreferences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChatPreferences.swift; sourceTree = "<group>"; };
 		425A02371EF9416C00D9BBEF /* SecureChat.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureChat.swift; sourceTree = "<group>"; };
@@ -185,6 +184,7 @@
 		425E082F1EF8248500A74C29 /* Client+Info.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Client+Info.swift"; sourceTree = "<group>"; };
 		425E08311EF824E300A74C29 /* CardsStatus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CardsStatus.swift; sourceTree = "<group>"; };
 		425E08331EF9255F00A74C29 /* CredentialsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CredentialsRequest.swift; sourceTree = "<group>"; };
+		4267C614207E32F0007EAEB2 /* VSCCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VSCCrypto.framework; path = Carthage/Build/iOS/VSCCrypto.framework; sourceTree = "<group>"; };
 		4291238D1F4C6A9900103BE0 /* TestConfig.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = TestConfig.plist; sourceTree = "<group>"; };
 		429123A21F4CE0AE00103BE0 /* ExhaustInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExhaustInfo.swift; sourceTree = "<group>"; };
 		429123B71F4D7C2C00103BE0 /* InsensitiveDataStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsensitiveDataStorage.swift; sourceTree = "<group>"; };
@@ -241,6 +241,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4267C615207E32F0007EAEB2 /* VSCCrypto.framework in Frameworks */,
 				420D0B1A1EEEC8F6002A9C22 /* VirgilCrypto.framework in Frameworks */,
 				420D0B1B1EEEC8F6002A9C22 /* VirgilSDK.framework in Frameworks */,
 			);
@@ -270,7 +271,6 @@
 				420D0B271EEEE4DC002A9C22 /* Source */,
 				420D0B141EEEC70C002A9C22 /* Tests */,
 				424A01FF1F3463CE00D17D0C /* TestApp */,
-				424A021A1F34642A00D17D0C /* VirgilSDKPFSAppTests */,
 				420C52EB1EEEC3B7005DD456 /* Products */,
 				420D0B171EEEC8F6002A9C22 /* Frameworks */,
 			);
@@ -327,6 +327,7 @@
 		420D0B171EEEC8F6002A9C22 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4267C614207E32F0007EAEB2 /* VSCCrypto.framework */,
 				424A02301F34658F00D17D0C /* VirgilSDKPFS.framework */,
 				420D0B181EEEC8F6002A9C22 /* VirgilCrypto.framework */,
 				420D0B191EEEC8F6002A9C22 /* VirgilSDK.framework */,
@@ -479,15 +480,6 @@
 				424A02011F3463CE00D17D0C /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		424A021A1F34642A00D17D0C /* VirgilSDKPFSAppTests */ = {
-			isa = PBXGroup;
-			children = (
-				424A021B1F34642A00D17D0C /* VirgilSDKPFSAppTests.m */,
-				424A021D1F34642A00D17D0C /* Info.plist */,
-			);
-			path = VirgilSDKPFSAppTests;
 			sourceTree = "<group>";
 		};
 		425A02321EF93B2800D9BBEF /* SecureChat */ = {
@@ -746,6 +738,7 @@
 			inputPaths = (
 				"$(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework",
+				"$(SRCROOT)/Carthage/Build/iOS/VSCCrypto.framework",
 			);
 			outputPaths = (
 			);

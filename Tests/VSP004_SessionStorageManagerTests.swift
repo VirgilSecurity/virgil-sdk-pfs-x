@@ -137,9 +137,9 @@ class VSP004_SessionStorageManagerTests: XCTestCase {
         XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId2, sessionId: self.sessionState4.sessionId) != nil)
         
         try! self.sessionStorageManager.removeSessionsStates([
-            (self.recipientCardId1, self.sessionState2.sessionId),
-            (self.recipientCardId2, self.sessionState3.sessionId),
-            (self.recipientCardId2, self.sessionState4.sessionId)
+            (self.recipientCardId1!, self.sessionState2.sessionId),
+            (self.recipientCardId2!, self.sessionState3.sessionId),
+            (self.recipientCardId2!, self.sessionState4.sessionId)
             ])
         
         XCTAssert(try! self.sessionStorageManager.getSessionState(forRecipientCardId: self.recipientCardId1, sessionId: self.sessionState1.sessionId) == nil)
