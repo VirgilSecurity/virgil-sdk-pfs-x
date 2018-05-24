@@ -10,9 +10,9 @@
 
 <a href="https://developer.virgilsecurity.com/docs"><img width="230px" src="https://cdn.virgilsecurity.com/assets/images/github/logos/virgil-logo-red.png" align="left" hspace="10" vspace="6"></a> [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
 
-The Virgil PFS SDK allows developers to get up and running with the [Virgil PFS Service](_pfs_service) and add the [Perfect Forward Secrecy](_pfs_reference_api) (PFS) technologies to their digital solutions to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
+The Virgil PFS SDK allows developers to get up and running with the [Virgil PFS Service][_pfs_service] and add the [Perfect Forward Secrecy][_pfs_reference_api] (PFS) technologies to their digital solutions to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
-Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK](_sdk_x) package.
+Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK][_sdk_x] package.
 
 # SDK Features
 - communicate with [Virgil PFS Service][_pfs_service]
@@ -54,9 +54,9 @@ $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
 
 > Virgil SWIFT PFS SDK is suitable only for Client Side. 
 
-Be sure that you have already registered at the [Developer Dashboard](_dashboard) and created your application.
+Be sure that you have already registered at the [Developer Dashboard][_dashboard] and created your application.
 
-To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dashboard](_dashboard).
+To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dashboard][_dashboard].
 The Access Token helps to authenticate client's requests.
 
 ```swift
@@ -168,7 +168,7 @@ func receiveMessage(fromSender sender: User, message: String) {
 
 With the open session, which works in both directions, Sender and Receiver can continue PFS-encrypted communication.
 
-Take a look at our [Use Case](_use_case_pfs) to see the whole scenario of the PFS-encrypted communication.
+Take a look at our [Use Case][_use_case_pfs] to see the whole scenario of the PFS-encrypted communication.
 
 
 ## Register Users
@@ -215,8 +215,8 @@ We recommend using one of the supported languages with this [guide](https://deve
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
-* [PFS Encrypted Сommunication](_pfs_reference_api)
-* [Perfect Forwad Secrecy](_use_case_pfs)
+* [PFS Encrypted Сommunication][_pfs_reference_api]
+* [Perfect Forwad Secrecy][_use_case_pfs]
 
 To find more examples how to use Virgil Products, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md).
 
