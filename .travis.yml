@@ -1,5 +1,5 @@
 language: swift
-osx_image: xcode9.2
+osx_image: xcode9.3
 
 env:
   global:
@@ -7,10 +7,10 @@ env:
     - PROJECT=VirgilSDKPFS.xcodeproj
     - IOS_FRAMEWORK_SCHEME="VirgilSDKPFS iOS"
     - IOS_TEST_SCHEME="TestApp"
-    - IOS_SDK=iphonesimulator11.2
+    - IOS_SDK=iphonesimulator11.3
     - FRAMEWORK_NAME=VirgilSDKPFS
   matrix:
-    - DESTINATION="OS=11.2,name=iPhone SE"   SCHEME="$IOS_FRAMEWORK_SCHEME"    TEST_SCHEME="$IOS_TEST_SCHEME"    SDK="$IOS_SDK"    CARTHAGE_PLATFORM_NAME="iOS"  RUN_TESTS="YES"  PUBLISH_CARTHAGE="YES"  POD_LIB_LINT="YES"
+    - DESTINATION="OS=11.3,name=iPhone SE"   SCHEME="$IOS_FRAMEWORK_SCHEME"    TEST_SCHEME="$IOS_TEST_SCHEME"    SDK="$IOS_SDK"    CARTHAGE_PLATFORM_NAME="iOS"  RUN_TESTS="YES"  PUBLISH_CARTHAGE="YES"  POD_LIB_LINT="YES"
 
 before_install:
   - set -o pipefail
