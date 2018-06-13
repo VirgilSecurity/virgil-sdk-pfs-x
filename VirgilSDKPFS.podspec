@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                  = "VirgilSDKPFS"
-  s.version               = "1.0.0"
+  s.version               = "1.2.1"
   s.summary               = "Virgil SDK PFS for Apple devices and languages."
   s.cocoapods_version     = ">= 0.36"
   s.homepage              = "https://github.com/VirgilSecurity/virgil-sdk-pfs-x/"
@@ -13,5 +13,5 @@ Pod::Spec.new do |s|
   s.module_name           = 'VirgilSDKPFS'
   s.source_files          = 'Source/**/*.{swift}'
   s.requires_arc          = true
-  s.dependency "VirgilSDK", "~> 4.5.0"
+  s.dependency "VirgilSDK", "~> 4.8.0"
 end
