@@ -66,7 +66,7 @@ extension KeyStorageManager {
         
         let sessions = keysAttrs
             .filter({ self.namesHelper.isSessionKeysKeyEntryName($0.name) })
-            .flatMap({ (attrs: KeyAttrs) -> KeyAttrs? in
+            .compactMap({ (attrs: KeyAttrs) -> KeyAttrs? in
                 guard let sessionId = self.namesHelper.extractSessionId(fromSessKeyEntryName: attrs.name) else {
                     return nil
                 }

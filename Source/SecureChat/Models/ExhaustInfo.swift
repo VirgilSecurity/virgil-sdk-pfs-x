@@ -38,9 +38,9 @@ extension ExhaustInfo {
                 return nil
         }
         
-        let otc = otcArrDict.flatMap({ ExhaustInfoEntry(dict: $0) })
-        let ltc = ltcArrDict.flatMap({ ExhaustInfoEntry(dict: $0) })
-        let sessions = sessionsArrDict.flatMap({ SessionExhaustInfo(dict: $0) })
+        let otc = otcArrDict.compactMap({ ExhaustInfoEntry(dict: $0) })
+        let ltc = ltcArrDict.compactMap({ ExhaustInfoEntry(dict: $0) })
+        let sessions = sessionsArrDict.compactMap({ SessionExhaustInfo(dict: $0) })
         
         guard otc.count == otcArrDict.count,
             ltc.count == ltcArrDict.count,

@@ -235,7 +235,7 @@ fileprivate extension KeysRotator {
         let allSessionsIds = allSessions.map({ $0.1.sessionId })
         
         let orphanedSessionKeysIds = sessionKeys
-            .flatMap({
+            .compactMap({
                 guard let sessionId = Data(base64Encoded: $0.name) else {
                     return nil
                 }
