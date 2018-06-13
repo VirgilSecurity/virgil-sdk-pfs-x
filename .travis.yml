@@ -10,7 +10,7 @@ env:
     - IOS_SDK=iphonesimulator11.2
     - FRAMEWORK_NAME=VirgilSDKPFS
   matrix:
-    - DESTINATION="OS=11.2,name=iPhone SE"   SCHEME="$IOS_FRAMEWORK_SCHEME"    TEST_SCHEME="$IOS_TEST_SCHEME"    SDK="$IOS_SDK"    CARTHAGE_PLATFORM_NAME="iOS"  RUN_TESTS="YES"  PUBLISH_CARTHAGE="YES"
+    - DESTINATION="OS=11.2,name=iPhone SE"   SCHEME="$IOS_FRAMEWORK_SCHEME"    TEST_SCHEME="$IOS_TEST_SCHEME"    SDK="$IOS_SDK"    CARTHAGE_PLATFORM_NAME="iOS"  RUN_TESTS="YES"  PUBLISH_CARTHAGE="YES"  POD_LIB_LINT="YES"
 
 before_install:
   - set -o pipefail
@@ -26,6 +26,12 @@ script:
   # Build Framework in Release and Run Tests if specified
   - if [ $RUN_TESTS == "YES" ]; then
       xcodebuild -verbose -project "$PROJECT" -scheme "$TEST_SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug clean build test | xcpretty;
+    fi
+
+  # Check pod lib
+  - if [ $POD_LIB_LINT == "YES" ]; then
+      pod repo update;
+      pod lib lint;
     fi
 
   # Build with carthage
