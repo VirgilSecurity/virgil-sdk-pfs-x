@@ -6,12 +6,13 @@ Pod::Spec.new do |s|
   s.homepage              = "https://github.com/VirgilSecurity/virgil-sdk-pfs-x/"
   s.license               = { :type => "BSD", :file => "LICENSE" }
   s.author                = { "Oleksandr Deundiak" => "deundiak@gmail.com" }
-  s.platforms             = { :ios => "8.0", :osx => "10.10" }
+  s.platforms             = { :ios => "8.0" }
   s.source                = { :git => "https://github.com/VirgilSecurity/virgil-sdk-pfs-x.git",
                               :tag => s.version }
   s.weak_frameworks       = 'Foundation'
   s.module_name           = 'VirgilSDKPFS'
-  s.source_files          = 'Source/**/*.{swift}'
+  s.source_files          = 'Source/**/*.{swift,h,m}'
+  s.public_header_files   = 'Source/**/*.h'
   s.requires_arc          = true
   s.dependency "VirgilSDK", "~> 4.8.0"
 end

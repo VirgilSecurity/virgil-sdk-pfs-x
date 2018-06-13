@@ -25,6 +25,33 @@ Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK][_sdk_x] package.
 > Virgil SWIFT PFS SDK is suitable only for Client Side.
 
 The Virgil PFS is provided as a package.
+
+### COCOAPODS
+
+[CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
+
+```bash
+$ gem install cocoapods
+```
+
+To integrate VirgilSDK PFSinto your Xcode project using CocoaPods, specify it in your *Podfile*:
+
+```bash
+target '<Your Target Name>' do
+  use_frameworks!
+
+  pod 'VirgilSDKPFS', '~> 1.2.1'
+end
+```
+
+Then, run the following command:
+
+```bash
+$ pod install
+```
+
+### Carthage
+
 Carthage is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
 You can install Carthage with Homebrew using the following command:
 ```
@@ -35,7 +62,7 @@ To integrate VirgilSDKPFS into your Xcode project using Carthage, perform follow
 * Create an empty file with name Cartfile in your project's root folder, that lists the frameworks you’d like to use in your project.
 * Add the following line to your Cartfile:
 ```
-github "VirgilSecurity/virgil-sdk-pfs-x" "master"
+github "VirgilSecurity/virgil-sdk-pfs-x" ~> 1.2.1
 ```
 * Run carthage update. This will fetch dependencies into a Carthage/Checkouts folder inside your project's folder, then build each one or download a pre-compiled framework.
 * On your application targets’ “General” settings tab, in the “Linked Frameworks and Libraries” section, add each framework you want to use from the Carthage/Build folder inside your project's folder.
@@ -45,6 +72,7 @@ github "VirgilSecurity/virgil-sdk-pfs-x" "master"
 ```
 and add the paths to the frameworks you want to use under “Input Files”, e.g.:
 ```
+$(SRCROOT)/Carthage/Build/iOS/VSCCrypto.framework
 $(SRCROOT)/Carthage/Build/iOS/VirgilCrypto.framework
 $(SRCROOT)/Carthage/Build/iOS/VirgilSDK.framework
 $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
