@@ -23,9 +23,7 @@ Virgil __SWIFT PFS SDK__ contains dependent Virgil [SWIFT SDK][_sdk_x] package.
 
 ## Installation
 
-> Virgil SWIFT PFS SDK is suitable only for Client Side.
-
-The Virgil PFS is provided as a package.
+The Virgil PFS is provided as a package `VirgilSDKPFS`.
 
 ### COCOAPODS
 
@@ -81,11 +79,9 @@ $(SRCROOT)/Carthage/Build/iOS/VirgilSDKPFS.framework
 
 ## Initialization
 
-> Virgil SWIFT PFS SDK is suitable only for Client Side. 
-
 Be sure that you have already registered at the [Developer Dashboard][_dashboard] and created your application.
 
-To initialize the SWIFT PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dashboard][_dashboard].
+To initialize the SWIFT PFS SDK, you need the __Access Token__ created for a client at [Dashboard][_dashboard].
 The Access Token helps to authenticate client's requests.
 
 ```swift
@@ -98,7 +94,7 @@ let virgil = VSSVirgilApi(token: "[YOUR_ACCESS_TOKEN_HERE]")
 Before chat initialization, each user must have a Virgil Card on Virgil Card Service.
 If you have no Virgil Card yet, you can easily create it with our [guide](#register-users).
 
-To begin communicating with PFS technology, every user must run the initialization:
+To begin communicating with PFS service, every user must run the initialization:
 
 ```swift
 // initialize Virgil crypto instance
@@ -109,7 +105,7 @@ let secureChatPreferences = SecureChatPreferences (
     identityCard: bobCard.card!,
     accessToken: "[YOUR_ACCESS_TOKEN_HERE]")
 
-// this class performs all PFS-technology logic: creates LTC and OTL Cards, publishes them, etc.
+// this class performs all PFS logic: creates LTC and OTL Cards, publishes them, etc.
 self.secureChat = SecureChat(preferences: secureChatPreferences)
 
 try self.secureChat.initialize()
@@ -202,15 +198,15 @@ Take a look at our [Use Case][_use_case_pfs] to see the whole scenario of the PF
 
 ## Register Users
 
-In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**, which contains a Public Key and user's identity.
+In Virgil every user has a **Private Key** and is represented with a **Virgil Card (Identity Card)**, which contains a Public Key and user's identity.
 
 Using Identity Cards, we generate special Cards that have their own life-time:
 * **One-time Card (OTC)**
 * **Long-time Card (LTC)**
 
-For each session you can use new OTC and delete it after session is finished.
+For each session you can use new OTC and delete it after the session is finished.
 
-To create user's Identity Virgil Cards, use the following code:
+To create user's Identity Virgil Cards, use the following code on the __Client side__:
 
 ```swift
 // generate a new Virgil Key
@@ -224,21 +220,18 @@ try! aliceKey.store(withName: @"[KEY_NAME]",
 let aliceIdentity = virgil.identities.
   createUserIdentity(withValue: "alice", type: "name")
 
-// create a Virgil Card
+// create a create Virgil Card request
 var aliceCard = try! virgil.cards.
   createCard(with: aliceIdentity, ownerKey:aliceKey)
 
-// export a Virgil Card to string
+// export a create Virgil Card request to string
 let exportedCard = aliceCard.exportData()
 
-// transmit the Virgil Card to the server and receive response
+// transmit the create Virgil Card request to the server and receive response
 let cardData = TransmitToServer(exportedCard)
 ```
 
-When Virgil Card created, sign and publish it with Application Private Virgil Key at the server side.
-
-SWIFT is not supported for publishing Virgil Cards on Virgil Services.
-We recommend using one of the supported languages with this [guide](https://developer.virgilsecurity.com/docs/go/how-to/public-key-management/v4/create-card).
+When create Virgil Card request is created and transmitted to the server side, sign it with Application Private Virgil Key and [publish user's Card on Virgil Cards Service](https://developer.virgilsecurity.com/docs/how-to/public-key-management/v4/create-card).
 
 ## Docs
 
