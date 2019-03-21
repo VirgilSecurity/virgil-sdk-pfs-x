@@ -237,7 +237,7 @@ When create Virgil Card request is created and transmitted to the server side, s
 
 Virgil Security has a powerful set of APIs and the documentation to help you get started:
 
-* [PFS Encrypted Сommunication Service][_pfs_reference_api]
+* [PFS Service][_pfs_reference_api]
 * [Perfect Forward Secrecy use case][_use_case_pfs]
 
 To find more examples how to use Virgil Products, take a look at [SWIFT SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-x/blob/v4/README.md).
